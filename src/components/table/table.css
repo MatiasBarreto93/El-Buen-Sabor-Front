@@ -1,0 +1,27 @@
+th{
+    display: flex;
+    width: 100%;
+    border: white;
+}
+
+tr{
+    border: rgba(112, 112, 112, 0.7) solid 2px;
+    border-radius: 10px;
+    padding: 5px 0 5px 0;
+    display: flex;
+    margin-top: 5px;
+}
+
+td{
+    border: white;
+    display: flex;
+    width: 100%;
+}
+
+.encabezado{
+    border: white;
+    border-bottom: rgba(112, 112, 112, 0.7) solid 2px;
+    border-radius: 0;
+}
+
+

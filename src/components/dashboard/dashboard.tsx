@@ -1,6 +1,7 @@
 import {Nav, Tab, Col, Row, Container} from "react-bootstrap";
 import "./dashboard.css"
 import {PersonCircle} from "react-bootstrap-icons";
+import {TableNormal} from "../table/tableN.tsx";
 
 export const DashBoard = () => {
 
@@ -47,9 +48,10 @@ export const DashBoard = () => {
                 </Col>
                 <Col>
                     <div className="row">
-                        <Tab.Content style={{ maxWidth: "fit-content" }}>
+                        <Tab.Content>
                             <Tab.Pane eventKey="Principal">
                                 <div className="col">Principal</div>
+                                <TableNormal/>
                             </Tab.Pane>
                             <Tab.Pane eventKey="Empleados">
                                 <p>Empleados</p>
