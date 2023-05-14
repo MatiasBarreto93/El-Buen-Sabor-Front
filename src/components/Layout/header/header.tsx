@@ -1,9 +1,9 @@
 import './header.css';
-import "../styles/botones.css"
+import "../../styles/botones.css"
 import {Button, Container, Form, Navbar} from "react-bootstrap";
 import {useAuth0} from "@auth0/auth0-react";
-import {DropDownMenu} from "./userDropDown";
-import {LogInButton} from "./logInButton";
+import {DropDownMenu} from "./userDropDown.tsx";
+import {LogInButton} from "./logInButton.tsx";
 
 export const Header = () => {
 

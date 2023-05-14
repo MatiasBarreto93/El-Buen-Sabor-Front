@@ -1,5 +1,5 @@
 import {Col, Container, Row} from "react-bootstrap";
-import {Producto, ProductoCard} from "./productoCard";
+import {Producto, ProductoCard} from "./productoCard.tsx";
 
 //DUMMY TEST
     const productosList: Producto[] = [
@@ -9,14 +9,14 @@ import {Producto, ProductoCard} from "./productoCard";
         {id: 4, nombre: "Producto 4", img: "/img/prod-img.png", precio: 2222},
         {id: 5, nombre: "Producto 5", img: "/img/prod-img.png", precio: 2222},
         {id: 6, nombre: "Producto 6", img: "/img/prod-img.png", precio: 2222},
-        {id: 6, nombre: "Producto 6", img: "/img/prod-img.png", precio: 2222},
-        {id: 6, nombre: "Producto 6", img: "/img/prod-img.png", precio: 2222},
-        {id: 6, nombre: "Producto 6", img: "/img/prod-img.png", precio: 2222},
-        {id: 6, nombre: "Producto 6", img: "/img/prod-img.png", precio: 2222},
-        {id: 6, nombre: "Producto 6", img: "/img/prod-img.png", precio: 2222},
-        {id: 6, nombre: "Producto 6", img: "/img/prod-img.png", precio: 2222},
-        {id: 6, nombre: "Producto 6", img: "/img/prod-img.png", precio: 2222},
-        {id: 6, nombre: "Producto 6", img: "/img/prod-img.png", precio: 2222},
+        {id: 7, nombre: "Producto 6", img: "/img/prod-img.png", precio: 2222},
+        {id: 8, nombre: "Producto 6", img: "/img/prod-img.png", precio: 2222},
+        {id: 9, nombre: "Producto 6", img: "/img/prod-img.png", precio: 2222},
+        {id: 10, nombre: "Producto 6", img: "/img/prod-img.png", precio: 2222},
+        {id: 11, nombre: "Producto 6", img: "/img/prod-img.png", precio: 2222},
+        {id: 12, nombre: "Producto 6", img: "/img/prod-img.png", precio: 2222},
+        {id: 13, nombre: "Producto 6", img: "/img/prod-img.png", precio: 2222},
+        {id: 14, nombre: "Producto 6", img: "/img/prod-img.png", precio: 2222},
 
     ];
 

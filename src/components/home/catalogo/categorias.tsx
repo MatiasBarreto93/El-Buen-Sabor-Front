@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, Container} from "react-bootstrap";
-import {ProductoCardList} from "./productoCardList";
+import {ProductoCardList} from "./productoCardList.tsx";
 
 //FALTA PASAR COMO PARAMETRO EL NOMBRE DE LAS CATEGORIAS AL RENDERIZAR LAS CARDS
 //Separar CATEGORIAS y hacer otro componente llamado CATALOGO?
