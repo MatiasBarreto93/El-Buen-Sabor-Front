@@ -11,6 +11,7 @@ export const EmpleadosTable = () =>{
     const [empleados, setEmpleados] = useState<Customer[]>([]);
     const { getAccessTokenSilently } = useAuth0();
 
+
     useEffect(() => {
         fetchEmpleados();
     }, []);
