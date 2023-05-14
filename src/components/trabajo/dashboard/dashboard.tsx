@@ -1,7 +1,7 @@
 import {Nav, Tab, Col, Row, Container} from "react-bootstrap";
-import "./dashboard.css"
 import {PersonCircle} from "react-bootstrap-icons";
-import {TableNormal} from "../table/tableN.tsx";
+import "./dashboard.css"
+import {EmpleadosTable} from "../menus/empleados/empleadosTable.tsx";
 
 export const DashBoard = () => {
 
@@ -51,10 +51,9 @@ export const DashBoard = () => {
                         <Tab.Content>
                             <Tab.Pane eventKey="Principal">
                                 <div className="col">Principal</div>
-                                <TableNormal/>
                             </Tab.Pane>
                             <Tab.Pane eventKey="Empleados">
-                                <p>Empleados</p>
+                                <EmpleadosTable/>
                             </Tab.Pane>
                             <Tab.Pane eventKey="Clientes">
                                 <p>Clientes</p>
