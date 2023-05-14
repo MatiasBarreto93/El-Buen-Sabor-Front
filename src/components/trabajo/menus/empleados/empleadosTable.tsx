@@ -12,6 +12,7 @@ export const EmpleadosTable = () =>{
     const { getAccessTokenSilently } = useAuth0();
 
 
+    //Ver que es lo de deps[]
     useEffect(() => {
         fetchEmpleados();
     }, []);
