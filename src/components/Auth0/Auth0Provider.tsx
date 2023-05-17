@@ -29,15 +29,15 @@ export function AuthProvider({ children, initialAuthState }: Props):JSX.Element{
     }, [isAuthenticated, getIdTokenClaims, initialAuthState]);
 
     const domain: string = import.meta.env.VITE_AUTH0_DOMAIN || "";
-    const clienteId: string = import.meta.env.VITE_AUTH0_CLIENT_ID || "";
-    const audience: string = import.meta.env.VITE_AUTH0_AUDIENCE || "";
+    const clienteIdNormal: string = import.meta.env.VITE_AUTH0_CLIENT_ID || "";
+    const audienceNormal: string = import.meta.env.VITE_AUTH0_AUDIENCE || "";
 
     return (
         <Auth0Provider
             domain={domain}
-            clientId={clienteId}
+            clientId={clienteIdNormal}
             authorizationParams={{
-                audience: audience,
+                audience: audienceNormal,
                 redirect_uri: window.location.origin
         }}
             cacheLocation={"localstorage"}

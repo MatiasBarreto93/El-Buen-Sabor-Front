@@ -11,7 +11,6 @@ export const EmpleadosTable = () =>{
     const [empleados, setEmpleados] = useState<Customer[]>([]);
     const { getAccessTokenSilently } = useAuth0();
 
-
     useEffect(() => {
         fetchEmpleados();
     }, []);
@@ -19,18 +18,17 @@ export const EmpleadosTable = () =>{
     async function fetchEmpleados() {
         try {
             const token = await getAccessTokenSilently();
-            const response = await fetch("http://localhost:8080/api/v1/customers", {
+            //Todos menos los clientes
+            const response = await fetch("http://localhost:8080/api/v1/customers/different-role/5", {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
             if (response.ok) {
                 const data = await response.json();
-                console.log(data);
-                console.log(token)
                 setEmpleados(data)
+                console.log(data)
             } else {
-                console.log(token)
                 console.error("Error fetching data:", response.status);
             }
         } catch (e) {
@@ -71,10 +69,14 @@ export const EmpleadosTable = () =>{
                 {empleados.map(empleado => (
                     <tr key={empleado.id}>
                         <td>{empleado.name} {empleado.lastname}</td>
-                        <td>{empleado.email}</td>
+                        <td>{empleado.user.email}</td>
                         <td>{empleado.address}, {empleado.apartment}</td>
-                        <td>Rol</td>
-                        <td>Estado</td>
+                        {/*Rol con borde, pero ocupa todos el ancho de la fila*/}
+                        {/*style={{border: '1px solid black', borderRadius: '10px', display: 'inline-block', alignContent: 'center'}}*/}
+                        <td>{empleado.user.role.denomination}</td>
+                        <td style={{ fontWeight: 'bold', color: empleado.user.blocked ? '#D32F2F' : '#34A853' }}>
+                            {empleado.user.blocked ? 'Bloqueado' : 'Activo'}
+                        </td>
                         <td>
                             <PencilFill
                                 color="#FBC02D"
@@ -89,12 +91,12 @@ export const EmpleadosTable = () =>{
                         </td>
                         <td>
                             {/*ACA HAY QUE BUSCAR LA FORMA DE OBTENER EL ESTADO DEL EMPLEADO*/}
-                            {empleado.user ?
+                            {empleado.user.blocked ?
                                 <LockFill
                                     color="#D32F2F"
                                     size={24}
                                     title="Bloquear Empleado"
-                                    onClick={() => handleClick("¿Bloquear Empleado?", empleado)}
+                                    onClick={() => handleClick("¿Desbloquear Empleado?", empleado)}
                                     onMouseEnter={() => {document.body.style.cursor = 'pointer'}}
                                     onMouseLeave={() => {document.body.style.cursor = 'default'}} />
                                 :
@@ -102,7 +104,7 @@ export const EmpleadosTable = () =>{
                                     color="#34A853"
                                     size={24}
                                     title="Desbloquear Empleado"
-                                    onClick={() => handleClick("¿Desbloquear Empleado?", empleado)}
+                                    onClick={() => handleClick("¿Bloquear Empleado?", empleado)}
                                     onMouseEnter={() => {document.body.style.cursor = 'pointer'}}
                                     onMouseLeave={() => {document.body.style.cursor = 'default'}} />}
                         </td>
