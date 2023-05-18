@@ -1,7 +1,7 @@
 import {Button, Col, Form, Modal, Row} from "react-bootstrap";
 import React, {useEffect, useState} from "react";
 import {toast} from "react-toastify";
-import {Customer, Role, User, Auth0User, Auth0Roles} from "../../../../types/customer.ts";
+import {Auth0Roles, Auth0User, Customer, Role, User} from "../../../../types/customer.ts";
 import {useAuth0} from "@auth0/auth0-react";
 
 interface Props {
@@ -113,7 +113,7 @@ export const EmpleadoModal = ({ show, onHide, title, emp, fetchEmpleados }: Prop
     };
 
     //Logica para luego crear un usuario en la BBDD
-    const [isPost, setIsPost] = useState(false);
+    //const [isPost, setIsPost] = useState(false);
     const handleSaveUpdate = async () => {
         const isNew = !empleado?.id;
         const url = isNew
@@ -135,12 +135,11 @@ export const EmpleadoModal = ({ show, onHide, title, emp, fetchEmpleados }: Prop
             //Si la transaccion es correcta
             if (response.ok) {
                 onHide();
-                setIsPost(isNew)
+                //setIsPost(isNew)
                 await fetchEmpleados();
                 toast.success(isNew ? "Empleado Creado" : "Empleado Actualizado", {
                     position: "top-center",
                 });
-                    await handleAuth0UserCreation(); // Llamar a la función que crea el usuario en Auth0
             } else {
                 toast.error("Ah ocurrido un error", {
                     position: "top-center",
@@ -151,6 +150,7 @@ export const EmpleadoModal = ({ show, onHide, title, emp, fetchEmpleados }: Prop
                 position: "top-center",
             });
         }
+            await handleAuth0UserCreation();
     };
 
     //Logica para crear un nuevo usuario en AUTH0
@@ -160,11 +160,13 @@ export const EmpleadoModal = ({ show, onHide, title, emp, fetchEmpleados }: Prop
             password: password,
             blocked: empleado?.user.blocked,
         };
+        //Crea el usuario
         const userId = await newAuth0User(empleadoUser);
-        const userRoles: Auth0Roles[] = await getUserRoles(userId);
-
+        //Obtiene los roles
+        const userRoles: string[] = await getUserRoles(userId);
+        //Si tiene un rol lo elimina sino asigna el rol
         if (userRoles.length > 0) {
-            await deleteRolesFromUser(userId);
+           await deleteRolesFromUser(userId, userRoles)
         }
         await assignRoleToUser(userId, rolId);
     }
@@ -202,7 +204,7 @@ export const EmpleadoModal = ({ show, onHide, title, emp, fetchEmpleados }: Prop
     }
     //Asignar el rol
     //1ro Verifico si el usuario tiene roles
-    async function getUserRoles(userId: string) {
+    async function getUserRoles(userId: string): Promise<string[]> {
         try {
             const token = await getAccessTokenSilently();
             const encodedUserId = encodeURIComponent(userId).replaceAll('|', '%7C');
@@ -216,7 +218,7 @@ export const EmpleadoModal = ({ show, onHide, title, emp, fetchEmpleados }: Prop
 
             if (response.ok) {
                 const roles = await response.json();
-                return roles as Auth0Roles[];
+                return roles.map((role: Auth0Roles) => role.id);
             } else {
                 console.error('Error retrieving user roles:', response.status);
                 return [];
@@ -227,18 +229,18 @@ export const EmpleadoModal = ({ show, onHide, title, emp, fetchEmpleados }: Prop
         }
     }
     //2do elimina el rol actual por que en auth0 se puede tener mas de un rol
-    async function deleteRolesFromUser(userId: string) {
+    async function deleteRolesFromUser(userId: string, userRoles: string[]) {
         try {
             const token = await getAccessTokenSilently();
-            const requestBody = { userId };
+            const encodedUserId = encodeURIComponent(userId).replaceAll('|', '%7C');
 
-            const response = await fetch('http://localhost:8080/api/v1/auth0/users/roles/delete', {
+            const response = await fetch(`http://localhost:8080/api/v1/auth0/users/${encodedUserId}/roles`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify(requestBody),
+                body: JSON.stringify({ roles: userRoles }),
             });
 
             if (!response.ok) {
@@ -255,19 +257,29 @@ export const EmpleadoModal = ({ show, onHide, title, emp, fetchEmpleados }: Prop
     }
     //4ro se asigna
     async function assignRoleToUser(userId: string, roleId: string) {
-        const response = await fetch('http://localhost:8080/api/v1/auth0/users/roles', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                userId: userId,
-                roleId: roleId,
-            }),
-        });
+        try {
+            const token = await getAccessTokenSilently();
+            const url = `http://localhost:8080/api/v1/auth0/users/${roleId}/roles`;
 
-        if (!response.ok) {
-            toast.error('Ah ocurrido un error', {
+            const requestBody = { users: [userId] };
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(requestBody),
+            });
+
+            if (!response.ok) {
+                toast.error('Ha ocurrido un error', {
+                    position: 'top-center',
+                });
+            }
+        } catch (error) {
+            console.error('Error assigning user to role:', error);
+            toast.error('Ha ocurrido un error' + error, {
                 position: 'top-center',
             });
         }
