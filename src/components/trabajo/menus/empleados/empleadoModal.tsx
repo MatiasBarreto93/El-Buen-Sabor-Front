@@ -69,6 +69,7 @@ export const EmpleadoModal = ({ show, onHide, title, emp, fetchEmpleados }: Prop
         fetchRoles();
     }, []);
 
+
     const [rolId, setrolID] = useState("");
 
     useEffect(() => {
