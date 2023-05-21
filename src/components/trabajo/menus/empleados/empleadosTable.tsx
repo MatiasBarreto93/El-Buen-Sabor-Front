@@ -45,7 +45,7 @@ export const EmpleadosTable = () =>{
     //Logica del Modal
     const handleClick = (newTitle: string, empleado?: Customer) => {
         setTitle(newTitle);
-        setEmpleado(empleado);
+        setEmpleado(empleado || null);
         setShowModal(true);
     };
 
@@ -72,8 +72,6 @@ export const EmpleadosTable = () =>{
                         <td>{empleado.name} {empleado.lastname}</td>
                         <td>{empleado.user.email}</td>
                         <td>{empleado.address}, {empleado.apartment}</td>
-                        {/*Rol con borde, pero ocupa todos el ancho de la fila*/}
-                        {/*style={{border: '1px solid black', borderRadius: '10px', display: 'inline-block', alignContent: 'center'}}*/}
                         <td>{empleado.user.role.denomination}</td>
                         <td style={{ fontWeight: 'bold', color: empleado.user.blocked ? '#D32F2F' : '#34A853' }}>
                             {empleado.user.blocked ? 'Bloqueado' : 'Activo'}
@@ -91,7 +89,6 @@ export const EmpleadosTable = () =>{
                             />
                         </td>
                         <td>
-                            {/*ACA HAY QUE BUSCAR LA FORMA DE OBTENER EL ESTADO DEL EMPLEADO*/}
                             {empleado.user.blocked ?
                                 <LockFill
                                     color="#D32F2F"

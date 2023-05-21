@@ -1,17 +1,17 @@
 import {Button, Col, Form, Modal, Row} from "react-bootstrap";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {toast} from "react-toastify";
 import {Auth0Roles, Auth0User, Customer, Role, User} from "../../../../types/customer.ts";
 import {useAuth0} from "@auth0/auth0-react";
 
-interface Props {
+interface Props  {
     show: boolean;
     onHide: () => void;
     title:string
-    emp: Customer;
+    emp: Customer | null;
     fetchEmpleados: () => void;
 }
-export const EmpleadoModal = ({ show, onHide, title, emp, fetchEmpleados }: Props)=>{
+export const EmpleadoModal = ({ show, onHide, title, emp, fetchEmpleados }: Props) =>{
 
     const { getAccessTokenSilently } = useAuth0();
     const [empleado, setEmpleado] = useState<Customer | undefined>(emp ? emp : {
@@ -34,14 +34,6 @@ export const EmpleadoModal = ({ show, onHide, title, emp, fetchEmpleados }: Prop
         },
         orders: [],
     });
-
-    // const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //     const { name, value } = e.target;
-    //     setEmpleado((prevState) => prevState ? {
-    //         ...prevState,
-    //         [name]: value,
-    //     } : undefined);
-    // };
 
     //Roles para llenar el dropdown
     const [roles, setRoles] = useState<Role[]>([]);
@@ -69,19 +61,20 @@ export const EmpleadoModal = ({ show, onHide, title, emp, fetchEmpleados }: Prop
         fetchRoles();
     }, []);
 
-    const [rolId, setrolID] = useState("");
 
+    const [rolId, setrolID] = useState("");
     useEffect(() => {
-        //console.log("rolId actualizado:", rolId);
+        //Actualizo correctamente el rolID seleccionado en el dropdown
     }, [rolId]);
 
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    let [newAuth0ID] = useState("");
+
     const handleChange = (e: React.ChangeEvent<EventTarget>) => {
         const { name, value } = e.target as HTMLInputElement | HTMLSelectElement;
-        //console.log("Selected value:", value);
         setEmpleado((prevEmpleado) => {
-            const updatedEmpleado = { ...(prevEmpleado || {} as Customer) };
+            const updatedEmpleado:Customer = { ...(prevEmpleado || {} as Customer) };
 
             if (name === "user.role") {
                 const role = JSON.parse(value);
@@ -105,17 +98,27 @@ export const EmpleadoModal = ({ show, onHide, title, emp, fetchEmpleados }: Prop
             } else if (name === "confirmPass") {
                 setConfirmPassword(value);
             } else {
-                updatedEmpleado[name] = value;
+                updatedEmpleado[name as keyof Customer] = value as never;
             }
-
             return updatedEmpleado;
         });
     };
 
-    //Logica para luego crear un usuario en la BBDD
-    //const [isPost, setIsPost] = useState(false);
     const handleSaveUpdate = async () => {
         const isNew = !empleado?.id;
+        const userId = empleado?.user.auth0Id;
+        if (!isNew && userId) {
+            await handleAuth0User(isNew, userId);
+        } else {
+            newAuth0ID = await handleAuth0User(isNew)
+        }
+        const empleadoPost = {
+            ...empleado,
+            user:{
+                ...empleado?.user,
+                auth0Id: newAuth0ID,
+            }
+        }
         const url = isNew
             ? "http://localhost:8080/api/v1/customers"
             : `http://localhost:8080/api/v1/customers/${empleado?.id}`;
@@ -129,10 +132,8 @@ export const EmpleadoModal = ({ show, onHide, title, emp, fetchEmpleados }: Prop
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify(empleado),
+                body: isNew ? JSON.stringify(empleadoPost) : JSON.stringify(empleado),
             });
-            //console.log (JSON.stringify(empleado));
-            //Si la transaccion es correcta
             if (response.ok) {
                 onHide();
                 //setIsPost(isNew)
@@ -150,25 +151,40 @@ export const EmpleadoModal = ({ show, onHide, title, emp, fetchEmpleados }: Prop
                 position: "top-center",
             });
         }
-            await handleAuth0UserCreation();
     };
 
+    const prevRoleId = useRef(empleado?.user.role.id);
+    const prevStatus = useRef(empleado?.user.blocked)
     //Logica para crear un nuevo usuario en AUTH0
-    async function handleAuth0UserCreation() {
-        const empleadoUser: Auth0User = {
-            email: empleado?.user.email,
-            password: password,
-            blocked: empleado?.user.blocked,
-        };
-        //Crea el usuario
-        const userId = await newAuth0User(empleadoUser);
-        //Obtiene los roles
-        const userRoles: string[] = await getUserRoles(userId);
-        //Si tiene un rol lo elimina sino asigna el rol
-        if (userRoles.length > 0) {
-           await deleteRolesFromUser(userId, userRoles)
+    async function handleAuth0User(newUser:boolean, auth0Id?: string) {
+        const userId:string = auth0Id ?? "";
+        if (newUser) {
+            const empleadoUser: Auth0User = {
+                email: empleado?.user.email,
+                password: password,
+                blocked: empleado?.user.blocked,
+            };
+            const userId = await newAuth0User(empleadoUser);
+
+            const userRoles: string[] = await getUserRoles(userId);
+            if (userRoles.length > 0) {
+                await deleteRolesFromUser(userId, userRoles)
+            }
+            await assignRoleToUser(userId, rolId);
+            return userId;
+        } else {
+            //Si el rol se cambio en el formulario hago las llamadas a la API para colocar el nuevo ROL
+            if (prevRoleId.current !== empleado?.user.role.id){
+                const userRoles: string[] = await getUserRoles(userId);
+                if (userRoles.length > 0) {
+                    await deleteRolesFromUser(userId, userRoles)
+                }
+                await assignRoleToUser(userId, rolId);
+            } else if(prevStatus.current !== empleado?.user.blocked){
+                const block = empleado?.user.blocked
+                await updateUserBlockedStatus(userId, block)
+            }
         }
-        await assignRoleToUser(userId, rolId);
     }
 
      async function newAuth0User(newUser: Auth0User) {
@@ -284,18 +300,52 @@ export const EmpleadoModal = ({ show, onHide, title, emp, fetchEmpleados }: Prop
             });
         }
     }
+    //Update al blocked de auth0 del empleado
+    async function updateUserBlockedStatus(userId: string, userBlock: boolean | undefined) {
+        try {
+            const token = await getAccessTokenSilently();
+            const encodedUserId = encodeURIComponent(userId).replaceAll('|', '%7C');
 
-    //Otro PUT de AUTH0
-    const borrarInstrumento = async () => {
+            const requestBody = { blocked: userBlock };
+
+            const response = await fetch(`http://localhost:8080/api/v1/auth0/users/${encodedUserId}/block`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(requestBody),
+            });
+            if (!response.ok) {
+                toast.error('Ha ocurrido un error', {
+                    position: 'top-center',
+                });
+            }
+        } catch (error) {
+            console.error('Error assigning user to role:', error);
+            toast.error('Ha ocurrido un error' + error, {
+                position: 'top-center',
+            });
+        }
+    }
+
+    const handleEstadoEmpleado = async () => {
+
+        const token = await getAccessTokenSilently();
+
         if (empleado) {
             const id = empleado.id;
+            const blocked = !empleado.user.blocked
             try {
-                await fetch(`http://localhost:8080/api/v1/customers${id}`, {
-                    method: "DELETE",
+                await fetch(`http://localhost:8080/api/v1/user/${id}/block?blocked=${blocked}`, {
+                    method: 'PUT',
+                    headers:{
+                        Authorization: `Bearer ${token}`
+                    }
                 });
-                onHide();
                 await fetchEmpleados();
-                toast.success("Empleado Borrado", {
+                onHide();
+                toast.success(`Estado del Empleado Actualizado`, {
                     position: "top-center",
                 });
             } catch (error) {
@@ -304,6 +354,9 @@ export const EmpleadoModal = ({ show, onHide, title, emp, fetchEmpleados }: Prop
                 });
             }
         }
+        const authId = empleado?.user.auth0Id ?? "";
+        const block = !empleado?.user.blocked
+        await updateUserBlockedStatus(authId, block)
     };
 
     //Validacion de TITULOS permitidos
@@ -331,13 +384,13 @@ export const EmpleadoModal = ({ show, onHide, title, emp, fetchEmpleados }: Prop
                         <Button variant="secondary" onClick={onHide}>
                             Cancelar
                         </Button>
-                        <Button variant="danger" onClick={borrarInstrumento}>
-                            Eliminar
+                        <Button variant="danger" onClick={handleEstadoEmpleado}>
+                            Guardar
                         </Button>
                     </Modal.Footer>
                 </Modal>
                 :
-                <Modal show={show} onHide={onHide} centered backdrop="static">
+                <Modal show={show} onHide={onHide} centered backdrop="static" className="modal-xl">
                     <Modal.Header closeButton>
                         <Modal.Title>{title}</Modal.Title>
                     </Modal.Header>
