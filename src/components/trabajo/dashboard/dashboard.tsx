@@ -2,6 +2,7 @@ import {Nav, Tab, Col, Row, Container} from "react-bootstrap";
 import {PersonCircle} from "react-bootstrap-icons";
 import "./dashboard.css"
 import {EmpleadosTable} from "../menus/empleados/empleadosTable.tsx";
+import {CategoriesTable} from "../menus/categories/categoriesTable";
 
 export const DashBoard = () => {
 
@@ -59,7 +60,7 @@ export const DashBoard = () => {
                                 <p>Clientes</p>
                             </Tab.Pane>
                             <Tab.Pane eventKey="Rubros">
-                                <p>Rubros</p>
+                                <CategoriesTable/>
                             </Tab.Pane>
                             <Tab.Pane eventKey="Ingredientes">
                                 <p>Ingredientes</p>
