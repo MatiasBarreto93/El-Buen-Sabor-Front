@@ -1,8 +1,16 @@
 import {Button, Col, Form, Modal, Row} from "react-bootstrap";
 import React, {useEffect, useRef, useState} from "react";
 import {toast} from "react-toastify";
-import {Auth0Roles, Auth0User, Customer, Role, User} from "../../../../types/customer.ts";
+import { Auth0User, Customer, Role, User} from "../../../../types/customer.ts";
 import {useAuth0} from "@auth0/auth0-react";
+import {
+    assignRoleToUser,
+    deleteRolesFromUser,
+    fetchRoles,
+    getUserRoles,
+    newAuth0User,
+    updateUserBlockedStatus
+} from "./empleadoFunction.ts";
 
 interface Props  {
     show: boolean;
@@ -13,7 +21,7 @@ interface Props  {
 }
 export const EmpleadoModal = ({ show, onHide, title, emp, fetchEmpleados }: Props) =>{
 
-    const { getAccessTokenSilently } = useAuth0();
+    //Interface para Empleado, en la creacion los campos estaran vacios sino se llenan con los datos de la fila seleccionada de la tabla
     const [empleado, setEmpleado] = useState<Customer | undefined>(emp ? emp : {
         id: 0,
         name: "",
@@ -35,49 +43,64 @@ export const EmpleadoModal = ({ show, onHide, title, emp, fetchEmpleados }: Prop
         orders: [],
     });
 
-    //Roles para llenar el dropdown
+    //Token de Auth0
+    const { getAccessTokenSilently } = useAuth0();
+    const [token, setToken] = useState<string>('');
+
+    //Roles
     const [roles, setRoles] = useState<Role[]>([]);
-    useEffect(() => {
-        const fetchRoles = async () => {
-            try {
-                const token = await getAccessTokenSilently();
-                const response = await fetch("http://localhost:8080/api/v1/roles", {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    setRoles(data);
-                } else {
-                    // Handle error
-                    console.error("Error fetching roles:", response.status);
-                }
-            } catch (error) {
-                // Handle error
-                console.error("Error fetching roles:", error);
-            }
-        };
-        fetchRoles();
-    }, []);
-
-
     const [rolId, setrolID] = useState("");
-    useEffect(() => {
-        //Actualizo correctamente el rolID seleccionado en el dropdown
-    }, [rolId]);
 
+    //Campos adicionales para el formulario para crear un nuevo usuario de Auth0
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+
+    //Campo para obtener el "user_id" de Auth0 en la creacion, es necesario guardarlo en BBDD para poder actualizar posteriormente el Rol y Blocked
     let [newAuth0ID] = useState("");
 
+    //Obtener el Rol y el Status del Empleado actual para checkear si hubo algun cambio al empleado existente (Rol y Blocked)
+    const prevRoleId = useRef(empleado?.user.role.id);
+    const prevStatus = useRef(empleado?.user.blocked)
+
+    //Renderizado del modal correspondiente segun donde se hizo click
+    const renderModalTitle:boolean = title.toLowerCase().includes("bloquear")
+
+    //Cada vez que se renderiza el Modal
+    useEffect(() => {
+        const onRender = async () => {
+            try {
+                //Obtengo el Token de Auth0
+                const token = await getAccessTokenSilently();
+                setToken(token);
+
+                //Obtengo los Roles disponibles
+                const roles = await fetchRoles(token);
+                setRoles(roles);
+
+            } catch (error) {
+                console.error('Error al obtener datos en el renderizado:', error);
+            }
+        };
+        //Se llama la funcion para ejecutarla
+        onRender();
+        //Se obtiene de manera correcta el rol seleccionado en el formulario [rolId]
+    }, [rolId]);
+
+    //Maneja los cambios del formulario de Empleado segun su interface + campos adicionales + dropdowns (Rol y Blocked)
     const handleChange = (e: React.ChangeEvent<EventTarget>) => {
+
+        //Voy a observar 2 tipos de eventos, inputs y dropdowns
         const { name, value } = e.target as HTMLInputElement | HTMLSelectElement;
+
+        //Se actualiza el estado del empleado
         setEmpleado((prevEmpleado) => {
+            //Se copian todas las propiedades del Empleado actual a la variable updatedEmpleado de tipo Customer
             const updatedEmpleado:Customer = { ...(prevEmpleado || {} as Customer) };
 
-            if (name === "user.role") {
+            //Campos de Rol (id, auth0RolId, denomination)
+            if(name === "user.role"){
                 const role = JSON.parse(value);
+                // Actualizar el objeto Empleado del formulario en el campo "role" con los datos seleccionados
                 updatedEmpleado.user = {
                     ...(updatedEmpleado.user || {} as User),
                     role: {
@@ -86,46 +109,67 @@ export const EmpleadoModal = ({ show, onHide, title, emp, fetchEmpleados }: Prop
                         auth0RolId: role.auth0RolId
                     },
                 };
+                // Establecer el valor de rolID con el auth0RolId del rol seleccionado
                 setrolID(role.auth0RolId);
-            } else if (name.startsWith("user.")) {
-                const userFieldName = name.slice(5); // Remove "user." from the name
+
+            //Verificar si los campos pertenecen a User (id, auth0Id, email, blocked)
+            } else if(name.startsWith("user.")){
+                //Se utiliza para extraer el nombre del campo dentro de User: user.blocked => "blocked"
+                const userFieldName = name.slice(5);
+                // Actualizar el objeto Empleado del formulario en el campo correspondiente
                 updatedEmpleado.user = {
                     ...(updatedEmpleado.user || {} as User),
+                    // Asignar el valor del campo del formulario al objeto Empleado
+                    // Si el campo es "blocked", convertir el valor de cadena a booleano
                     [userFieldName]: userFieldName === "blocked" ? value === "true" : value,
                 };
+
+                //Campos adicionales para crear un nuevo usuario de Auth0 (password y confirmPass)
             } else if (name === "password") {
                 setPassword(value);
             } else if (name === "confirmPass") {
                 setConfirmPassword(value);
             } else {
+                //En este paso se observan los campos de Customer (id, name, lastname, phone, address, apartment)
+                // Actualizar el objeto "updatedEmpleado" con el valor del campo "name"
+                // utilizando la inferencia de tipos para garantizar la compatibilidad
                 updatedEmpleado[name as keyof Customer] = value as never;
             }
             return updatedEmpleado;
         });
     };
 
+    //Funcion para crear/editar en Auth0 y BBDD
     const handleSaveUpdate = async () => {
+
         const isNew = !empleado?.id;
         const userId = empleado?.user.auth0Id;
+        let empleadoPost: Customer | undefined = undefined;
+
         if (!isNew && userId) {
+            //PUT Auth0
             await handleAuth0User(isNew, userId);
         } else {
+            //POST Auth0
             newAuth0ID = await handleAuth0User(isNew)
+
+            //Si empleado no es "undefined" Creo el objeto empleadoPost a partir de una copia de Empleado y agrego el "user_id" de Auth0
+           if (empleado){
+               empleadoPost =  {
+                   ...(empleado),
+                   user: {
+                       ...(empleado.user),
+                       auth0Id: newAuth0ID,
+                   },
+               }
+           }
         }
-        const empleadoPost = {
-            ...empleado,
-            user:{
-                ...empleado?.user,
-                auth0Id: newAuth0ID,
-            }
-        }
+
         const url = isNew
             ? "http://localhost:8080/api/v1/customers"
             : `http://localhost:8080/api/v1/customers/${empleado?.id}`;
 
         try {
-            const token = await getAccessTokenSilently();
-
             const response = await fetch(url, {
                 method: isNew ? "POST" : "PUT",
                 headers: {
@@ -136,7 +180,6 @@ export const EmpleadoModal = ({ show, onHide, title, emp, fetchEmpleados }: Prop
             });
             if (response.ok) {
                 onHide();
-                //setIsPost(isNew)
                 await fetchEmpleados();
                 toast.success(isNew ? "Empleado Creado" : "Empleado Actualizado", {
                     position: "top-center",
@@ -153,189 +196,67 @@ export const EmpleadoModal = ({ show, onHide, title, emp, fetchEmpleados }: Prop
         }
     };
 
-    const prevRoleId = useRef(empleado?.user.role.id);
-    const prevStatus = useRef(empleado?.user.blocked)
-    //Logica para crear un nuevo usuario en AUTH0
+    //Logica para crear/editar un usuario de AUTH0
     async function handleAuth0User(newUser:boolean, auth0Id?: string) {
         const userId:string = auth0Id ?? "";
+
+        //POST Auth0
         if (newUser) {
+            //Datos necesarios para crear un nuevo usuario de auth0
             const empleadoUser: Auth0User = {
                 email: empleado?.user.email,
                 password: password,
                 blocked: empleado?.user.blocked,
             };
-            const userId = await newAuth0User(empleadoUser);
 
-            const userRoles: string[] = await getUserRoles(userId);
-            if (userRoles.length > 0) {
-                await deleteRolesFromUser(userId, userRoles)
-            }
-            await assignRoleToUser(userId, rolId);
+            //Creo el usuario y obtengo el "user_id"
+            const userId = await newAuth0User(empleadoUser, token);
+
+            //Asigno el rol al nuevo usuario, con el [rolId] seleccionado del formulario y del useEffect()
+            await assignRoleToUser(userId, rolId, token);
+
+            //Asigno a la variable "newAuth0ID"
             return userId;
+
+        //PUT Auth0
         } else {
-            //Si el rol se cambio en el formulario hago las llamadas a la API para colocar el nuevo ROL
+
+            //Si se selecciona otro rol distinto al existente llamo a la API de Auth0
             if (prevRoleId.current !== empleado?.user.role.id){
-                const userRoles: string[] = await getUserRoles(userId);
+
+                //Obtener la lista de los roles del usuario
+                const userRoles: string[] = await getUserRoles(userId, token);
+
+                //Si existe alguno se procede a eliminarlo
                 if (userRoles.length > 0) {
-                    await deleteRolesFromUser(userId, userRoles)
+                    await deleteRolesFromUser(userId, userRoles, token)
                 }
-                await assignRoleToUser(userId, rolId);
-            } else if(prevStatus.current !== empleado?.user.blocked){
+
+                //Asigno el nuevo rol al usuario
+                await assignRoleToUser(userId, rolId, token);
+            }
+
+            //Si se selecciona otro estado distinto al existente llamo a la API de Auth0
+            if(prevStatus.current !== empleado?.user.blocked){
                 const block = empleado?.user.blocked
-                await updateUserBlockedStatus(userId, block)
+                await updateUserBlockedStatus(userId, block, token)
             }
         }
     }
 
-     async function newAuth0User(newUser: Auth0User) {
-        try {
-            const token = await getAccessTokenSilently();
-
-            const requestBody = {
-                email: newUser.email,
-                password: newUser.password,
-                blocked: newUser.blocked,
-            };
-
-            const response = await fetch('http://localhost:8080/api/v1/auth0/users', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify(requestBody),
-            });
-
-            if (response.ok) {
-                const responseBody = await response.json();
-                const userId = responseBody.user_id;
-                return userId;
-            }
-        } catch (error) {
-            console.error('Error creating new user:', error);
-            toast.error("Ah ocurrido un error" + error, {
-                position: "top-center",
-            });
-        }
-    }
-    //Asignar el rol
-    //1ro Verifico si el usuario tiene roles
-    async function getUserRoles(userId: string): Promise<string[]> {
-        try {
-            const token = await getAccessTokenSilently();
-            const encodedUserId = encodeURIComponent(userId).replaceAll('|', '%7C');
-            const response = await fetch(`http://localhost:8080/api/v1/auth0/users/${encodedUserId}/roles`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            if (response.ok) {
-                const roles = await response.json();
-                return roles.map((role: Auth0Roles) => role.id);
-            } else {
-                console.error('Error retrieving user roles:', response.status);
-                return [];
-            }
-        } catch (error) {
-            console.error('Error retrieving user roles:', error);
-            return [];
-        }
-    }
-    //2do elimina el rol actual por que en auth0 se puede tener mas de un rol
-    async function deleteRolesFromUser(userId: string, userRoles: string[]) {
-        try {
-            const token = await getAccessTokenSilently();
-            const encodedUserId = encodeURIComponent(userId).replaceAll('|', '%7C');
-
-            const response = await fetch(`http://localhost:8080/api/v1/auth0/users/${encodedUserId}/roles`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({ roles: userRoles }),
-            });
-
-            if (!response.ok) {
-                toast.error('Ah ocurrido un error', {
-                    position: 'top-center',
-                });
-            }
-        } catch (error) {
-            console.error('Error deleting roles from user:', error);
-            toast.error('Ah ocurrido un error' + error, {
-                position: 'top-center',
-            });
-        }
-    }
-    //4ro se asigna
-    async function assignRoleToUser(userId: string, roleId: string) {
-        try {
-            const token = await getAccessTokenSilently();
-            const url = `http://localhost:8080/api/v1/auth0/users/${roleId}/roles`;
-
-            const requestBody = { users: [userId] };
-
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify(requestBody),
-            });
-
-            if (!response.ok) {
-                toast.error('Ha ocurrido un error', {
-                    position: 'top-center',
-                });
-            }
-        } catch (error) {
-            console.error('Error assigning user to role:', error);
-            toast.error('Ha ocurrido un error' + error, {
-                position: 'top-center',
-            });
-        }
-    }
-    //Update al blocked de auth0 del empleado
-    async function updateUserBlockedStatus(userId: string, userBlock: boolean | undefined) {
-        try {
-            const token = await getAccessTokenSilently();
-            const encodedUserId = encodeURIComponent(userId).replaceAll('|', '%7C');
-
-            const requestBody = { blocked: userBlock };
-
-            const response = await fetch(`http://localhost:8080/api/v1/auth0/users/${encodedUserId}/block`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify(requestBody),
-            });
-            if (!response.ok) {
-                toast.error('Ha ocurrido un error', {
-                    position: 'top-center',
-                });
-            }
-        } catch (error) {
-            console.error('Error assigning user to role:', error);
-            toast.error('Ha ocurrido un error' + error, {
-                position: 'top-center',
-            });
-        }
-    }
-
+    //Funcion para bloquear y desbloquear al Empleado desde la tabla
     const handleEstadoEmpleado = async () => {
-
-        const token = await getAccessTokenSilently();
-
         if (empleado) {
+
             const id = empleado.id;
-            const blocked = !empleado.user.blocked
+            //Revierto el valor actual del status del empleado
+            const blocked = !empleado?.user.blocked
+
+            //PATCH Auth0
+            const authId = empleado?.user.auth0Id ?? "";
+            await updateUserBlockedStatus(authId, blocked, token)
+
+            //PUT
             try {
                 await fetch(`http://localhost:8080/api/v1/user/${id}/block?blocked=${blocked}`, {
                     method: 'PUT',
@@ -354,24 +275,11 @@ export const EmpleadoModal = ({ show, onHide, title, emp, fetchEmpleados }: Prop
                 });
             }
         }
-        const authId = empleado?.user.auth0Id ?? "";
-        const block = !empleado?.user.blocked
-        await updateUserBlockedStatus(authId, block)
     };
-
-    //Validacion de TITULOS permitidos
-    //Cambiar esto a un flag con un boolean
-    const validTitles = ["Nuevo Empleado", "Editar Empleado", "¿Bloquear Empleado?", "¿Desbloquear Empleado?"];
-    if (!validTitles.includes(title)) {
-        return (
-            toast.error("Error!, la funcion requerida no existe", {
-                position: "top-center"
-            }))
-    }
 
     return (
         <>
-            {title.toLowerCase().includes("quear")
+            {renderModalTitle
                 ?
                 <Modal show={show} onHide={onHide} centered backdrop="static">
                     <Modal.Header closeButton>
