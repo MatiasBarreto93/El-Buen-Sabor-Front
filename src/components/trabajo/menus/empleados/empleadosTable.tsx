@@ -8,10 +8,10 @@ import {useAuth0} from "@auth0/auth0-react";
 
 
 export const EmpleadosTable = () =>{
+
     const [empleados, setEmpleados] = useState<Customer[]>([]);
     const { getAccessTokenSilently } = useAuth0();
 
-    //Ver que es lo de deps[]
     useEffect(() => {
         fetchEmpleados();
     }, []);
@@ -28,7 +28,6 @@ export const EmpleadosTable = () =>{
             if (response.ok) {
                 const data = await response.json();
                 setEmpleados(data)
-                console.log(data)
             } else {
                 console.error("Error fetching data:", response.status);
             }
@@ -42,7 +41,7 @@ export const EmpleadosTable = () =>{
     const [title, setTitle] = useState("");
     const [empleado, setEmpleado] = useState<Customer | null>(null);
 
-    //Logica del Modal
+    //Logica del Modal al hacer click en alguno de los 3 botones
     const handleClick = (newTitle: string, empleado?: Customer) => {
         setTitle(newTitle);
         setEmpleado(empleado || null);
