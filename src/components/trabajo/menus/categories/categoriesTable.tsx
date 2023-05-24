@@ -3,6 +3,7 @@ import {Category} from "../../../../types/category";
 import {LockFill, PencilFill, UnlockFill} from "react-bootstrap-icons";
 import {Button, Table} from "react-bootstrap";
 import {useAuth0} from "@auth0/auth0-react";
+import {CategoryModal} from "./categoryModal";
 
 export const CategoriesTable = () => {
     const [categories, setCategories] = useState<Category[]>([]);
@@ -33,12 +34,12 @@ export const CategoriesTable = () => {
     }
 
     const [showModal, setShowModal] = useState(false);
-    const [tittle, setTitle] = useState("");
-    const [category, setCategory] = useState<Category> | null> (null);
+    const [title, setTitle] = useState("");
+    const [category, setCategory] = useState<Category | null>(null);
 
     const handleClick = (newTitle: string, category?: Category) => {
         setTitle(newTitle);
-        setCategory(category);
+        setCategory(category || null);
         setShowModal(true);
     };
 
@@ -100,6 +101,15 @@ export const CategoriesTable = () => {
                 ))}
                 </tbody>
             </Table>
+            {showModal && (
+                <CategoryModal
+                    cat={category}
+                    title={title}
+                    show={showModal}
+                    onHide={() => setShowModal(false)}
+                    fetchCategories={fetchCategories}
+                />
+            )}
         </>
     )
 
