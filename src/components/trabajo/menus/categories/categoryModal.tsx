@@ -57,7 +57,8 @@ export const CategoryModal = ( { show, onHide, title, cat, fetchCategories }: Pr
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-
+        console.log("name:", name);
+        console.log("value:", value);
         setCategory((prevCategory) => {
             const updatedCategory: Category = { ...(prevCategory || {} as Category) };
 
@@ -189,11 +190,11 @@ export const CategoryModal = ( { show, onHide, title, cat, fetchCategories }: Pr
                                         <Form.Label>Categoría Padre</Form.Label>
                                         <Form.Select
                                             name="category.father"
-                                            value ={JSON.stringify(category?.fatherCategory || "")}
+                                            value ={category?.fatherCategory ? category.fatherCategory.id : ""}
                                             onChange={handleChange}>
                                                 <option value={""}>No tiene</option>
                                                 {categories.map((category) => (
-                                                    <option key={category.id} value={JSON.stringify(category)}>
+                                                    <option key={category.id} value={category.id}>
                                                         {category.denomination}
                                                     </option>
                                                 ))}
