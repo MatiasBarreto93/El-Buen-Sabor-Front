@@ -14,11 +14,13 @@ export interface User {
     auth0Id: string;
     email: string;
     blocked: boolean;
+    password: string,
+    confirmPassword: string,
     role: Role;
 }
 
 export interface Role {
-    id: string;
+    id: number;
     denomination: string;
     auth0RolId: string;
 }
@@ -38,4 +40,10 @@ export interface Auth0Roles{
     id: string;
     name: string;
     description: string
+}
+
+//Posible solucion extend Customer
+export interface Auth0Password {
+    password: string;
+    confirmPassword: string;
 }

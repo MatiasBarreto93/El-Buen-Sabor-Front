@@ -1,56 +1,45 @@
 import {useEffect, useState} from "react";
-import {Customer} from "../../../../types/customer.ts";
+import {Customer} from "../../../../interfaces/customer.ts";
 import "./../../../styles/table.css"
 import {LockFill, PencilFill, UnlockFill} from "react-bootstrap-icons";
 import {Button, Table} from "react-bootstrap";
-import {EmpleadoModal} from "./empleadoModal.tsx";
-import {useAuth0} from "@auth0/auth0-react";
+import {EmployeeModal} from "./employeeModal.tsx";
+import {useGenericGet} from "../../../../services/useGenericGet.ts";
+import {useInitializeCustomer} from "./hooks/useInitializeCustomer.ts";
+import {ModalType} from "../../../../interfaces/ModalType.ts";
 
+export const EmployeesTable = () =>{
 
-export const EmpleadosTable = () =>{
+    //Campo para volver a solicitar los Empleados cuando se hizo exitosamente un POST/PUT desde el modal
+    const [refetch, setRefetch] = useState(false)
 
+    //Obtener los Empleados para llenar la tabla
+    const data = useGenericGet<Customer>("customers/different-role/5","Empleados" ,refetch);
     const [empleados, setEmpleados] = useState<Customer[]>([]);
-    const { getAccessTokenSilently } = useAuth0();
-
-    useEffect(() => {
-        fetchEmpleados();
-    }, []);
-
-    async function fetchEmpleados() {
-        try {
-            const token = await getAccessTokenSilently();
-            //Todos menos los clientes
-            const response = await fetch("http://localhost:8080/api/v1/customers/different-role/5", {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            if (response.ok) {
-                const data = await response.json();
-                setEmpleados(data)
-            } else {
-                console.error("Error fetching data:", response.status);
-            }
-        } catch (e) {
-            console.error("Error fetching data:", e);
-        }
-    }
+    useEffect(() =>{
+        setEmpleados(data);
+        setRefetch(false);
+    },[data])
 
     //Manejo de Modal
     const [showModal, setShowModal] = useState(false);
+    const [modalType, setModalType] = useState<ModalType>(ModalType.None);
     const [title, setTitle] = useState("");
-    const [empleado, setEmpleado] = useState<Customer | null>(null);
 
-    //Logica del Modal al hacer click en alguno de los 3 botones
-    const handleClick = (newTitle: string, empleado?: Customer) => {
+    //Se inicializa el Empleado
+    const [newEmpleado, setEmpleado, createNewEmployee] = useInitializeCustomer(undefined);
+
+    //Logica del Modal
+    const handleClick = (newTitle: string, empleado: Customer, modal: ModalType) => {
         setTitle(newTitle);
-        setEmpleado(empleado || null);
+        setEmpleado(empleado);
+        setModalType(modal)
         setShowModal(true);
     };
 
     return(
         <>
-            <Button onClick={() => handleClick("Nuevo Empleado")}>
+            <Button onClick={() => handleClick("Nuevo Empleado", createNewEmployee(), ModalType.Create)}>
                 Nuevo Empleado
             </Button>
             <Table hover>
@@ -80,7 +69,7 @@ export const EmpleadosTable = () =>{
                                 color="#FBC02D"
                                 size={24}
                                 onClick={() => {
-                                    handleClick("Editar Empleado", empleado);
+                                    handleClick("Editar Empleado", empleado, ModalType.Edit);
                                 }}
                                 title="Editar Empleado"
                                 onMouseEnter={() => {document.body.style.cursor = 'pointer'}}
@@ -93,7 +82,7 @@ export const EmpleadosTable = () =>{
                                     color="#D32F2F"
                                     size={24}
                                     title="Bloquear Empleado"
-                                    onClick={() => handleClick("¿Desbloquear Empleado?", empleado)}
+                                    onClick={() => handleClick("¿Desbloquear Empleado?", empleado, ModalType.ChangeStatus)}
                                     onMouseEnter={() => {document.body.style.cursor = 'pointer'}}
                                     onMouseLeave={() => {document.body.style.cursor = 'default'}} />
                                 :
@@ -101,7 +90,7 @@ export const EmpleadosTable = () =>{
                                     color="#34A853"
                                     size={24}
                                     title="Desbloquear Empleado"
-                                    onClick={() => handleClick("¿Bloquear Empleado?", empleado)}
+                                    onClick={() => handleClick("¿Bloquear Empleado?", empleado, ModalType.ChangeStatus)}
                                     onMouseEnter={() => {document.body.style.cursor = 'pointer'}}
                                     onMouseLeave={() => {document.body.style.cursor = 'default'}} />}
                         </td>
@@ -110,12 +99,13 @@ export const EmpleadosTable = () =>{
                 </tbody>
             </Table>
             {showModal && (
-                <EmpleadoModal
-                    emp={empleado}
+                <EmployeeModal
+                    emp={newEmpleado}
                     title={title}
                     show={showModal}
                     onHide={() => setShowModal(false)}
-                    fetchEmpleados={fetchEmpleados}
+                    setRefetch={setRefetch}
+                    modalType={modalType}
                 />
             )}
         </>

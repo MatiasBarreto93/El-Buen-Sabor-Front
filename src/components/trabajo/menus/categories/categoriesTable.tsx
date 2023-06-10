@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {Category} from "../../../../types/category";
+import {Category} from "../../../../interfaces/category";
 import {LockFill, PencilFill, UnlockFill} from "react-bootstrap-icons";
 import {Button, Table} from "react-bootstrap";
 import {useAuth0} from "@auth0/auth0-react";

@@ -9,7 +9,7 @@ import {
 import React, {useEffect, useState} from "react";
 import {toast} from "react-toastify";
 import {useAuth0} from "@auth0/auth0-react";
-import {Category} from "../../../../types/category";
+import {Category} from "../../../../interfaces/category";
 
 interface Props {
     show: boolean;
