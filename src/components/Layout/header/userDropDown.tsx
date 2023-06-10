@@ -7,6 +7,7 @@ export const DropDownMenu = () =>{
     const { user ,logout} = useAuth0()
 
     const handleLogout = () => {
+        localStorage.setItem('firstRender', JSON.stringify(true));
         logout({logoutParams: {returnTo: window.location.origin}})
     }
 
