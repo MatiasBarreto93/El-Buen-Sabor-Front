@@ -147,14 +147,13 @@ exports.onExecutePostUserRegistration = async (event, api) => {
 
 ## Ejecucion del proyecto
 
-1. Luego de configurar Auth0 y colocar el archivo .env en el directorio raiz del proyecto
-
-2. Clona el repositorio o descargalo como archivo ZIP y extraelo en una carpeta de tu eleccion
+1. Clona el repositorio o descargalo como archivo ZIP y extraelo en una carpeta de tu eleccion
 ```bash
 git clone https://github.com/MatiasBarreto93/El-Buen-Sabor-Front
 ```
+2. Antes de continuar es necesario tener instalado [Node.js](https://nodejs.org/es) en el ordenador, si ya lo tienes instalado sigue con el siguiente paso.
 
-3. Antes de continuar es necesario tener instalado [Node.js](https://nodejs.org/es) en el ordenador, si ya lo tienes instalado sigue con el siguiente paso.
+3. Luego de configurar Auth0 y colocar el archivo .env en el directorio raiz del proyecto
 
 4. Abre la terminal y asegurate estar en el directorio raiz del proyecto
 ```bash
@@ -165,6 +164,7 @@ D:\...\...\...\El-Buen-Sabor-Front>
 ```bash
 npm install
 ```
+
 Deberia ser algo similar a esto:
 ```bash
 D:\...\...\...\El-Buen-Sabor-Front> npm install
