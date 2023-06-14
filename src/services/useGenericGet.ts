@@ -20,8 +20,10 @@ export const useGenericGet = <T>(endpoint: string, entidadMsj: string, refetch?:
                     Authorization: `Bearer ${token}`,
                 },
             });
+            //console.log(response.status);
             if (response.ok) {
                 const data = await response.json();
+                //console.log(data);
                 setData(data)
             } else {
                 console.error(`Error fetching ${entidadMsj} data:`, response.status);
