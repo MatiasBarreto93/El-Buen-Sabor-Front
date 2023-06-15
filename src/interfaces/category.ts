@@ -1,6 +1,7 @@
 export interface Category {
     id: number;
     denomination: string;
-    isBanned: boolean;
+    blocked: boolean;
     categoryFatherId?: number;
+    categoryFatherDenomination?: string;
 }

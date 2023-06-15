@@ -6,6 +6,7 @@ import {Button, Table} from "react-bootstrap";
 import {useGenericGet} from "../../../../services/useGenericGet";
 import {ModalType} from "../../../../interfaces/ModalType";
 import {useInitializeCategory} from "./hooks/useInitializeCategory";
+import {CategoryModal} from "./categoryModal";
 
 export const CategoriesTable = () => {
     const [refetch, setRefetch] = useState(false)
@@ -50,9 +51,9 @@ export const CategoriesTable = () => {
                 {categories.map(category => (
                     <tr key={category.id}>
                         <td>{category.denomination}</td>
-                        <td>{category.categoryFatherId}</td>
-                        <td style={{ fontWeight: 'bold', color: category.isBanned ? '#D32F2F' : '#34A853'}}>
-                            {category.isBanned ? 'Bloqueado' : 'Activo'}
+                        <td>{category.categoryFatherDenomination}</td>
+                        <td style={{ fontWeight: 'bold', color: category.blocked ? '#D32F2F' : '#34A853'}}>
+                            {category.blocked ? 'Bloqueado' : 'Activo'}
                         </td>
                         <td>
                             <PencilFill
@@ -67,11 +68,11 @@ export const CategoriesTable = () => {
                             />
                         </td>
                         <td>
-                            {category.isBanned ?
+                            {category.blocked ?
                                 <LockFill
                                     color="#D32F2F"
                                     size={24}
-                                    title="Bloquear Categoría"
+                                    title="Desbloquear Categoría"
                                     onClick={() => handleClick("¿Desbloquear Categoría?", category, ModalType.ChangeStatus)}
                                     onMouseEnter={() => {document.body.style.cursor = 'pointer'}}
                                     onMouseLeave={() => {document.body.style.cursor = 'default'}} />
@@ -79,7 +80,7 @@ export const CategoriesTable = () => {
                                 <UnlockFill
                                     color="#34A853"
                                     size={24}
-                                    title="Desbloquear Categoría"
+                                    title="Bloquear Categoría"
                                     onClick={() => handleClick("¿Bloquear Categoría?", category, ModalType.ChangeStatus)}
                                     onMouseEnter={() => {document.body.style.cursor = 'pointer'}}
                                     onMouseLeave={() => {document.body.style.cursor = 'default'}} />}
@@ -88,6 +89,15 @@ export const CategoriesTable = () => {
                 ))}
                 </tbody>
             </Table>
+            {showModal && (
+                <CategoryModal cat={newCategory}
+                               title={title}
+                               show={showModal}
+                               onHide={() => setShowModal(false)}
+                               setRefetch={setRefetch}
+                               modalType={modalType}
+                />
+            )}
         </>
     )
 

@@ -4,8 +4,9 @@ import {useState} from "react";
 const defaultCategory = {
     id: 0,
     denomination: "",
-    isBanned: false,
+    blocked: false,
     fatherCategoryId: 0,
+    fatherCategoryDenomination: "",
 }
 
 export const useInitializeCategory = (cat: Category | undefined): [Category, React.Dispatch<React.SetStateAction<Category>>, () => Category] => {

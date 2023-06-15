@@ -207,7 +207,7 @@ export const EmployeeModal = ({ show, onHide, title, emp, setRefetch, modalType 
 
     return (
         <>
-            {modalType === ModalType.ChangeStatus
+             {modalType === ModalType.ChangeStatus
                 ?
                 <Modal show={show} onHide={onHide} centered backdrop="static">
                     <Modal.Header closeButton>
