@@ -152,8 +152,8 @@ export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType
                                             value={formik.values.blocked.toString()}
                                             onChange={(event) => {
                                                 formik.setFieldValue("blocked", event.target.value === "true");
+                                                console.log(formik.values.blocked);
                                             }}
-                                            defaultValue={formik.initialValues.blocked}
                                         >
                                             <option value="false">Activo</option>
                                             <option value="true">Bloqueado</option>
