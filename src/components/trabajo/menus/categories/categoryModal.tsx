@@ -21,15 +21,23 @@ interface Props {
 export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType }: Props) => {
 
     const [categories, setCategories] = useState<Category[]> ([]);
+    const [editCategories, setEditCategories] = useState<Category[]>([]);
 
     const genericPost = useGenericPost();
     const genericPut = useGenericPut();
     const updateCategoryStatus = useGenericChangeStatus();
 
-    const data = useGenericGet<Category>("categories", "Categorías");
+    const data = useGenericGet<Category>("categories/filter", "Categorías");
+
     useEffect(() => {
-        setCategories(data)
+        setCategories(data);
     }, [data]);
+
+    const dataCategoriesEdit = useGenericGet<Category>(`categories/filter/${cat.id}`, "Categorías");
+
+    useEffect(() => {
+        setEditCategories(dataCategoriesEdit);
+    }, [dataCategoriesEdit]);
 
     const handleSaveUpdate = async(category: Category) => {
         const isNew = category.id === 0;
@@ -136,11 +144,17 @@ export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType
                                             defaultValue={formik.initialValues.categoryFatherId}
                                         >
                                             <option value="">-</option>
-                                            {categories.map((category) => (
-                                                <option key={category.id} value={category.id}>
-                                                    {category.denomination}
-                                                </option>
-                                            ))}
+                                            {cat.id !== 0
+                                                ? editCategories.map((category) => (
+                                                    <option key={category.id} value={category.id}>
+                                                        {category.denomination}
+                                                    </option>
+                                                ))
+                                                : categories.map((category) => (
+                                                    <option key={category.id} value={category.id}>
+                                                        {category.denomination}
+                                                    </option>
+                                                ))}
                                         </Form.Select>
                                     </Form.Group>
                                 </Col>
