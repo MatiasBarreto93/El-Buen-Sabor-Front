@@ -1,158 +1,105 @@
-import {
-    Button,
-    Col,
-    Form,
-    Modal,
-    ModalTitle,
-    Row
-} from "react-bootstrap";
 import React, {useEffect, useState} from "react";
-import {toast} from "react-toastify";
-import {useAuth0} from "@auth0/auth0-react";
 import {Category} from "../../../../interfaces/category";
+import {ModalType} from "../../../../interfaces/ModalType";
+import {useGenericGet} from "../../../../services/useGenericGet";
+import {useGenericPost} from "../../../../services/useGenericPost";
+import {useGenericPut} from "../../../../services/useGenericPut";
+import {useGenericChangeStatus} from "../../../../services/useGenericChangeStatus";
+import * as Yup from 'yup';
+import {useFormik} from "formik";
+import {Button, Col, Form, Modal, Row} from "react-bootstrap";
 
 interface Props {
     show: boolean;
     onHide: () => void;
     title:string
-    cat: Category | null;
-    fetchCategories: () => void;
+    cat: Category;
+    setRefetch: React.Dispatch<React.SetStateAction<boolean>>;
+    modalType: ModalType;
 }
 
-export const CategoryModal = ( { show, onHide, title, cat, fetchCategories }: Props) => {
-    const { getAccessTokenSilently } = useAuth0();
+export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType }: Props) => {
 
-    const [category, setCategory] = useState<Category | undefined>(cat? cat : {
-        id: 0,
-        denomination: "",
-        isBanned: false,
-        fatherCategory: null,
-        childCategories: null,
-    });
+    const [categories, setCategories] = useState<Category[]> ([]);
+    const [editCategories, setEditCategories] = useState<Category[]>([]);
 
-    const [categories, setCategories] = useState<Category[]>([]);
+    const genericPost = useGenericPost();
+    const genericPut = useGenericPut();
+    const updateCategoryStatus = useGenericChangeStatus();
+
+    const data = useGenericGet<Category>("categories/filter", "Categorías");
 
     useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const token = await getAccessTokenSilently();
-                const response = await fetch("http://localhost:8080/api/v1/categories", {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    setCategories(data)
-                    console.log(data)
-                } else {
-                    console.error("Error fetching data:", response.status);
-                }
-            } catch (e) {
-                console.error("Error fetching data:", e);
-            }
-        };
-        fetchCategories();
-    }, []);
+        setCategories(data);
+    }, [data]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
+    const dataCategoriesEdit = useGenericGet<Category>(`categories/filter/${cat.id}`, "Categorías");
 
-        setCategory((prevCategory) => {
-            const updatedCategory: Category = { ...(prevCategory || {} as Category) };
+    useEffect(() => {
+        setEditCategories(dataCategoriesEdit);
+    }, [dataCategoriesEdit]);
 
-            if (name === "denomination") {
-                updatedCategory.denomination = value;
-            } else if (name === "category.father") {
-                const categoryFatherId = parseInt(value);
-                updatedCategory.fatherCategory = categoryFatherId ? categories.find(category => category.id === categoryFatherId) || null : null;
-            } else if (name === "category.blocked") {
-                updatedCategory.isBanned = value === "true";
-            }
-            return updatedCategory;
-        });
-    };
-
-    const handleSaveUpdate = async () => {
-        const isNew = !category?.id;
-
-        const url = isNew
-            ? "http://localhost:8080/api/v1/categories"
-            : `http://localhost:8080/api/v1/categories/${category?.id}`;
-
-        try {
-            const token = await getAccessTokenSilently();
-            const response = await fetch(url, {
-                method: isNew ? "POST" : "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify(category),
-            });
-            if (response.ok) {
-                onHide();
-                await fetchCategories();
-                toast.success(isNew ? "Categoría Creada" : "Categoría Actualizada", {
-                    position: "top-center",
-                });
-            } else {
-                toast.error("Ah ocurrido un error", {
-                    position: "top-center",
-                });
-            }
-        } catch (error) {
-            toast.error("Ah ocurrido un error" + error, {
-                position: "top-center",
-            });
+    const handleSaveUpdate = async(category: Category) => {
+        const isNew = category.id === 0;
+        console.log(JSON.stringify(category, null, 2))
+        if (!isNew) {
+            await genericPut<Category>("categories", category.id, category, "Categorías");
+        } else {
+            await genericPost<Category>("categories", "Categorías", category);
         }
+        setRefetch(true);
+        onHide();
+
     }
 
     const handleStateCategory = async () => {
+        if(cat) {
+            const id = cat.id;
+            const isBlocked = !cat.blocked;
 
-        const token = await getAccessTokenSilently();
+            await updateCategoryStatus(id, isBlocked, "categories", "Categoría");
 
-        if (category) {
-            const id = category.id;
-            const blocked = !category.isBanned;
-            try {
-                await fetch(`http://localhost:8080/api/v1/categories/${id}/block?blocked=${blocked}`, {
-                    method: 'PUT',
-                    headers:{
-                        Authorization: `Bearer ${token}`
-                    }
-                });
-                await fetchCategories();
-                onHide();
-                toast.success(`Estado de la Categoría Actualizada`, {
-                    position: "top-center",
-                });
-            } catch (error) {
-                toast.error("Ah ocurrido un error", {
-                    position: "top-center",
-                });
-            }
+            setRefetch(true);
+            onHide();
         }
+    }
+
+    const validationSchema = () => {
+        return Yup.object().shape({
+            id: Yup.number().integer().min(0),
+            denomination: Yup.string().required('La denominacion es requerida'),
+            blocked: Yup.boolean(),
+            categoryFatherId: Yup.number().integer().min(0).nullable(),
+            categoryFatherDenomination: Yup.string().nullable(),
+        });
+    }
+
+    const handleCategoryFatherChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedCategory = parseInt(event.target.value, 10);
+        formik.setFieldValue(
+            'categoryFatherId',
+            isNaN(selectedCategory) ? null : selectedCategory
+        );
     };
 
-    const validTitles = ["Nueva Categoría", "Editar Categoría", "¿Bloquear Categoría?", "¿Desbloquear Categoría?"];
-    if (!validTitles.includes(title)) {
-        return (
-            toast.error("Error!, la funcion requerida no existe", {
-                position: "top-center"
-            }))
-    }
+    const formik = useFormik({
+        initialValues: cat,
+        validationSchema: validationSchema(),
+        validateOnChange: true,
+        validateOnBlur: true,
+        onSubmit: (obj: Category) => handleSaveUpdate(obj)
+    });
 
     return(
         <>
-            {title.toLowerCase().includes("quear")
+            {modalType === ModalType.ChangeStatus
                 ?
                 <Modal show={show} onHide={onHide} centered backdrop="static">
                     <Modal.Header closeButton>
-                        <ModalTitle>{title}</ModalTitle>
+                        <Modal.Title>{title}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <p>¿Esta seguro que desea modificar el estado de la Categoría? <br/> <strong>{category?.denomination}</strong></p>
+                        <p>¿Está seguro que desea modificar el estado de la Categoría?<br/> <strong>{cat.denomination}</strong>?</p>
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={onHide}>
@@ -164,65 +111,79 @@ export const CategoryModal = ( { show, onHide, title, cat, fetchCategories }: Pr
                     </Modal.Footer>
                 </Modal>
                 :
-                <Modal show={show} onHide={onHide} centered backdrop="static">
+                <Modal show={show} onHide={onHide} centered backdrop="static" className="modal-xl">
                     <Modal.Header closeButton>
                         <Modal.Title>{title}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <Form>
+                        <Form onSubmit={formik.handleSubmit}>
                             <Row>
                                 <Col>
                                     <Form.Group controlId="formDenomination">
-                                        <Form.Label>Denominacion</Form.Label>
+                                        <Form.Label>Denominación</Form.Label>
                                         <Form.Control
                                             name="denomination"
                                             type="text"
-                                            value={category?.denomination || ''}
-                                            onChange={handleChange}
+                                            value={formik.values.denomination || ''}
+                                            onChange={formik.handleChange}
+                                            onBlur={formik.handleBlur}
+                                            isInvalid={Boolean(formik.errors.denomination && formik.touched.denomination)}
                                         />
+                                        <Form.Control.Feedback type="invalid">
+                                            {formik.errors.denomination}
+                                        </Form.Control.Feedback>
                                     </Form.Group>
                                 </Col>
                             </Row>
                             <Row>
                                 <Col>
-                                    <Form.Group controlId="formCategory">
+                                    <Form.Group controlId="formCategoryFatherId">
                                         <Form.Label>Categoría Padre</Form.Label>
                                         <Form.Select
-                                            name="category.father"
-                                            value ={JSON.stringify(category?.fatherCategory || "")}
-                                            onChange={handleChange}>
-                                                <option value={""}>No tiene</option>
-                                                {categories.map((category) => (
-                                                    <option key={category.id} value={JSON.stringify(category)}>
-                                                        {category.denomination}
-                                                    </option>
-                                                ))}
+                                            name="categoryFatherId"
+                                            value={formik.values.categoryFatherId || ''}
+                                            onChange={handleCategoryFatherChange}
+                                            isInvalid={formik.touched.categoryFatherId && formik.errors.categoryFatherId}
+                                        >
+                                            <option value="">Seleccionar</option>
+                                            {categories.map((category) => (
+                                                <option key={category.id} value={category.id}>
+                                                    {category.denomination}
+                                                </option>
+                                            ))}
                                         </Form.Select>
+                                        <Form.Control.Feedback type="invalid">
+                                            {formik.errors.categoryFatherId}
+                                        </Form.Control.Feedback>
                                     </Form.Group>
                                 </Col>
                                 <Col>
-                                    <Form.Group controlId="formBanned">
+                                    <Form.Group controlId="formBlocked">
                                         <Form.Label>Estado</Form.Label>
                                         <Form.Select
-                                            name="category.blocked"
-                                            value={category?.isBanned.toString()}
-                                            onChange={handleChange}>
-                                                <option value="false">Activo</option>
-                                                <option value="true">Bloqueado</option>
+                                            name="blocked"
+                                            value={formik.values.blocked.toString()}
+                                            onChange={(event) => {
+                                                formik.setFieldValue("blocked", event.target.value === "true");
+                                                console.log(formik.values.blocked);
+                                            }}
+                                        >
+                                            <option value="false">Activo</option>
+                                            <option value="true">Bloqueado</option>
                                         </Form.Select>
                                     </Form.Group>
                                 </Col>
                             </Row>
+                            <Modal.Footer className="mt-4">
+                                <Button variant="secondary" onClick={onHide}>
+                                    Cancelar
+                                </Button>
+                                <Button variant="primary" type="submit" disabled={!formik.isValid}>
+                                    Guardar
+                                </Button>
+                            </Modal.Footer>
                         </Form>
                     </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={onHide}>
-                            Cancelar
-                        </Button>
-                        <Button variant="primary" onClick={handleSaveUpdate}>
-                            Guardar
-                        </Button>
-                    </Modal.Footer>
                 </Modal>
             }
         </>
