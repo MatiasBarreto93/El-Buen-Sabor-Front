@@ -1,57 +1,47 @@
 import {useEffect, useState} from "react";
 import {Category} from "../../../../interfaces/category";
+import "./../../../styles/table.css"
 import {LockFill, PencilFill, UnlockFill} from "react-bootstrap-icons";
 import {Button, Table} from "react-bootstrap";
-import {useAuth0} from "@auth0/auth0-react";
+import {useGenericGet} from "../../../../services/useGenericGet";
+import {ModalType} from "../../../../interfaces/ModalType";
+import {useInitializeCategory} from "./hooks/useInitializeCategory";
+import {CategoryModal} from "./categoryModal";
 
 export const CategoriesTable = () => {
+    const [refetch, setRefetch] = useState(false)
+
+    const data = useGenericGet<Category>("categories", "Categorías", refetch);
     const [categories, setCategories] = useState<Category[]>([]);
-    const { getAccessTokenSilently } = useAuth0();
 
     useEffect(() => {
-        fetchCategories();
-    }, []);
-
-    async function fetchCategories() {
-        try {
-            const token = await getAccessTokenSilently();
-            const response = await fetch("http://localhost:8080/api/v1/categories", {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            if (response.ok) {
-                const data = await response.json();
-                setCategories(data)
-                console.log(data)
-            } else {
-                console.error("Error fetching data:", response.status);
-            }
-        } catch (e) {
-            console.error("Error fetching data:", e);
-        }
-    }
+        setCategories(data);
+        setRefetch(false);
+    }, [data]);
 
     const [showModal, setShowModal] = useState(false);
-    const [tittle, setTitle] = useState("");
-    const [category, setCategory] = useState<Category> | null> (null);
+    const [modalType, setModalType] = useState<ModalType>(ModalType.None);
+    const [title, setTitle] = useState("");
 
-    const handleClick = (newTitle: string, category?: Category) => {
+    const [newCategory, setCategory, createNewCategory] = useInitializeCategory(undefined);
+
+    const handleClick = (newTitle: string, category: Category, modal: ModalType) => {
         setTitle(newTitle);
         setCategory(category);
+        setModalType(modal)
         setShowModal(true);
     };
 
     return(
         <>
-            <Button onClick={() => handleClick("Nueva Categoría")}>
+            <Button onClick={() => handleClick("Nueva Categoria", createNewCategory(), ModalType.Create)}>
                 Nueva Categoría
             </Button>
             <Table hover>
                 <thead>
                 <tr className="encabezado">
                     <th>Denominación</th>
-                    <th>Categoría Padre</th>
+                    <th>Categoría Principal</th>
                     <th>Estado</th>
                     <th></th>
                     <th></th>
@@ -61,16 +51,16 @@ export const CategoriesTable = () => {
                 {categories.map(category => (
                     <tr key={category.id}>
                         <td>{category.denomination}</td>
-                        <td>{category.fatherCategory?.denomination}</td>
-                        <td style={{ fontWeight: 'bold', color: category.isBanned ? '#D32F2F' : '#34A853' }}>
-                            {category.isBanned ? 'Bloqueado' : 'Activo'}
+                        <td>{category.categoryFatherDenomination}</td>
+                        <td style={{ fontWeight: 'bold', color: category.blocked ? '#D32F2F' : '#34A853'}}>
+                            {category.blocked ? 'Bloqueado' : 'Activo'}
                         </td>
                         <td>
                             <PencilFill
                                 color="#FBC02D"
                                 size={24}
                                 onClick={() => {
-                                    handleClick("Editar Categoría", category);
+                                    handleClick("Editar Categoría", category, ModalType.Edit);
                                 }}
                                 title="Editar Categoría"
                                 onMouseEnter={() => {document.body.style.cursor = 'pointer'}}
@@ -78,21 +68,20 @@ export const CategoriesTable = () => {
                             />
                         </td>
                         <td>
-                            {/*ACA HAY QUE BUSCAR LA FORMA DE OBTENER EL ESTADO DEL EMPLEADO*/}
-                            {category.isBanned ?
+                            {category.blocked ?
                                 <LockFill
                                     color="#D32F2F"
                                     size={24}
-                                    title="Bloquear Categoría"
-                                    onClick={() => handleClick("¿Desbloquear Categoría?", category)}
+                                    title="Desbloquear Categoría"
+                                    onClick={() => handleClick("¿Desbloquear Categoría?", category, ModalType.ChangeStatus)}
                                     onMouseEnter={() => {document.body.style.cursor = 'pointer'}}
                                     onMouseLeave={() => {document.body.style.cursor = 'default'}} />
                                 :
                                 <UnlockFill
                                     color="#34A853"
                                     size={24}
-                                    title="Desbloquear Categoría"
-                                    onClick={() => handleClick("¿Bloquear Categoría?", category)}
+                                    title="Bloquear Categoría"
+                                    onClick={() => handleClick("¿Bloquear Categoría?", category, ModalType.ChangeStatus)}
                                     onMouseEnter={() => {document.body.style.cursor = 'pointer'}}
                                     onMouseLeave={() => {document.body.style.cursor = 'default'}} />}
                         </td>
@@ -100,6 +89,15 @@ export const CategoriesTable = () => {
                 ))}
                 </tbody>
             </Table>
+            {showModal && (
+                <CategoryModal cat={newCategory}
+                               title={title}
+                               show={showModal}
+                               onHide={() => setShowModal(false)}
+                               setRefetch={setRefetch}
+                               modalType={modalType}
+                />
+            )}
         </>
     )
 

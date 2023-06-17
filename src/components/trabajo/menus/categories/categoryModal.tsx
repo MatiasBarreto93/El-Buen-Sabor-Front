@@ -1,51 +1,191 @@
-import {Button, Col, Form, Modal, Row} from "react-bootstrap";
 import React, {useEffect, useState} from "react";
-import {toast} from "react-toastify";
-import {useAuth0} from "@auth0/auth0-react";
 import {Category} from "../../../../interfaces/category";
+import {ModalType} from "../../../../interfaces/ModalType";
+import {useGenericGet} from "../../../../services/useGenericGet";
+import {useGenericPost} from "../../../../services/useGenericPost";
+import {useGenericPut} from "../../../../services/useGenericPut";
+import {useGenericChangeStatus} from "../../../../services/useGenericChangeStatus";
+import * as Yup from 'yup';
+import {useFormik} from "formik";
+import {Button, Col, Form, Modal, Row} from "react-bootstrap";
 
 interface Props {
     show: boolean;
     onHide: () => void;
     title:string
     cat: Category;
-    fetchCategories: () => void;
+    setRefetch: React.Dispatch<React.SetStateAction<boolean>>;
+    modalType: ModalType;
 }
 
-export const CategoryModal = ( { show, onHide, title, cat, fetchCategories }: Props) => {
-    const { getAccessTokenSilently } = useAuth0();
+export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType }: Props) => {
 
-    const [category, setCategory] = useState<Category | undefined>(cat? cat : {
-        id: 0,
-        denomination: "",
-        isBanned: false,
-        fatherCategory: null,
-        childCategories: null,
-    });
+    const [categories, setCategories] = useState<Category[]> ([]);
+    const [editCategories, setEditCategories] = useState<Category[]>([]);
 
-    const [categories, setCategories] = useState<Category[]>([]);
+    const genericPost = useGenericPost();
+    const genericPut = useGenericPut();
+    const updateCategoryStatus = useGenericChangeStatus();
+
+    const data = useGenericGet<Category>("categories/filter", "Categorías");
 
     useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const token = await getAccessTokenSilently();
-                const response = await fetch("http://localhost:8080/api/v1/categories", {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    setCategories(data)
-                    console.log(data)
-                } else {
-                    console.error("Error fetching data:", response.status);
-                }
-            } catch (e) {
-                console.error("Error fetching data:", e);
-            }
-        };
-        fetchCategories();
-    }, []);
+        setCategories(data);
+    }, [data]);
 
+    const dataCategoriesEdit = useGenericGet<Category>(`categories/filter/${cat.id}`, "Categorías");
+
+    useEffect(() => {
+        setEditCategories(dataCategoriesEdit);
+    }, [dataCategoriesEdit]);
+
+    const handleSaveUpdate = async(category: Category) => {
+        const isNew = category.id === 0;
+        console.log(JSON.stringify(category, null, 2))
+        if (!isNew) {
+            await genericPut<Category>("categories", category.id, category, "Categorías");
+        } else {
+            await genericPost<Category>("categories", "Categorías", category);
+        }
+        setRefetch(true);
+        onHide();
+
+    }
+
+    const handleStateCategory = async () => {
+        if(cat) {
+            const id = cat.id;
+            const isBlocked = !cat.blocked;
+
+            await updateCategoryStatus(id, isBlocked, "categories", "Categoría");
+
+            setRefetch(true);
+            onHide();
+        }
+    }
+
+    const validationSchema = () => {
+        return Yup.object().shape({
+            id: Yup.number().integer().min(0),
+            denomination: Yup.string().required('La denominacion es requerida'),
+            blocked: Yup.boolean(),
+            categoryFatherId: Yup.number().integer().min(0).nullable(),
+            categoryFatherDenomination: Yup.string().nullable(),
+        });
+    }
+
+    const handleCategoryFatherChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedCategory = parseInt(event.target.value, 10);
+        formik.setFieldValue(
+            'categoryFatherId',
+            isNaN(selectedCategory) ? null : selectedCategory
+        );
+    };
+
+    const formik = useFormik({
+        initialValues: cat,
+        validationSchema: validationSchema(),
+        validateOnChange: true,
+        validateOnBlur: true,
+        onSubmit: (obj: Category) => handleSaveUpdate(obj)
+    });
+
+    return(
+        <>
+            {modalType === ModalType.ChangeStatus
+                ?
+                <Modal show={show} onHide={onHide} centered backdrop="static">
+                    <Modal.Header closeButton>
+                        <Modal.Title>{title}</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <p>¿Está seguro que desea modificar el estado de la Categoría?<br/> <strong>{cat.denomination}</strong>?</p>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={onHide}>
+                            Cancelar
+                        </Button>
+                        <Button variant="danger" onClick={handleStateCategory}>
+                            Guardar
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+                :
+                <Modal show={show} onHide={onHide} centered backdrop="static" className="modal-xl">
+                    <Modal.Header closeButton>
+                        <Modal.Title>{title}</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Form onSubmit={formik.handleSubmit}>
+                            <Row>
+                                <Col>
+                                    <Form.Group controlId="formDenomination">
+                                        <Form.Label>Denominación</Form.Label>
+                                        <Form.Control
+                                            name="denomination"
+                                            type="text"
+                                            value={formik.values.denomination || ''}
+                                            onChange={formik.handleChange}
+                                            onBlur={formik.handleBlur}
+                                            isInvalid={Boolean(formik.errors.denomination && formik.touched.denomination)}
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            {formik.errors.denomination}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col>
+                                    <Form.Group controlId="formCategoryFatherId">
+                                        <Form.Label>Categoría Padre</Form.Label>
+                                        <Form.Select
+                                            name="categoryFatherId"
+                                            value={formik.values.categoryFatherId || ''}
+                                            onChange={handleCategoryFatherChange}
+                                            isInvalid={formik.touched.categoryFatherId && formik.errors.categoryFatherId}
+                                        >
+                                            <option value="">Seleccionar</option>
+                                            {categories.map((category) => (
+                                                <option key={category.id} value={category.id}>
+                                                    {category.denomination}
+                                                </option>
+                                            ))}
+                                        </Form.Select>
+                                        <Form.Control.Feedback type="invalid">
+                                            {formik.errors.categoryFatherId}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
+                                </Col>
+                                <Col>
+                                    <Form.Group controlId="formBlocked">
+                                        <Form.Label>Estado</Form.Label>
+                                        <Form.Select
+                                            name="blocked"
+                                            value={formik.values.blocked.toString()}
+                                            onChange={(event) => {
+                                                formik.setFieldValue("blocked", event.target.value === "true");
+                                                console.log(formik.values.blocked);
+                                            }}
+                                        >
+                                            <option value="false">Activo</option>
+                                            <option value="true">Bloqueado</option>
+                                        </Form.Select>
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                            <Modal.Footer className="mt-4">
+                                <Button variant="secondary" onClick={onHide}>
+                                    Cancelar
+                                </Button>
+                                <Button variant="primary" type="submit" disabled={!formik.isValid}>
+                                    Guardar
+                                </Button>
+                            </Modal.Footer>
+                        </Form>
+                    </Modal.Body>
+                </Modal>
+            }
+        </>
+    )
 }
