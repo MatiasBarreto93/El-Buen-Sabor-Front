@@ -10,9 +10,9 @@ import {useDeleteRolesFromUserAuth0} from "../../../Auth0/hooks/useDeleteRolesFr
 import {useChangeAuth0UserState} from "../../../Auth0/hooks/useChangeAuth0UserState.ts";
 import {useGenericPost} from "../../../../services/useGenericPost.ts";
 import {useGenericPut} from "../../../../services/useGenericPut.ts";
-import * as Yup from 'yup';
 import {useFormik} from "formik";
 import {ModalType} from "../../../../interfaces/ModalType.ts";
+import {employeeValidationSchema} from "./employeeValidationSchema.ts";
 
 interface Props  {
     show: boolean;
@@ -81,7 +81,7 @@ export const EmployeeModal = ({ show, onHide, title, emp, setRefetch, modalType 
         onHide();
     };
 
-    //Si es un nuevo empleado agrego el "user_id" de Auth0 al objeto
+    //Agrega el campo auth0Id al nuevo empleado para guardarlo en la BBDD
     async function asignarAuth0Id(empleado:Customer, newAuth0ID: string) {
         return {
             ...empleado,
@@ -151,55 +151,10 @@ export const EmployeeModal = ({ show, onHide, title, emp, setRefetch, modalType 
         }
     };
 
-    //Validaciones del Formulario
-    const validationSchema = (id:number) =>{
-        return  Yup.object().shape({
-            id: Yup.number().integer().min(0),
-            name: Yup.string().required('El nombre es requerido'),
-            lastname: Yup.string().required('El apellido es requerido'),
-            phone: Yup.string().required('El teléfono es requerido'),
-            address: Yup.string().required('La dirección es requerida'),
-            apartment: Yup.string().required('El apartamento es requerido'),
-
-            user: Yup.object().shape({
-                id: Yup.number().integer().min(0),
-                auth0Id: Yup.string(),
-                email: Yup.string().email('Ingresa un correo electrónico válido').required('El correo electrónico es requerido'),
-                blocked: Yup.boolean(),
-                password: id === 0
-                    ? Yup.string()
-                        .required('Contraseña es requerida')
-                        .min(8, 'Debe tener al menos 8 caracteres de longitud')
-                        .matches(/(?=.*[a-z])/g, 'Debe contener al menos una letra minúscula (a-z)')
-                        .matches(/(?=.*[A-Z])/g, 'Debe contener al menos una letra mayúscula (A-Z)')
-                        .matches(/(?=.*\d)/g, 'Debe contener al menos un número (0-9)')
-                        .matches(/(?=.*[!@#$%^&*])/g, 'Debe contener al menos un carácter especial (como !@#$%^&)')
-                        .test('passwordComplexity', 'Debe contener al menos 3 de los siguientes 4 tipos de caracteres', (value) => {
-                            if (!value) return false;
-                            const counts = [/[a-z]/, /[A-Z]/, /\d/, /[!@#$%^&*]/].map((regex) => regex.test(value)).filter((match) => match).length;
-                            return counts >= 3;
-                        })
-                    : Yup.string().nullable().notRequired(),
-                confirmPassword: id === 0
-                    ? Yup.string()
-                        .required('Confirmar Contraseña es requerida')
-                        .oneOf([Yup.ref('password')], 'Las contraseñas deben coincidir')
-                    : Yup.string().nullable().notRequired(),
-
-                role: Yup.object().shape({
-                    id: Yup.string().required(),
-                    denomination: Yup.string().required(),
-                    auth0RolId: Yup.string().required(),
-                }),
-            }),
-            orders: Yup.array(),
-        });
-    }
-
     //Config del Formulario
     const formik = useFormik({
         initialValues: emp,
-        validationSchema: validationSchema(emp.id),
+        validationSchema: employeeValidationSchema(emp.id),
         validateOnChange: true,
         validateOnBlur: true,
         onSubmit: (obj: Customer) => handleSaveUpdate(obj)

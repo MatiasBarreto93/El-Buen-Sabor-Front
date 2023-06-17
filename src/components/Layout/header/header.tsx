@@ -14,7 +14,7 @@ export const Header = () => {
             <Container fluid>
                 <div className="d-flex mx-2">
                     <img alt={"logo"} src={"/img/imgnavbar.png"} height="50"/>
-                    <Navbar.Brand href="#" className="mx-2">El Buen Sabor</Navbar.Brand>
+                    <Navbar.Brand href="/" className="mx-2">El Buen Sabor</Navbar.Brand>
                 </div>
                 <Navbar.Toggle aria-controls="navbarScroll" />
                 <Navbar.Collapse id="navbarScroll">

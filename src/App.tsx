@@ -21,7 +21,6 @@ export function App() {
           <Router>
               <Routes>
                   <Route path="/" element={<Home />} />
-                  <Route path="/miperfil"/>
                   <Route path="/mipedido"/>
                   <Route path="/historialpedido"/>
                   <Route path="/trabajo" element={<Trabajo />}/>

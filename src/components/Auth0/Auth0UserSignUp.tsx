@@ -5,12 +5,13 @@ import {Button, Col, Form, Modal, Row} from "react-bootstrap";
 import {useInitializeCustomer} from "../trabajo/menus/employees/hooks/useInitializeCustomer.ts";
 import {useGetUserRolesAuth0} from "./hooks/useGetUserRolesAuth0.ts";
 import {ModalType} from "../../interfaces/ModalType.ts";
-import * as Yup from "yup";
 import {useFormik} from "formik";
 import {Auth0Password, Auth0Roles, Customer} from "../../interfaces/customer.ts";
 import {useGenericPost} from "../../services/useGenericPost.ts";
 import {useChangeUserPasswordAuth0} from "./hooks/useChangeUserPasswordAuth0.tsx";
 import {useConfetti} from "../../services/useConfetti.ts";
+import {validationSchemaPass} from "./validationSchemaPass.ts";
+import {validationSchemaCustomer} from "./validationSchemaCustomer.ts";
 
 interface Props {
     firstRender: boolean;
@@ -41,6 +42,13 @@ export const Auth0UserSignUp = ({firstRender, setFirstRender}:Props) => {
     //Rol
     const [rol, setRol] = useState<Auth0Roles>({} as Auth0Roles)
 
+    //Password para el Nuevo Empleado
+    const [auth0Password] = useState<Auth0Password>({
+        password: '',
+        confirmPassword: ''
+    });
+
+    //Obtener la cantidad de logins del usuario al logear en la aplicacion
     useEffect(() =>{
         async function getLoginCount(){
             if (user && user.sub != null && firstRender){
@@ -63,7 +71,7 @@ export const Auth0UserSignUp = ({firstRender, setFirstRender}:Props) => {
     },[user, firstRender])
 
 
-    //Agregar los datos de auth0 y rol al cliente
+    //Agregar los datos de auth0 y rol al cliente para guardar en la BBDD
     async function asignarAuth0IdAndRol(empleado: Customer, newAuth0ID: string, email: string) {
         return {
             ...empleado,
@@ -94,59 +102,6 @@ export const Auth0UserSignUp = ({firstRender, setFirstRender}:Props) => {
         }
     }
 
-    //Validaciones del Formulario Cliente
-    const validationSchema = Yup.object().shape({
-        id: Yup.number().integer().min(0),
-        name: Yup.string().required('El nombre es requerido'),
-        lastname: Yup.string().required('El apellido es requerido'),
-        phone: Yup.string().required('El teléfono es requerido'),
-        address: Yup.string().required('La dirección es requerida'),
-        apartment: Yup.string().required('El apartamento es requerido'),
-    });
-
-    //Config del Formulario Cliente
-    const formik = useFormik({
-        initialValues: cliente,
-        validationSchema: validationSchema,
-        validateOnChange: true,
-        validateOnBlur: true,
-        onSubmit: (obj: Customer) => handleSave(obj),
-    });
-
-    //Password para el Nuevo Empleado
-    const [auth0Password] = useState<Auth0Password>({
-        password: '',
-        confirmPassword: ''
-    });
-
-    //Validacion Password para el empleado
-    const validationSchemaPass = Yup.object().shape({
-        password: Yup.string()
-            .required('Contraseña es requerida')
-            .min(8, 'Debe tener al menos 8 caracteres de longitud')
-            .matches(/(?=.*[a-z])/g, 'Debe contener al menos una letra minúscula (a-z)')
-            .matches(/(?=.*[A-Z])/g, 'Debe contener al menos una letra mayúscula (A-Z)')
-            .matches(/(?=.*\d)/g, 'Debe contener al menos un número (0-9)')
-            .matches(/(?=.*[!@#$%^&*])/g, 'Debe contener al menos un carácter especial (como !@#$%^&)')
-            .test('passwordComplexity', 'Debe contener al menos 3 de los siguientes 4 tipos de caracteres', (value) => {
-                if (!value) return false;
-                const counts = [/[a-z]/, /[A-Z]/, /\d/, /[!@#$%^&*]/].map((regex) => regex.test(value)).filter((match) => match).length;
-                return counts >= 3;
-            }),
-        confirmPassword: Yup.string()
-            .required('Confirmar Contraseña es requerida')
-            .oneOf([Yup.ref('password')], 'Las contraseñas deben coincidir'),
-    });
-
-    //Config Formulario Nuevo Empleado
-    const formikPassword = useFormik({
-        initialValues: auth0Password,
-        validationSchema: validationSchemaPass,
-        validateOnChange: true,
-        validateOnBlur: true,
-        onSubmit: (obj: Auth0Password) => handleNewPass(obj),
-    });
-
     const handleNewPass = async (newPass: Auth0Password) => {
         if (user && user.sub != null){
             await changeUserPasswordAuth0(user.sub, newPass.password)
@@ -155,6 +110,24 @@ export const Auth0UserSignUp = ({firstRender, setFirstRender}:Props) => {
             setShowModal(false)
         }
     }
+
+    //Config del Formulario Cliente
+    const formik = useFormik({
+        initialValues: cliente,
+        validationSchema: validationSchemaCustomer,
+        validateOnChange: true,
+        validateOnBlur: true,
+        onSubmit: (obj: Customer) => handleSave(obj),
+    });
+
+    //Config Formulario cambio de contrasenia
+    const formikPassword = useFormik({
+        initialValues: auth0Password,
+        validationSchema: validationSchemaPass,
+        validateOnChange: true,
+        validateOnBlur: true,
+        onSubmit: (obj: Auth0Password) => handleNewPass(obj),
+    });
 
     return(
         <>
