@@ -74,6 +74,14 @@ export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType
         });
     }
 
+    const handleCategoryFatherChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedCategory = parseInt(event.target.value, 10);
+        formik.setFieldValue(
+            'categoryFatherId',
+            isNaN(selectedCategory) ? null : selectedCategory
+        );
+    };
+
     const formik = useFormik({
         initialValues: cat,
         validationSchema: validationSchema(),
@@ -129,33 +137,24 @@ export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType
                             </Row>
                             <Row>
                                 <Col>
-                                    <Form.Group>
-                                        <Form.Label>Categoría Principal</Form.Label>
+                                    <Form.Group controlId="formCategoryFatherId">
+                                        <Form.Label>Categoría Padre</Form.Label>
                                         <Form.Select
                                             name="categoryFatherId"
                                             value={formik.values.categoryFatherId || ''}
-                                            onChange={(event) => {
-                                                const selectedCategory = parseInt(event.target.value, 10);
-                                                formik.setFieldValue(
-                                                    "categoryFatherId",
-                                                    isNaN(selectedCategory) ? null : selectedCategory
-                                                );
-                                            }}
-                                            defaultValue={formik.initialValues.categoryFatherId}
+                                            onChange={handleCategoryFatherChange}
+                                            isInvalid={formik.touched.categoryFatherId && formik.errors.categoryFatherId}
                                         >
-                                            <option value="">-</option>
-                                            {cat.id !== 0
-                                                ? editCategories.map((category) => (
-                                                    <option key={category.id} value={category.id}>
-                                                        {category.denomination}
-                                                    </option>
-                                                ))
-                                                : categories.map((category) => (
-                                                    <option key={category.id} value={category.id}>
-                                                        {category.denomination}
-                                                    </option>
-                                                ))}
+                                            <option value="">Seleccionar</option>
+                                            {categories.map((category) => (
+                                                <option key={category.id} value={category.id}>
+                                                    {category.denomination}
+                                                </option>
+                                            ))}
                                         </Form.Select>
+                                        <Form.Control.Feedback type="invalid">
+                                            {formik.errors.categoryFatherId}
+                                        </Form.Control.Feedback>
                                     </Form.Group>
                                 </Col>
                                 <Col>
