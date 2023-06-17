@@ -1,5 +1,6 @@
 import {Layout} from "../Layout/layout.tsx";
-import {EmpyCart} from "./empyCart/EmpyCart.tsx";
+import {FullCart} from "./fullCart/FullCart.tsx";
+//import {EmpyCart} from "./empyCart/EmpyCart.tsx";
 
 export const MiPedido = () => {
 
@@ -7,7 +8,8 @@ export const MiPedido = () => {
 
     return(
         <Layout>
-            <EmpyCart/>
+            {/*<EmpyCart/>*/}
+            <FullCart/>
         </Layout>
     )
 }
