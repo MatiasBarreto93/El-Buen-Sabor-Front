@@ -5,6 +5,7 @@ import {Home} from "./components/home/home.tsx";
 import {Trabajo} from "./components/trabajo/trabajo.tsx";
 import {Auth0UserSignUp} from "./components/Auth0/Auth0UserSignUp.tsx";
 import {useState} from "react";
+import {MiPedido} from "./components/mipedido/MiPedido.tsx";
 
 export function App() {
 
@@ -21,7 +22,7 @@ export function App() {
           <Router>
               <Routes>
                   <Route path="/" element={<Home />} />
-                  <Route path="/mipedido"/>
+                  <Route path="/mipedido" element={<MiPedido />}/>
                   <Route path="/historialpedido"/>
                   <Route path="/trabajo" element={<Trabajo />}/>
               </Routes>
