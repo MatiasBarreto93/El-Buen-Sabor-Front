@@ -1,0 +1,101 @@
+.rectangle {
+    border: 2px solid #99a3a4;
+    border-radius: 10px;
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+}
+
+.rectangle-btn {
+    border: 2px solid #99a3a4;
+    border-radius: 10px;
+    margin: 10px;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+}
+
+.btn-cart-shadow{
+    margin: 10px;
+    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+}
+
+.title{
+    border-bottom: 2px solid #99a3a4;
+    margin-bottom: 30px;
+}
+
+.custom-label {
+    font-size: 16px;
+}
+
+.custom-input {
+    font-size: 16px;
+    padding: 10px;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.25);
+}
+.custom-radio {
+    display: inline-block;
+    margin: 10px;
+    padding: 10px;
+    font-size: 18px;
+    border: 2px solid #99a3a4;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.25);
+}
+
+.custom-radio .form-check-input[type="radio"] {
+    display: none;
+}
+
+.custom-radio .form-check-label {
+    position: relative;
+    padding-left: 30px;
+}
+
+.custom-radio .form-check-label::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #D32F2F;
+    border-radius: 50%;
+}
+
+.custom-radio .form-check-label::after {
+    content: "";
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 10px;
+    height: 10px;
+    background-color: #E53935;
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.custom-radio .form-check-input[type="radio"]:checked + .form-check-label::after {
+    opacity: 1;
+}
+
+.custom-radio .form-check-input[type="radio"]:focus + .form-check-label::before {
+    box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.5);
+}
+
+.custom-radio .form-check-input[type="radio"]:checked + .form-check-label::before {
+    border-color: #D32F2F;
+}
+
+.custom-radio .form-check-input[type="radio"]:checked + .form-check-label {
+    border-color: #D32F2F;
+}
+
+
