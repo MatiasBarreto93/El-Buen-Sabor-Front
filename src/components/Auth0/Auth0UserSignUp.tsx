@@ -11,7 +11,7 @@ import {useGenericPost} from "../../services/useGenericPost.ts";
 import {useChangeUserPasswordAuth0} from "./hooks/useChangeUserPasswordAuth0.tsx";
 import {useConfetti} from "../../services/useConfetti.ts";
 import {validationSchemaPass} from "./validationSchemaPass.ts";
-import {validationSchemaCustomer} from "./validationSchemaCustomer.ts";
+import {singUpCustomerValidationSchema} from "./singUpCustomerValidationSchema.ts";
 
 interface Props {
     firstRender: boolean;
@@ -20,7 +20,7 @@ interface Props {
 
 export const Auth0UserSignUp = ({firstRender, setFirstRender}:Props) => {
 
-    //Hook
+    //Hooks
     const { user} = useAuth0();
 
     //Custom Hooks de Auth0
@@ -48,7 +48,6 @@ export const Auth0UserSignUp = ({firstRender, setFirstRender}:Props) => {
         confirmPassword: ''
     });
 
-    //Obtener la cantidad de logins del usuario al logear en la aplicacion
     useEffect(() =>{
         async function getLoginCount(){
             if (user && user.sub != null && firstRender){
@@ -114,7 +113,7 @@ export const Auth0UserSignUp = ({firstRender, setFirstRender}:Props) => {
     //Config del Formulario Cliente
     const formik = useFormik({
         initialValues: cliente,
-        validationSchema: validationSchemaCustomer,
+        validationSchema: singUpCustomerValidationSchema,
         validateOnChange: true,
         validateOnBlur: true,
         onSubmit: (obj: Customer) => handleSave(obj),

@@ -1,6 +1,6 @@
 import * as Yup from "yup";
 
-export const validationSchemaCustomer = Yup.object().shape({
+export const singUpCustomerValidationSchema = Yup.object().shape({
     id: Yup.number().integer().min(0),
     name: Yup.string().required('El nombre es requerido'),
     lastname: Yup.string().required('El apellido es requerido'),

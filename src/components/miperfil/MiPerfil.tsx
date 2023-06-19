@@ -1,4 +1,4 @@
-import {validationSchemaCustomer} from "../Auth0/validationSchemaCustomer.ts";
+import {singUpCustomerValidationSchema} from "../Auth0/singUpCustomerValidationSchema.ts";
 import {useFormik} from "formik";
 import {Customer} from "../../interfaces/customer.ts";
 import {useConfetti} from "../../services/useConfetti.ts";
@@ -29,7 +29,7 @@ export const MiPerfil = ({show, onHide, cliente, resetForm}:Props) => {
 //Config del Formulario Cliente
     const formik = useFormik({
         initialValues: cliente,
-        validationSchema: validationSchemaCustomer,
+        validationSchema: singUpCustomerValidationSchema,
         validateOnChange: true,
         validateOnBlur: true,
         enableReinitialize: true,

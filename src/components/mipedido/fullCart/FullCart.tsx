@@ -6,7 +6,7 @@ import {Customer} from "../../../interfaces/customer.ts";
 import {useConfetti} from "../../../services/useConfetti.ts";
 import {useState} from "react";
 import {useFormik} from "formik";
-import {validationSchemaCustomer} from "../../Auth0/validationSchemaCustomer.ts";
+import {singUpCustomerValidationSchema} from "../../Auth0/singUpCustomerValidationSchema.ts";
 
 interface Props{
     cliente:Customer;
@@ -36,7 +36,7 @@ export const FullCart = ({cliente}:Props) => {
 
     const formik = useFormik({
         initialValues: cliente,
-        validationSchema: validationSchemaCustomer,
+        validationSchema: singUpCustomerValidationSchema,
         validateOnChange: true,
         validateOnBlur: true,
         enableReinitialize: true,
