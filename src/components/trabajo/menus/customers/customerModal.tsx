@@ -1,4 +1,4 @@
-import {Auth0Roles, Auth0User, Customer, Role} from "../../../../interfaces/customer.ts";
+import {Auth0User, Customer, Role} from "../../../../interfaces/customer.ts";
 import {ModalType} from "../../../../interfaces/ModalType.ts";
 import React, {useEffect, useRef, useState} from "react";
 import {useGenericPost} from "../../../../services/useGenericPost.ts";
@@ -6,8 +6,6 @@ import {useGenericPut} from "../../../../services/useGenericPut.ts";
 import {useGenericChangeStatus} from "../../../../services/useGenericChangeStatus.ts";
 import {useCreateUserAuth0} from "../../../Auth0/hooks/useCreateUserAuth0.ts";
 import {useAssignRoleToUserAuth0} from "../../../Auth0/hooks/useAssignRoleToUserAuth0.ts";
-import {useGetUserRolesAuth0} from "../../../Auth0/hooks/useGetUserRolesAuth0.ts";
-import {useDeleteRolesFromUserAuth0} from "../../../Auth0/hooks/useDeleteRolesFromUserAuth0.ts";
 import {useChangeAuth0UserState} from "../../../Auth0/hooks/useChangeAuth0UserState.ts";
 import {Button, Col, Form, Modal, Row} from "react-bootstrap";
 import {useFormik} from "formik";
@@ -49,8 +47,6 @@ export const CustomerModal = ({ show, onHide, title, cus, setRefetch, modalType 
     //Custom Hooks de Auth0
     const createUserAuth0 = useCreateUserAuth0();
     const assignRoleToUserAuth0 = useAssignRoleToUserAuth0()
-    const getUserRolesAuth0 = useGetUserRolesAuth0();
-    const deleteRolesFromUserAuth0 = useDeleteRolesFromUserAuth0();
     const updateAuth0UserStatus = useChangeAuth0UserState();
 
     //POST-PUT CLiente de AUTH0 y BBDD
@@ -73,7 +69,6 @@ export const CustomerModal = ({ show, onHide, title, cus, setRefetch, modalType 
 
             //BBDD
             const clientePost:Customer = await asignarAuth0IdRoleInfo(customer, newAuth0ID);
-            console.log(JSON.stringify(clientePost, null, 2))
             await genericPost<Customer>("customers", "Cliente", clientePost);
         }
         setRefetch(true);
@@ -108,11 +103,6 @@ export const CustomerModal = ({ show, onHide, title, cus, setRefetch, modalType 
                 blocked: customer.user.blocked,
             };
             const newAuth0UserId = await  createUserAuth0(customerUser);
-
-            const userRoles:Auth0Roles[] = await getUserRolesAuth0(newAuth0UserId);
-            if (userRoles.length > 0) {
-                await deleteRolesFromUserAuth0(newAuth0UserId, userRoles)
-            }
             if (defaultRole){
             await assignRoleToUserAuth0(newAuth0UserId, defaultRole.auth0RolId);
             }

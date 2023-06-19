@@ -6,6 +6,7 @@ import {useInitializeCustomer} from "../employees/hooks/useInitializeCustomer.ts
 import {Button, Table} from "react-bootstrap";
 import {LockFill, PencilFill, UnlockFill} from "react-bootstrap-icons";
 import {CustomerModal} from "./customerModal.tsx";
+import "./../../../styles/table.css"
 
 export const CustomersTable = () => {
 

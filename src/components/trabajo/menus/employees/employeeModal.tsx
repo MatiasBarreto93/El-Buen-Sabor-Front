@@ -104,12 +104,6 @@ export const EmployeeModal = ({ show, onHide, title, emp, setRefetch, modalType 
                 blocked: empleado.user.blocked,
             };
             const newAuth0UserId = await  createUserAuth0(empleadoUser);
-
-            const userRoles:Auth0Roles[] = await getUserRolesAuth0(newAuth0UserId);
-            if (userRoles.length > 0) {
-                await deleteRolesFromUserAuth0(newAuth0UserId, userRoles)
-            }
-
             await assignRoleToUserAuth0(newAuth0UserId, rolId);
             return newAuth0UserId;
 

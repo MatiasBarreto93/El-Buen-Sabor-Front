@@ -1,9 +1,11 @@
 import { useAuth0 } from "@auth0/auth0-react";
-import { Customer } from "../../../interfaces/customer.ts";
+import { Customer } from "../interfaces/customer.ts";
+import {useInitializeCustomer} from "../components/trabajo/menus/employees/hooks/useInitializeCustomer.ts";
 
 export const useGetCustomer = () => {
     const url = import.meta.env.VITE_BACKEND_API_URL || "";
     const { getAccessTokenSilently } = useAuth0();
+    const [,, createNewCustomer] = useInitializeCustomer(undefined)
 
     const getCustomer = async (auth0Id: string | undefined): Promise<Customer> => {
         let fetchedCustomer;
@@ -16,8 +18,13 @@ export const useGetCustomer = () => {
                         Authorization: `Bearer ${token}`,
                     },
                 });
-                if (response.ok) {
+
+                const contentType = response.headers.get("content-type");
+
+                if (response.ok && contentType && contentType.includes("application/json")) {
                     fetchedCustomer = await response.json();
+                } else {
+                    fetchedCustomer = await createNewCustomer();
                 }
             }
         } catch (e) {

@@ -1,12 +1,12 @@
 import {useEffect, useState} from "react";
-import {Customer} from "../../../../interfaces/customer.ts";
-import "./../../../styles/table.css"
-import {LockFill, PencilFill, UnlockFill} from "react-bootstrap-icons";
-import {Button, Table} from "react-bootstrap";
-import {EmployeeModal} from "./employeeModal.tsx";
 import {useGenericGet} from "../../../../services/useGenericGet.ts";
-import {useInitializeCustomer} from "./hooks/useInitializeCustomer.ts";
+import {Customer} from "../../../../interfaces/customer.ts";
 import {ModalType} from "../../../../interfaces/ModalType.ts";
+import {useInitializeCustomer} from "./hooks/useInitializeCustomer.ts";
+import {Button, Table} from "react-bootstrap";
+import {LockFill, PencilFill, UnlockFill} from "react-bootstrap-icons";
+import {EmployeeModal} from "./employeeModal.tsx";
+import "./../../../styles/table.css"
 
 export const EmployeesTable = () =>{
 

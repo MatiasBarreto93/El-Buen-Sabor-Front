@@ -3,9 +3,10 @@ import {ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import {Home} from "./components/home/home.tsx";
 import {Trabajo} from "./components/trabajo/trabajo.tsx";
-import {Auth0UserSignUp} from "./components/Auth0/Auth0UserSignUp.tsx";
+import {EmployeeSignUp} from "./components/Auth0/EmployeeSignUp.tsx";
 import {useState} from "react";
 import {MiPedido} from "./components/mipedido/MiPedido.tsx";
+import {MiPerfil} from "./components/miperfil/MiPerfil.tsx";
 
 export function App() {
 
@@ -18,10 +19,11 @@ export function App() {
   return (
       <>
           <ToastContainer/>
-          {firtsRender ? <Auth0UserSignUp firstRender={firtsRender} setFirstRender={setFirtsRender}/> : null}
+          {firtsRender ? <EmployeeSignUp firstRender={firtsRender} setFirstRender={setFirtsRender}/> : null}
           <Router>
               <Routes>
                   <Route path="/" element={<Home />} />
+                  <Route path="/miperfil" element={<MiPerfil />}/>
                   <Route path="/mipedido" element={<MiPedido />}/>
                   <Route path="/historialpedido"/>
                   <Route path="/trabajo" element={<Trabajo />}/>

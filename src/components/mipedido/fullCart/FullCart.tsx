@@ -6,7 +6,7 @@ import {Customer} from "../../../interfaces/customer.ts";
 import {useConfetti} from "../../../services/useConfetti.ts";
 import {useState} from "react";
 import {useFormik} from "formik";
-import {singUpCustomerValidationSchema} from "../../Auth0/singUpCustomerValidationSchema.ts";
+import {customerDataValidationSchema} from "../../miperfil/customerDataValidationSchema.ts";
 
 interface Props{
     cliente:Customer;
@@ -16,13 +16,11 @@ export const FullCart = ({cliente}:Props) => {
 
     const confettiEffect = useConfetti();
 
-
+    //Botones de + y - en la tabla (deben ser estados separados por cada item)
     const [quantity, setQuantity] = useState(1);
-
     const increaseQuantity = () => {
         setQuantity(quantity + 1);
     };
-
     const decreaseQuantity = () => {
         if (quantity > 1) {
             setQuantity(quantity - 1);
@@ -30,13 +28,15 @@ export const FullCart = ({cliente}:Props) => {
     };
 
     const handleSave = async (cli: Customer) => {
+        //------
         console.log(cli)
+        //------
         confettiEffect();
     }
 
     const formik = useFormik({
         initialValues: cliente,
-        validationSchema: singUpCustomerValidationSchema,
+        validationSchema: customerDataValidationSchema,
         validateOnChange: true,
         validateOnBlur: true,
         enableReinitialize: true,

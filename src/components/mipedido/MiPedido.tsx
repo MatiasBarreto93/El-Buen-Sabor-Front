@@ -1,6 +1,6 @@
 import {Layout} from "../Layout/layout.tsx";
 import {FullCart} from "./fullCart/FullCart.tsx";
-import {useGetCustomer} from "../miperfil/hooks/useGetCustomer.ts";
+import {useGetCustomer} from "../../services/useGetCustomer.ts";
 import {useAuth0} from "@auth0/auth0-react";
 import {useInitializeCustomer} from "../trabajo/menus/employees/hooks/useInitializeCustomer.ts";
 import {useEffect} from "react";
