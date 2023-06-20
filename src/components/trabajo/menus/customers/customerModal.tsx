@@ -60,7 +60,7 @@ export const CustomerModal = ({ show, onHide, title, cus, setRefetch, modalType 
             await handleAuth0User(isNew,customer, userId);
 
             //BBDD
-            await genericPut<Customer>("customers", customer.id, customer, "Cliente");
+            await genericPut<Customer>("customers", customer.id, customer, "Cliente Editado");
 
             //POST
         } else {
@@ -69,7 +69,7 @@ export const CustomerModal = ({ show, onHide, title, cus, setRefetch, modalType 
 
             //BBDD
             const clientePost:Customer = await asignarAuth0IdRoleInfo(customer, newAuth0ID);
-            await genericPost<Customer>("customers", "Cliente", clientePost);
+            await genericPost<Customer>("customers", "Cliente Creado", clientePost);
         }
         setRefetch(true);
         onHide();

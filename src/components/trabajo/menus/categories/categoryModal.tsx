@@ -42,9 +42,9 @@ export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType
     const handleSaveUpdate = async(category: Category) => {
         const isNew = category.id === 0;
         if (!isNew) {
-            await genericPut<Category>("categories", category.id, category, "Categorías");
+            await genericPut<Category>("categories", category.id, category, "Categoría Editada");
         } else {
-            await genericPost<Category>("categories", "Categorías", category);
+            await genericPost<Category>("categories", "Categoría Creada", category);
         }
         setRefetch(true);
         onHide();

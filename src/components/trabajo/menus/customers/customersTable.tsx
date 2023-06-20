@@ -4,9 +4,10 @@ import {Customer} from "../../../../interfaces/customer.ts";
 import {ModalType} from "../../../../interfaces/ModalType.ts";
 import {useInitializeCustomer} from "../employees/hooks/useInitializeCustomer.ts";
 import {Button, Table} from "react-bootstrap";
-import {LockFill, PencilFill, UnlockFill} from "react-bootstrap-icons";
 import {CustomerModal} from "./customerModal.tsx";
 import "./../../../styles/table.css"
+import {EditButton} from "../../../table/EditButton.tsx";
+import {StatusButton} from "../../../table/StatusButton.tsx";
 
 export const CustomersTable = () => {
 
@@ -40,6 +41,7 @@ export const CustomersTable = () => {
 
     return(
         <>
+            <h5 className="encabezado mb-3">Clientes</h5>
             <Button onClick={() => handleClick("Nuevo Cliente", createNewEmployee(), ModalType.Create)}>
                 Nuevo Cliente
             </Button>
@@ -63,35 +65,12 @@ export const CustomersTable = () => {
                         <td style={{ fontWeight: 'bold', color: customer.user.blocked ? '#D32F2F' : '#34A853' }}>
                             {customer.user.blocked ? 'Bloqueado' : 'Activo'}
                         </td>
-                        <td>
-                            <PencilFill
-                                color="#FBC02D"
-                                size={24}
-                                onClick={() => {
-                                    handleClick("Editar Cliente", customer, ModalType.Edit);
-                                }}
-                                title="Editar Empleado"
-                                onMouseEnter={() => {document.body.style.cursor = 'pointer'}}
-                                onMouseLeave={() => {document.body.style.cursor = 'default'}}
-                            />
-                        </td>
-                        <td>
-                            {customer.user.blocked ?
-                                <LockFill
-                                    color="#D32F2F"
-                                    size={24}
-                                    title="Bloquear Empleado"
-                                    onClick={() => handleClick("¿Desbloquear Cliente?", customer, ModalType.ChangeStatus)}
-                                    onMouseEnter={() => {document.body.style.cursor = 'pointer'}}
-                                    onMouseLeave={() => {document.body.style.cursor = 'default'}} />
-                                :
-                                <UnlockFill
-                                    color="#34A853"
-                                    size={24}
-                                    title="Desbloquear Empleado"
-                                    onClick={() => handleClick("¿Bloquear Cliente?", customer, ModalType.ChangeStatus)}
-                                    onMouseEnter={() => {document.body.style.cursor = 'pointer'}}
-                                    onMouseLeave={() => {document.body.style.cursor = 'default'}} />}
+                        <td><EditButton onClick={() => {handleClick("Editar Cliente", customer, ModalType.Edit)}}/></td>
+                        <td><StatusButton
+                            isBlocked={customer.user.blocked}
+                            onClick={() => {handleClick(customer.user.blocked ? "¿Desbloquear Cliente?" : "¿Bloquear Cliente?",
+                                customer,
+                                ModalType.ChangeStatus)}}/>
                         </td>
                     </tr>
                 ))}

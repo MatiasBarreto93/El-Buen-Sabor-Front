@@ -40,6 +40,7 @@ export const EmployeesTable = () =>{
 
     return(
         <>
+            <h5 className="encabezado mb-3">Empleados</h5>
             <Button onClick={() => handleClick("Nuevo Empleado", createNewEmployee(), ModalType.Create)}>Nuevo Empleado</Button>
             <Table hover>
                 <thead>
@@ -62,7 +63,12 @@ export const EmployeesTable = () =>{
                         <td>{empleado.user.role.denomination}</td>
                         <td style={{ fontWeight: 'bold', color: empleado.user.blocked ? '#D32F2F' : '#34A853' }}>{empleado.user.blocked ? 'Bloqueado' : 'Activo'}</td>
                         <td><EditButton onClick={() => {handleClick("Editar Empleado", empleado, ModalType.Edit)}}/></td>
-                        <td><StatusButton isBlocked={empleado.user.blocked} onClick={() => {handleClick(empleado.user.blocked ? "¿Desbloquear Empleado?" : "¿Bloquear Empleado?", empleado, ModalType.ChangeStatus)}}/></td>
+                        <td><StatusButton
+                            isBlocked={empleado.user.blocked}
+                            onClick={() => {handleClick(empleado.user.blocked ? "¿Desbloquear Empleado?" : "¿Bloquear Empleado?",
+                                empleado,
+                                ModalType.ChangeStatus)}}/>
+                        </td>
                     </tr>
                 ))}
                 </tbody>

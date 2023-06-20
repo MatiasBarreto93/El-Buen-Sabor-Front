@@ -30,13 +30,13 @@ export const CustomerPersonalData = ({cliente}: Props) => {
             if (user && user.sub != null){
                 const userRoles:Auth0Roles[] = await getUserRolesAuth0(user.sub);
                 const customerPost:Customer = await addCustomerAuth0Data(cli, user ,userRoles);
-                await genericPost<Customer>("customers", "Cliente", customerPost);
+                await genericPost<Customer>("customers", "Datos Actualizados", customerPost);
                 confettiEffect();
             }
         } else {
             //PUT BBDD
             if (!_.isEqual(cli, cliente)){
-                await genericPut<Customer>("customers", cli.id, cli, "Cliente");
+                await genericPut<Customer>("customers", cli.id, cli, "Datos Actualizados");
                 confettiEffect();
             }
         }
