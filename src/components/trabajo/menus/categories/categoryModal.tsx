@@ -21,7 +21,7 @@ interface Props {
 export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType }: Props) => {
 
     const [categories, setCategories] = useState<Category[]> ([]);
-    const [editCategories, setEditCategories] = useState<Category[]>([]);
+    const [, setEditCategories] = useState<Category[]>([]);
 
     const genericPost = useGenericPost();
     const genericPut = useGenericPut();
@@ -41,7 +41,6 @@ export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType
 
     const handleSaveUpdate = async(category: Category) => {
         const isNew = category.id === 0;
-        console.log(JSON.stringify(category, null, 2))
         if (!isNew) {
             await genericPut<Category>("categories", category.id, category, "Categorías");
         } else {
@@ -143,7 +142,7 @@ export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType
                                             name="categoryFatherId"
                                             value={formik.values.categoryFatherId || ''}
                                             onChange={handleCategoryFatherChange}
-                                            isInvalid={formik.touched.categoryFatherId && formik.errors.categoryFatherId}
+                                            isInvalid={Boolean(formik.touched.categoryFatherId && formik.errors.categoryFatherId)}
                                         >
                                             <option value="">Seleccionar</option>
                                             {categories.map((category) => (
@@ -165,7 +164,6 @@ export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType
                                             value={formik.values.blocked.toString()}
                                             onChange={(event) => {
                                                 formik.setFieldValue("blocked", event.target.value === "true");
-                                                console.log(formik.values.blocked);
                                             }}
                                         >
                                             <option value="false">Activo</option>
