@@ -310,7 +310,7 @@ export const FullCart = ({cliente}:Props) => {
                     Cancelar Pedido
                 </Button>
                 <Button variant="primary" type="submit" disabled={!formik.isValid} className="btn-cart-shadow">
-                    Confirmar Pedido!
+                    ¡Confirmar Pedido!
                 </Button>
             </div>
         </Form>

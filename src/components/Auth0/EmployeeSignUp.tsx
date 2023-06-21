@@ -44,6 +44,8 @@ export const EmployeeSignUp = ({firstRender, setFirstRender}:Props) => {
                         setCurrentModal(ModalType.ChangePass)
                         setShowModal(true)
                     }
+                } else{
+                    setFirstRender(false);
                 }
             }
         }
