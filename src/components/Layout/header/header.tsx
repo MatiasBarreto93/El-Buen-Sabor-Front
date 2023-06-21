@@ -2,7 +2,7 @@ import './header.css';
 import "../../styles/botones.css"
 import {Button, Container, Form, Navbar} from "react-bootstrap";
 import {useAuth0} from "@auth0/auth0-react";
-import {DropDownMenu} from "./userDropDown.tsx";
+import {DropDownMenu} from "./dropDownMenu.tsx";
 import {LogInButton} from "./logInButton.tsx";
 
 export const Header = () => {
@@ -14,7 +14,7 @@ export const Header = () => {
             <Container fluid>
                 <div className="d-flex mx-2">
                     <img alt={"logo"} src={"/img/imgnavbar.png"} height="50"/>
-                    <Navbar.Brand href="#" className="mx-2">El Buen Sabor</Navbar.Brand>
+                    <Navbar.Brand href="/" className="mx-2">El Buen Sabor</Navbar.Brand>
                 </div>
                 <Navbar.Toggle aria-controls="navbarScroll" />
                 <Navbar.Collapse id="navbarScroll">

@@ -6,7 +6,7 @@ export const useGenericPut = () => {
     const url: string = import.meta.env.VITE_BACKEND_API_URL || "";
     const { getAccessTokenSilently } = useAuth0();
 
-    const genericPut = async <T>(endpoint: string, id:number, obj:T, entidadMsj:string) => {
+    const genericPut = async <T>(endpoint: string, id:number, obj:T, msj:string) => {
         try {
             const token = await getAccessTokenSilently();
 
@@ -19,12 +19,12 @@ export const useGenericPut = () => {
                 body: JSON.stringify(obj),
             });
             if (response.ok) {
-                toast.success(`${entidadMsj} Editado`, {
+                toast.success(`${msj}`, {
                     position: "top-center",
                 });
             }
         } catch (error) {
-            toast.error(`Ah ocurrido un error al Editar un ${entidadMsj}` + error, {
+            toast.error(`Ah ocurrido un error` + error, {
                 position: "top-center",
             });
         }

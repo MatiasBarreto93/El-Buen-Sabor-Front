@@ -6,7 +6,7 @@ export const useGenericPost = () => {
     const url: string = import.meta.env.VITE_BACKEND_API_URL || "";
     const { getAccessTokenSilently } = useAuth0();
 
-    const genericPost = async <T>(endpoint: string, entidadMsj:string ,obj?:T) => {
+    const genericPost = async <T>(endpoint: string, msj:string ,obj?:T) => {
         try {
             const token = await getAccessTokenSilently();
 
@@ -19,12 +19,12 @@ export const useGenericPost = () => {
                 body: JSON.stringify(obj),
             });
             if (response.ok) {
-                toast.success(`${entidadMsj} Creado`, {
+                toast.success(`${msj}`, {
                     position: "top-center",
                 });
             }
         } catch (error) {
-            toast.error(`Ah ocurrido un error al Crear un Nuevo ${entidadMsj}` + error, {
+            toast.error(`Ah ocurrido un error` + error, {
                 position: "top-center",
             });
         }
