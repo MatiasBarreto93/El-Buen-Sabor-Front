@@ -7,7 +7,7 @@ export const EmpyCart = () => {
         <Container fluid className="block">
             <Container fluid className="btnCart">
                 <h4>Tu orden está vacía</h4>
-                <Button>¡Empezar a Comprar!</Button>
+                <Button className="btn-cart-shadow">¡Empezar a Comprar!</Button>
             </Container>
         </Container>
     )
