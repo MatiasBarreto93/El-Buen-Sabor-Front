@@ -1,41 +1,43 @@
-import {Button, Col, Form, Modal, Row} from "react-bootstrap";
+import {Auth0User, Customer, Role} from "../../../../interfaces/customer.ts";
+import {ModalType} from "../../../../interfaces/ModalType.ts";
 import React, {useEffect, useRef, useState} from "react";
-import {Auth0Roles, Auth0User, Customer, Role} from "../../../../interfaces/customer.ts";
-import {useGenericGet} from "../../../../services/useGenericGet.ts";
+import {useGenericPost} from "../../../../services/useGenericPost.ts";
+import {useGenericPut} from "../../../../services/useGenericPut.ts";
 import {useGenericChangeStatus} from "../../../../services/useGenericChangeStatus.ts";
 import {useCreateUserAuth0} from "../../../Auth0/hooks/useCreateUserAuth0.ts";
 import {useAssignRoleToUserAuth0} from "../../../Auth0/hooks/useAssignRoleToUserAuth0.ts";
-import {useGetUserRolesAuth0} from "../../../Auth0/hooks/useGetUserRolesAuth0.ts";
-import {useDeleteRolesFromUserAuth0} from "../../../Auth0/hooks/useDeleteRolesFromUserAuth0.ts";
 import {useChangeAuth0UserState} from "../../../Auth0/hooks/useChangeAuth0UserState.ts";
-import {useGenericPost} from "../../../../services/useGenericPost.ts";
-import {useGenericPut} from "../../../../services/useGenericPut.ts";
+import {Button, Col, Form, Modal, Row} from "react-bootstrap";
 import {useFormik} from "formik";
-import {ModalType} from "../../../../interfaces/ModalType.ts";
-import {employeeValidationSchema} from "./employeeValidationSchema.ts";
+import {useGenericGet} from "../../../../services/useGenericGet.ts";
+import {customerValidationSchema} from "./customerValidationSchema.ts";
 
 interface Props  {
     show: boolean;
     onHide: () => void;
     title:string
-    emp: Customer;
+    cus: Customer;
     setRefetch: React.Dispatch<React.SetStateAction<boolean>>;
     modalType: ModalType;
 }
+export const CustomerModal = ({ show, onHide, title, cus, setRefetch, modalType }: Props) => {
 
-export const EmployeeModal = ({ show, onHide, title, emp, setRefetch, modalType }: Props) =>{
+    //Campos para crear un nuevo cliente
+    let [newAuth0ID] = useState("");
+
+    //Campos para verificar la edicion del cliente
+    const prevStatus = useRef(cus.user.blocked)
 
     //Roles
     const [roles, setRoles] = useState<Role[]>([]);
-    const [rolId, setRolId] = useState("");
-    const [defaultRoleVisible, setDefaultRoleVisible] = useState(true);
+    //Seteo el rol a "Cliente"
+    const defaultRole:Role | undefined = roles.find((role) => role.id === 5);
 
-    //Campos para verificar la edicion del Empleado
-    const prevRoleId = useRef(emp.user.role.id);
-    const prevStatus = useRef(emp.user.blocked)
-
-    //Campos para crear un nuevo Empleado
-    let [newAuth0ID] = useState("");
+    //Obtener los roles y llenar el HTMLSelect del formulario cada vez que se renderiza el Modal
+    const data = useGenericGet<Role>("roles", "Roles");
+    useEffect(() =>{
+        setRoles(data);
+    },[data])
 
     //Customs Hooks Generics
     const genericPost = useGenericPost();
@@ -45,97 +47,86 @@ export const EmployeeModal = ({ show, onHide, title, emp, setRefetch, modalType 
     //Custom Hooks de Auth0
     const createUserAuth0 = useCreateUserAuth0();
     const assignRoleToUserAuth0 = useAssignRoleToUserAuth0()
-    const getUserRolesAuth0 = useGetUserRolesAuth0();
-    const deleteRolesFromUserAuth0 = useDeleteRolesFromUserAuth0();
     const updateAuth0UserStatus = useChangeAuth0UserState();
 
-    //Obtener los roles y llenar el HTMLSelect del formulario cada vez que se renderiza el Modal
-    const data = useGenericGet<Role>("roles", "Roles");
-    useEffect(() =>{
-        setRoles(data);
-    },[data])
-
-    //POST-PUT Empleado de AUTH0 y BBDD
-    const handleSaveUpdate = async (empleado: Customer) => {
-        const isNew = empleado.id === 0;
-        const userId = empleado.user.auth0Id;
+    //POST-PUT CLiente de AUTH0 y BBDD
+    const handleSaveUpdate = async (customer: Customer) => {
+        const isNew = customer.id === 0;
+        const userId = customer.user.auth0Id;
 
         //PUT
         if (!isNew && userId) {
             //AUTH0
-            await handleAuth0User(isNew,empleado, userId);
+            await handleAuth0User(isNew,customer, userId);
 
             //BBDD
-            await genericPut<Customer>("customers", empleado.id, empleado, "Empleado");
+            await genericPut<Customer>("customers", customer.id, customer, "Cliente Editado");
 
-        //POST
+            //POST
         } else {
             //AUTH0
-            newAuth0ID = await handleAuth0User(isNew, empleado)
+            newAuth0ID = await handleAuth0User(isNew, customer)
 
             //BBDD
-            const empleadoPost:Customer = await asignarAuth0Id(empleado, newAuth0ID);
-            await genericPost<Customer>("customers", "Empleado", empleadoPost);
+            const clientePost:Customer = await asignarAuth0IdRoleInfo(customer, newAuth0ID);
+            await genericPost<Customer>("customers", "Cliente Creado", clientePost);
         }
         setRefetch(true);
         onHide();
     };
 
-    //Agrega el campo auth0Id al nuevo empleado para guardarlo en la BBDD
-    async function asignarAuth0Id(empleado:Customer, newAuth0ID: string) {
+    //Agrega el campo auth0Id al nuevo cliente para guardarlo en la BBDD
+    async function asignarAuth0IdRoleInfo(customer:Customer, newAuth0ID: string) {
         return {
-            ...empleado,
+            ...customer,
             user: {
-                ...empleado.user,
+                ...customer.user,
                 auth0Id: newAuth0ID,
+                role: defaultRole || {
+                    id: 0,
+                    denomination: "",
+                    auth0RolId: ""
+                },
             },
         };
     }
 
-    //POST-PUT Empleado AUTH0
-    async function handleAuth0User(newUser:boolean, empleado: Customer ,auth0Id?: string ) {
+    //POST-PUT Cliente AUTH0
+    async function handleAuth0User(newUser:boolean, customer: Customer ,auth0Id?: string ) {
         const userId:string = auth0Id ?? "";
 
         //POST AUTH0
         if (newUser) {
-            const empleadoUser: Auth0User = {
-                email: empleado.user.email,
-                password: empleado.user.password,
-                blocked: empleado.user.blocked,
+            const customerUser: Auth0User = {
+                email: customer.user.email,
+                password: customer.user.password,
+                blocked: customer.user.blocked,
             };
-            const newAuth0UserId = await  createUserAuth0(empleadoUser);
-            await assignRoleToUserAuth0(newAuth0UserId, rolId);
+            const newAuth0UserId = await  createUserAuth0(customerUser);
+            if (defaultRole){
+            await assignRoleToUserAuth0(newAuth0UserId, defaultRole.auth0RolId);
+            }
             return newAuth0UserId;
 
-        //PUT AUTH0
+            //PUT AUTH0
         } else {
-
-            //Si se cambia el ROL
-            if (prevRoleId.current !== empleado.user.role.id){
-                const userRoles:Auth0Roles[] = await getUserRolesAuth0(userId);
-                if (userRoles.length > 0) {
-                    await deleteRolesFromUserAuth0(userId, userRoles)
-                }
-                await assignRoleToUserAuth0(userId, rolId);
-            }
-
             //Si se cambia el Estado
-            if(prevStatus.current !== empleado.user.blocked){
-                const isBlocked = empleado.user.blocked
+            if(prevStatus.current !== customer.user.blocked){
+                const isBlocked = customer.user.blocked
                 await updateAuth0UserStatus(userId, isBlocked)
             }
         }
     }
 
     //Maneja el estado "banned" de AUTH0 y BBDD
-    const handleEstadoEmpleado = async () => {
-        if (emp) {
-            const id = emp.id;
-            const isBlocked = !emp.user.blocked
-            const authId = emp.user.auth0Id ?? "";
+    const handleEstadoCliente = async () => {
+        if (cus) {
+            const id = cus.id;
+            const isBlocked = !cus.user.blocked
+            const authId = cus.user.auth0Id ?? "";
 
             //BBDD
-            await updateUserStatus(id, isBlocked, "user", "Empleado");
+            await updateUserStatus(id, isBlocked, "user", "Cliente");
 
             //AUTH0
             await updateAuth0UserStatus(authId, isBlocked);
@@ -147,29 +138,29 @@ export const EmployeeModal = ({ show, onHide, title, emp, setRefetch, modalType 
 
     //Config del Formulario
     const formik = useFormik({
-        initialValues: emp,
-        validationSchema: employeeValidationSchema(emp.id),
+        initialValues: cus,
+        validationSchema: customerValidationSchema(cus.id),
         validateOnChange: true,
         validateOnBlur: true,
         onSubmit: (obj: Customer) => handleSaveUpdate(obj)
     });
 
-    return (
+    return(
         <>
-             {modalType === ModalType.ChangeStatus
+            {modalType === ModalType.ChangeStatus
                 ?
                 <Modal show={show} onHide={onHide} centered backdrop="static">
                     <Modal.Header closeButton>
                         <Modal.Title>{title}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <p>¿Está seguro que desea modificar el estado del Empleado?<br/> <strong>{emp.name} {emp.lastname}</strong>?</p>
+                        <p>¿Está seguro que desea modificar el estado del Cliente?<br/> <strong>{cus.name} {cus.lastname}</strong>?</p>
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={onHide}>
                             Cancelar
                         </Button>
-                        <Button variant="danger" onClick={handleEstadoEmpleado}>
+                        <Button variant="danger" onClick={handleEstadoCliente}>
                             Guardar
                         </Button>
                     </Modal.Footer>
@@ -284,41 +275,41 @@ export const EmployeeModal = ({ show, onHide, title, emp, setRefetch, modalType 
                                 </Col>
                             </Row>
                             {/*---------------------------------------------------------------------------------------*/}
-                            {emp.id === 0 && (
-                            <Row>
-                                <Col>
-                                    <Form.Group controlId="formPassword">
-                                        <Form.Label>Contraseña Provisoria</Form.Label>
-                                        <Form.Control
-                                            name="user.password"
-                                            type="password"
-                                            value={formik.values.user.password || ''}
-                                            onChange={formik.handleChange}
-                                            onBlur={formik.handleBlur}
-                                            isInvalid={Boolean(formik.errors.user?.password && formik.touched.user?.password)}
-                                        />
-                                        <Form.Control.Feedback type="invalid">
-                                            {formik.errors.user?.password}
-                                        </Form.Control.Feedback>
-                                    </Form.Group>
-                                </Col>
-                                <Col>
-                                    <Form.Group controlId="formConfirmPass">
-                                        <Form.Label>Confirmar Contraseña Provisoria</Form.Label>
-                                        <Form.Control
-                                            name="user.confirmPassword"
-                                            type="password"
-                                            value={formik.values.user.confirmPassword || ''}
-                                            onChange={formik.handleChange}
-                                            onBlur={formik.handleBlur}
-                                            isInvalid={Boolean(formik.errors.user?.confirmPassword && formik.touched.user?.confirmPassword)}
-                                        />
-                                        <Form.Control.Feedback type="invalid">
-                                            {formik.errors.user?.confirmPassword}
-                                        </Form.Control.Feedback>
-                                    </Form.Group>
-                                </Col>
-                            </Row>
+                            {cus.id === 0 && (
+                                <Row>
+                                    <Col>
+                                        <Form.Group controlId="formPassword">
+                                            <Form.Label>Contraseña Provisoria</Form.Label>
+                                            <Form.Control
+                                                name="user.password"
+                                                type="password"
+                                                value={formik.values.user.password || ''}
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                                isInvalid={Boolean(formik.errors.user?.password && formik.touched.user?.password)}
+                                            />
+                                            <Form.Control.Feedback type="invalid">
+                                                {formik.errors.user?.password}
+                                            </Form.Control.Feedback>
+                                        </Form.Group>
+                                    </Col>
+                                    <Col>
+                                        <Form.Group controlId="formConfirmPass">
+                                            <Form.Label>Confirmar Contraseña Provisoria</Form.Label>
+                                            <Form.Control
+                                                name="user.confirmPassword"
+                                                type="password"
+                                                value={formik.values.user.confirmPassword || ''}
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                                isInvalid={Boolean(formik.errors.user?.confirmPassword && formik.touched.user?.confirmPassword)}
+                                            />
+                                            <Form.Control.Feedback type="invalid">
+                                                {formik.errors.user?.confirmPassword}
+                                            </Form.Control.Feedback>
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
                             )}
                             {/*---------------------------------------------------------------------------------------*/}
                             <Row>
@@ -326,23 +317,17 @@ export const EmployeeModal = ({ show, onHide, title, emp, setRefetch, modalType 
                                     <Form.Group controlId="formRole">
                                         <Form.Label>Rol</Form.Label>
                                         <Form.Select
+                                            disabled={true}
                                             name="user.role"
                                             value={JSON.stringify(formik.values.user.role)}
-                                            onChange={(event) => {
-                                                const selectedRole = JSON.parse(event.target.value);
-                                                formik.setFieldValue("user.role", selectedRole);
-                                                setRolId(selectedRole.auth0RolId);
-                                            }}
-                                            onClick={() => {setDefaultRoleVisible(false);}}
+                                            defaultValue={JSON.stringify(defaultRole)}
                                         >
-                                            {defaultRoleVisible && (<option value="">-</option>)}
-                                            {roles.map((role) => (
-                                                <option key={role.id} value={JSON.stringify(role)}>
-                                                    {role.denomination}
-                                                </option>
-                                            ))}
+                                            <option key={defaultRole?.id} value={JSON.stringify(defaultRole)}>
+                                                {defaultRole?.denomination}
+                                            </option>
                                         </Form.Select>
                                     </Form.Group>
+
                                 </Col>
                                 <Col>
                                     <Form.Group controlId="formBanned">

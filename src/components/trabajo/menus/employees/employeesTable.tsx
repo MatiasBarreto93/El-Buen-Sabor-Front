@@ -1,12 +1,13 @@
 import {useEffect, useState} from "react";
+import {useGenericGet} from "../../../../services/useGenericGet.ts";
 import {Customer} from "../../../../interfaces/customer.ts";
-import "./../../../styles/table.css"
-import {LockFill, PencilFill, UnlockFill} from "react-bootstrap-icons";
+import {ModalType} from "../../../../interfaces/ModalType.ts";
+import {useInitializeCustomer} from "./hooks/useInitializeCustomer.ts";
 import {Button, Table} from "react-bootstrap";
 import {EmployeeModal} from "./employeeModal.tsx";
-import {useGenericGet} from "../../../../services/useGenericGet.ts";
-import {useInitializeCustomer} from "./hooks/useInitializeCustomer.ts";
-import {ModalType} from "../../../../interfaces/ModalType.ts";
+import "./../../../styles/table.css"
+import {EditButton} from "../../../table/EditButton.tsx";
+import {StatusButton} from "../../../table/StatusButton.tsx";
 
 export const EmployeesTable = () =>{
 
@@ -39,9 +40,8 @@ export const EmployeesTable = () =>{
 
     return(
         <>
-            <Button onClick={() => handleClick("Nuevo Empleado", createNewEmployee(), ModalType.Create)}>
-                Nuevo Empleado
-            </Button>
+            <h5 className="encabezado mb-3">Empleados</h5>
+            <Button onClick={() => handleClick("Nuevo Empleado", createNewEmployee(), ModalType.Create)}>Nuevo Empleado</Button>
             <Table hover>
                 <thead>
                 <tr className="encabezado">
@@ -61,38 +61,13 @@ export const EmployeesTable = () =>{
                         <td>{empleado.user.email}</td>
                         <td>{empleado.address}, {empleado.apartment}</td>
                         <td>{empleado.user.role.denomination}</td>
-                        <td style={{ fontWeight: 'bold', color: empleado.user.blocked ? '#D32F2F' : '#34A853' }}>
-                            {empleado.user.blocked ? 'Bloqueado' : 'Activo'}
-                        </td>
-                        <td>
-                            <PencilFill
-                                color="#FBC02D"
-                                size={24}
-                                onClick={() => {
-                                    handleClick("Editar Empleado", empleado, ModalType.Edit);
-                                }}
-                                title="Editar Empleado"
-                                onMouseEnter={() => {document.body.style.cursor = 'pointer'}}
-                                onMouseLeave={() => {document.body.style.cursor = 'default'}}
-                            />
-                        </td>
-                        <td>
-                            {empleado.user.blocked ?
-                                <LockFill
-                                    color="#D32F2F"
-                                    size={24}
-                                    title="Bloquear Empleado"
-                                    onClick={() => handleClick("¿Desbloquear Empleado?", empleado, ModalType.ChangeStatus)}
-                                    onMouseEnter={() => {document.body.style.cursor = 'pointer'}}
-                                    onMouseLeave={() => {document.body.style.cursor = 'default'}} />
-                                :
-                                <UnlockFill
-                                    color="#34A853"
-                                    size={24}
-                                    title="Desbloquear Empleado"
-                                    onClick={() => handleClick("¿Bloquear Empleado?", empleado, ModalType.ChangeStatus)}
-                                    onMouseEnter={() => {document.body.style.cursor = 'pointer'}}
-                                    onMouseLeave={() => {document.body.style.cursor = 'default'}} />}
+                        <td style={{ fontWeight: 'bold', color: empleado.user.blocked ? '#D32F2F' : '#34A853' }}>{empleado.user.blocked ? 'Bloqueado' : 'Activo'}</td>
+                        <td><EditButton onClick={() => {handleClick("Editar Empleado", empleado, ModalType.Edit)}}/></td>
+                        <td><StatusButton
+                            isBlocked={empleado.user.blocked}
+                            onClick={() => {handleClick(empleado.user.blocked ? "¿Desbloquear Empleado?" : "¿Bloquear Empleado?",
+                                empleado,
+                                ModalType.ChangeStatus)}}/>
                         </td>
                     </tr>
                 ))}

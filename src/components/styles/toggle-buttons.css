@@ -1,0 +1,27 @@
+.btn.toggle-button {
+    color: #E53935 !important;
+    background-color: #ffffff !important;
+    border: 2px solid #D32F2F !important;
+}
+
+.btn.toggle-button:not(.active):hover {
+    color: #ffffff !important;
+    background-color: #E53935 !important;
+    border: 2px solid #D32F2F !important;
+}
+
+.btn.toggle-button.active {
+    color: #ffffff !important;
+    background-color: #E53935 !important;
+    border: 2px solid #D32F2F !important;
+}
+
+.btn.toggle-button.active:hover {
+    color: #ffffff !important;
+    background-color: #E53935 !important;
+    border: 2px solid #D32F2F !important;
+}
+
+.btn.toggle-button.focus {
+    box-shadow: 0 0 0 .2rem rgba(0, 0, 0, 0.5) !important;
+}

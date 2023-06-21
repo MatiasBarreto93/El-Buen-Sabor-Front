@@ -1,0 +1,28 @@
+.block {
+    width: calc(100vw - 60px); /* Subtract 20px left margin and 20px right margin */
+    height: calc(100vh - 40px); /* Subtract 20px top margin and 20px bottom margin */
+    min-height: 300px;
+    max-height: 500px;
+    border: 2px solid #99a3a4;
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    margin: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.btnCart {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.btnCart h4 {
+    margin-bottom: 20px;
+}
+
+.btn-cart-shadow{
+    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+}

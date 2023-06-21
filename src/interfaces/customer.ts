@@ -42,7 +42,6 @@ export interface Auth0Roles{
     description: string
 }
 
-//Posible solucion extend Customer
 export interface Auth0Password {
     password: string;
     confirmPassword: string;

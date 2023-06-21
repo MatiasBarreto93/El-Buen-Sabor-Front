@@ -3,6 +3,7 @@ import {PersonCircle} from "react-bootstrap-icons";
 import "./dashboard.css"
 import {EmployeesTable} from "../menus/employees/employeesTable.tsx";
 import {CategoriesTable} from "../menus/categories/categoriesTable";
+import {CustomersTable} from "../menus/customers/customersTable.tsx";
 
 export const DashBoard = () => {
 
@@ -57,7 +58,7 @@ export const DashBoard = () => {
                                 <EmployeesTable/>
                             </Tab.Pane>
                             <Tab.Pane eventKey="Clientes">
-                                <p>Clientes</p>
+                                <CustomersTable/>
                             </Tab.Pane>
                             <Tab.Pane eventKey="Rubros">
                                 {<CategoriesTable/>}
