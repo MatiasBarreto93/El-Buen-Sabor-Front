@@ -21,7 +21,6 @@ export const DropDownMenu = () =>{
     const decodeToken = async () => {
         const fetchedToken = await getAccessTokenSilently();
         const decoded = await jwt_decode<PermissionsType>(fetchedToken);
-        console.log(decoded.permissions[0]);
         setIsCliente(decoded.permissions[0] === "Cliente");
     };
 
