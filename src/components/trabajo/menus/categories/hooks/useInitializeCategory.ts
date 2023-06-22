@@ -7,6 +7,7 @@ const defaultCategory = {
     blocked: false,
     fatherCategoryId: 0,
     fatherCategoryDenomination: "",
+    itemTypeId: 0
 }
 
 export const useInitializeCategory = (cat: Category | undefined): [Category, React.Dispatch<React.SetStateAction<Category>>, () => Category] => {
