@@ -102,6 +102,7 @@ export const CategoriesTable = () => {
                     onHide={() => setShowModal(false)}
                     setRefetch={setRefetch}
                     modalType={modalType}
+                    initialItemTypeId={selectedItemType}
                 />
             )}
         </>
