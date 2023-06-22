@@ -27,6 +27,10 @@ export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType
 
     const data = useGenericGet<Category>(`categories/filter/${cat.itemTypeId}`, "Categorías");
 
+    console.log(cat.itemTypeId)
+    console.log(data);
+
+
     const handleSaveUpdate = async(category: Category) => {
         const isNew = category.id === 0;
         if (!isNew) {
@@ -73,7 +77,7 @@ export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType
     const formik = useFormik({
         initialValues: {
             ...cat,
-            itemTypeId: cat.itemTypeId || 1
+            itemTypeId: 1
         },
         validationSchema: validationSchema(),
         validateOnChange: true,
@@ -91,6 +95,7 @@ export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType
         const selectedItemType = parseInt(event.target.value, 10);
         formik.setFieldValue("itemTypeId", selectedItemType);
     };
+
 
     return(
         <>
