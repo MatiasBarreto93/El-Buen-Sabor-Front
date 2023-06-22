@@ -21,23 +21,15 @@ interface Props {
 export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType }: Props) => {
 
     const [categories, setCategories] = useState<Category[]> ([]);
-    const [, setEditCategories] = useState<Category[]>([]);
-
     const genericPost = useGenericPost();
     const genericPut = useGenericPut();
     const updateCategoryStatus = useGenericChangeStatus();
 
-    const data = useGenericGet<Category>("categories/filter", "Categorías");
+    const data = useGenericGet<Category>(`categories/filter/${cat.itemTypeId}`, "Categorías");
 
-    useEffect(() => {
-        setCategories(data);
-    }, [data]);
+    console.log(cat.itemTypeId)
+    console.log(data);
 
-    const dataCategoriesEdit = useGenericGet<Category>(`categories/filter/${cat.id}`, "Categorías");
-
-    useEffect(() => {
-        setEditCategories(dataCategoriesEdit);
-    }, [dataCategoriesEdit]);
 
     const handleSaveUpdate = async(category: Category) => {
         const isNew = category.id === 0;
@@ -70,6 +62,7 @@ export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType
             blocked: Yup.boolean(),
             categoryFatherId: Yup.number().integer().min(0).nullable(),
             categoryFatherDenomination: Yup.string().nullable(),
+            itemTypeId: Yup.number().oneOf([1, 2]).required('El tipo de item es requerido'),
         });
     }
 
@@ -82,12 +75,27 @@ export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType
     };
 
     const formik = useFormik({
-        initialValues: cat,
+        initialValues: {
+            ...cat,
+            itemTypeId: 1
+        },
         validationSchema: validationSchema(),
         validateOnChange: true,
         validateOnBlur: true,
         onSubmit: (obj: Category) => handleSaveUpdate(obj)
     });
+
+    useEffect(() => {
+        if (formik.values.itemTypeId === 1 || !formik.values.itemTypeId) {
+            setCategories(data);
+        }
+    }, [data, formik.values.itemTypeId]);
+
+    const handleItemTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedItemType = parseInt(event.target.value, 10);
+        formik.setFieldValue("itemTypeId", selectedItemType);
+    };
+
 
     return(
         <>
@@ -130,6 +138,27 @@ export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType
                                         />
                                         <Form.Control.Feedback type="invalid">
                                             {formik.errors.denomination}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
+                                </Col>
+                                <Col>
+                                    <Form.Group controlId="formItemType">
+                                        <Form.Label>Tipo de Item</Form.Label>
+                                        <Form.Select
+                                            name="itemTypeId"
+                                            value={formik.values.itemTypeId}
+                                            onChange={(event) => {
+                                                formik.handleChange(event);
+                                                handleItemTypeChange(event);
+                                            }}
+                                            onBlur={formik.handleBlur}
+                                            isInvalid={Boolean(formik.touched.itemTypeId && formik.errors.itemTypeId)}
+                                        >
+                                            <option value={1}>Ingrediente</option>
+                                            <option value={2}>Producto</option>
+                                        </Form.Select>
+                                        <Form.Control.Feedback type="invalid">
+                                            {formik.errors.itemTypeId}
                                         </Form.Control.Feedback>
                                     </Form.Group>
                                 </Col>
