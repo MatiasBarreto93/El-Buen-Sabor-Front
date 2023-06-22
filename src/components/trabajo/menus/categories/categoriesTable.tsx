@@ -15,6 +15,7 @@ export const CategoriesTable = () => {
 
     const data = useGenericGet<Category>("categories", "Categorías", refetch);
     const [categories, setCategories] = useState<Category[]>([]);
+    const [selectedItemType, setSelectedItemType] = useState(1);
 
     useEffect(() => {
         setCategories(data);
@@ -34,9 +35,8 @@ export const CategoriesTable = () => {
         setShowModal(true);
     };
 
-    const [activeButton, setActiveButton] = useState(1);
     const handleToggle = (selectedValue: number) => {
-        setActiveButton(selectedValue);
+        setSelectedItemType(selectedValue);
     };
 
     return(
@@ -47,10 +47,10 @@ export const CategoriesTable = () => {
                 Nueva Categoría
             </Button>
             <ToggleButtonGroup type="radio" name={"options"} defaultValue={1} onChange={handleToggle}>
-                <ToggleButton id="tbg-radio-1" value={1} className={`toggle-button ${activeButton === 1 ? 'active' : ''}`}>
+                <ToggleButton id="tbg-radio-1" value={1} className={`toggle-button ${selectedItemType === 1 ? 'active' : ''}`}>
                     Ingredientes
                 </ToggleButton>
-                <ToggleButton id="tbg-radio-2" value={2} className={`toggle-button ${activeButton === 2 ? 'active' : ''}`}>
+                <ToggleButton id="tbg-radio-2" value={2} className={`toggle-button ${selectedItemType === 2 ? 'active' : ''}`}>
                     Productos
                 </ToggleButton>
             </ToggleButtonGroup>
@@ -66,22 +66,32 @@ export const CategoriesTable = () => {
                 </tr>
                 </thead>
                 <tbody>
-                {categories.map(category => (
-                    <tr key={category.id}>
-                        <td>{category.denomination}</td>
-                        <td>{category.categoryFatherDenomination}</td>
-                        <td style={{ fontWeight: 'bold', color: category.blocked ? '#D32F2F' : '#34A853'}}>
-                            {category.blocked ? 'Bloqueado' : 'Activo'}
-                        </td>
-                        <td><EditButton onClick={() => {handleClick("Editar Categoría", category, ModalType.Edit)}}/></td>
-                        <td><StatusButton
-                            isBlocked={category.blocked}
-                            onClick={() => {handleClick(category.blocked ? "¿Desbloquear Categoría?" : "¿Bloquear Categoría?",
-                                category,
-                                ModalType.ChangeStatus)}}/>
-                        </td>
-                    </tr>
-                ))}
+                {categories
+                    .filter((category) => category.itemTypeId === selectedItemType)
+                    .map((category) => (
+                        <tr key={category.id}>
+                            <td>{category.denomination}</td>
+                            <td>{category.categoryFatherDenomination}</td>
+                            <td style={{ fontWeight: "bold", color: category.blocked ? "#D32F2F" : "#34A853" }}>
+                                {category.blocked ? "Bloqueado" : "Activo"}
+                            </td>
+                            <td>
+                                <EditButton onClick={() => handleClick("Editar Categoría", category, ModalType.Edit)} />
+                            </td>
+                            <td>
+                                <StatusButton
+                                    isBlocked={category.blocked}
+                                    onClick={() =>
+                                        handleClick(
+                                            category.blocked ? "¿Desbloquear Categoría?" : "¿Bloquear Categoría?",
+                                            category,
+                                            ModalType.ChangeStatus
+                                        )
+                                    }
+                                />
+                            </td>
+                        </tr>
+                    ))}
                 </tbody>
             </Table>
             {showModal && (

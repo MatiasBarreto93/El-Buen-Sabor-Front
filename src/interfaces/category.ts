@@ -4,4 +4,5 @@ export interface Category {
     blocked: boolean;
     categoryFatherId?: number;
     categoryFatherDenomination?: string;
+    itemTypeId: number;
 }
