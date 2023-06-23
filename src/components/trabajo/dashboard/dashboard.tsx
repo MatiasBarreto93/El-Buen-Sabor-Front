@@ -4,6 +4,7 @@ import "./dashboard.css"
 import {EmployeesTable} from "../menus/employees/employeesTable.tsx";
 import {CategoriesTable} from "../menus/categories/categoriesTable";
 import {CustomersTable} from "../menus/customers/customersTable.tsx";
+import {IngredientsTable} from "../menus/ingredients/ingredientsTable";
 
 export const DashBoard = () => {
 
@@ -64,7 +65,7 @@ export const DashBoard = () => {
                                 {<CategoriesTable/>}
                             </Tab.Pane>
                             <Tab.Pane eventKey="Ingredientes">
-                                <p>Ingredientes</p>
+                                {<IngredientsTable/>}
                             </Tab.Pane>
                             <Tab.Pane eventKey="Productos">
                                 <p>Productos</p>
