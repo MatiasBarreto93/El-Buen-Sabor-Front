@@ -16,20 +16,17 @@ interface Props {
     cat: Category;
     setRefetch: React.Dispatch<React.SetStateAction<boolean>>;
     modalType: ModalType;
+    initialItemTypeId: number;
 }
 
-export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType }: Props) => {
+export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType, initialItemTypeId }: Props) => {
 
     const [categories, setCategories] = useState<Category[]> ([]);
     const genericPost = useGenericPost();
     const genericPut = useGenericPut();
     const updateCategoryStatus = useGenericChangeStatus();
 
-    const data = useGenericGet<Category>(`categories/filter/${cat.itemTypeId}`, "Categorías");
-
-    console.log(cat.itemTypeId)
-    console.log(data);
-
+    const data = useGenericGet<Category>("categories/filter", "Categorías");
 
     const handleSaveUpdate = async(category: Category) => {
         const isNew = category.id === 0;
@@ -77,7 +74,7 @@ export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType
     const formik = useFormik({
         initialValues: {
             ...cat,
-            itemTypeId: 1
+            itemTypeId: initialItemTypeId
         },
         validationSchema: validationSchema(),
         validateOnChange: true,
@@ -85,15 +82,27 @@ export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType
         onSubmit: (obj: Category) => handleSaveUpdate(obj)
     });
 
+
     useEffect(() => {
-        if (formik.values.itemTypeId === 1 || !formik.values.itemTypeId) {
-            setCategories(data);
+        const onRender = async () => {
+            if (data) {
+                await filterCategories(formik.values.itemTypeId || 1);
+            }
         }
+        onRender();
     }, [data, formik.values.itemTypeId]);
 
+    const filterCategories = (itemTypeId: number) => {
+        const filteredCategories = data.filter(
+            (category) => category.itemTypeId === itemTypeId
+        );
+        setCategories(filteredCategories);
+    };
+
     const handleItemTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        const selectedItemType = parseInt(event.target.value, 10);
+        const selectedItemType = parseInt(event.target.value);
         formik.setFieldValue("itemTypeId", selectedItemType);
+        filterCategories(selectedItemType);
     };
 
 
@@ -175,9 +184,11 @@ export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType
                                         >
                                             <option value="">Seleccionar</option>
                                             {categories.map((category) => (
+                                                category.id !== cat.id &&(
                                                 <option key={category.id} value={category.id}>
                                                     {category.denomination}
                                                 </option>
+                                                )
                                             ))}
                                         </Form.Select>
                                         <Form.Control.Feedback type="invalid">
