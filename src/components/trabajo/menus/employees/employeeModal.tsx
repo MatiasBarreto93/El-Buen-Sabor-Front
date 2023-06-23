@@ -66,7 +66,7 @@ export const EmployeeModal = ({ show, onHide, title, emp, setRefetch, modalType 
             await handleAuth0User(isNew,empleado, userId);
 
             //BBDD
-            await genericPut<Customer>("customers", empleado.id, empleado, "Empleado");
+            await genericPut<Customer>("customers", empleado.id, empleado, "Empleado Editado");
 
         //POST
         } else {
@@ -75,7 +75,7 @@ export const EmployeeModal = ({ show, onHide, title, emp, setRefetch, modalType 
 
             //BBDD
             const empleadoPost:Customer = await asignarAuth0Id(empleado, newAuth0ID);
-            await genericPost<Customer>("customers", "Empleado", empleadoPost);
+            await genericPost<Customer>("customers", "Empleado Creado", empleadoPost);
         }
         setRefetch(true);
         onHide();
