@@ -1,4 +1,4 @@
-import {Button, Col, Form, Modal, Row, Table} from "react-bootstrap";
+import {Button, Col, Form, Modal, Row} from "react-bootstrap";
 import React, {useEffect, useRef, useState} from "react";
 import {Auth0Roles, Auth0User, Customer, Role} from "../../../../interfaces/customer.ts";
 import {useGenericGet} from "../../../../services/useGenericGet.ts";
@@ -12,13 +12,8 @@ import {useGenericPost} from "../../../../services/useGenericPost.ts";
 import {useGenericPut} from "../../../../services/useGenericPut.ts";
 import {useFormik} from "formik";
 import {ModalType} from "../../../../interfaces/ModalType.ts";
-import {employeeValidationSchema} from "../employees/employeeValidationSchema.ts";
-
 import '../../../styles/HorizontalStepper.css';
-import {Ingredient, IngredientQuantity} from "../../../../interfaces/ingredient.ts";
-import {useInitializeIngredient} from "../ingredients/hooks/useInitializeIngredient.ts";
-import {DeleteButton} from "../../../table/DeleteButton.tsx";
-import {Category} from "../../../../interfaces/category.ts";
+import {formikMultiStepTestSchema} from "./formikMultiStepTestSchema.ts";
 
 interface Props  {
     show: boolean;
@@ -55,28 +50,11 @@ export const ModalTest = ({ show, onHide, title, emp, setRefetch, modalType }: P
     const deleteRolesFromUserAuth0 = useDeleteRolesFromUserAuth0();
     const updateAuth0UserStatus = useChangeAuth0UserState();
 
-    //----------------------------------------------------------------------------------------------------------------//
-    //INGREDIENTES
-    const [ingredients, setIngredients] = useState<Ingredient[]>([]);
-    const dataIngredient = useGenericGet<Ingredient>("ingredients", "Ingredientes");
-
-
-    const [ingrediente, setIngrediente] = useInitializeIngredient(undefined);
-    const [selectedIngredients, setSelectedIngredients] = useState<IngredientQuantity[]>([]);
-    const [quantity, setQuantity] = useState(0);
-
-    const dataCategories = useGenericGet<Category>(`categories/filter/1`, "Categorías");
-    const [categories, setCategories] = useState<Category[]> ([]);
-    const [selectedCategory, setSelectedCategory] = useState(0);
-    //----------------------------------------------------------------------------------------------------------------//
-
     //Obtener los roles y llenar el HTMLSelect del formulario cada vez que se renderiza el Modal
     const data = useGenericGet<Role>("roles", "Roles");
     useEffect(() =>{
         setRoles(data);
-        setIngredients(dataIngredient)
-        setCategories(dataCategories);
-    },[data, dataIngredient, dataCategories])
+    },[data])
 
 
 
@@ -170,51 +148,73 @@ export const ModalTest = ({ show, onHide, title, emp, setRefetch, modalType }: P
         }
     };
 
-    //Config del Formulario
-    const formik = useFormik({
-        initialValues: emp,
-        validationSchema: employeeValidationSchema(emp.id),
-        validateOnChange: true,
-        validateOnBlur: true,
-        onSubmit: (obj: Customer) => handleSaveUpdate(obj)
-    });
 
-    //----------------------------------------------------------------------------------------------------------------//
     //----------------------------------------------------------------------------------------------------------------//
     const [step, setStep] = useState(0);
 
-    const handleContinue = () => {
+    const [validationSchema, setValidationSchema] = useState(formikMultiStepTestSchema(emp.id)[0]); // set initial schema
+    const [isValid, setIsValid] = useState(false);
+
+    const [highestValidatedStep, setHighestValidatedStep] = useState(0);
+    const [validatedSteps, setValidatedSteps] = useState([false, false, false, false, false]);
+
+    //Config del Formulario
+    const formik = useFormik({
+        initialValues: emp,
+        validationSchema: validationSchema,
+        validateOnChange: true,
+        validateOnBlur: true,
+        isInitialValid: false,
+        onSubmit: (obj: Customer) => handleSaveUpdate(obj)
+    });
+
+    const handleContinue = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
         if (step < 5) {
+            setValidationSchema(formikMultiStepTestSchema(emp.id)[step + 1]);
             setStep(step + 1);
+            if (step + 1 > highestValidatedStep) {
+                setHighestValidatedStep(step + 1);
+                setValidatedSteps(validatedSteps.map((validated, index) => index <= step + 1 ? true : validated));
+            }
         }
     };
 
     const handleBack = () => {
         if (step > 0) {
+            setValidationSchema(formikMultiStepTestSchema(emp.id)[step - 1]);
             setStep(step - 1);
         }
     };
 
     const handleStepClick = (index:number) => {
-        setStep(index);
+        if (isValid && index <= highestValidatedStep && validatedSteps[index]){
+            setValidationSchema(formikMultiStepTestSchema(emp.id)[index]);
+            setStep(index);
+        }
     };
 
     const stepTitles = [
-        "Datos",
-        "Precio",
-        "Receta",
-        "Ingredientes",
-        "Imagen",
+        "Nombre",
+        "Email",
+        "Direccion",
+        "Password",
+        "Rol",
     ];
-    //----------------------------------------------------------------------------------------------------------------//
-    //----------------------------------------------------------------------------------------------------------------//
 
-    const deleteIngredient = (index: number) => {
-        const newIngredients = [...selectedIngredients];
-        newIngredients.splice(index, 1);
-        setSelectedIngredients(newIngredients);
-    };
+    //Hace que el boton "continuar" este como disabled al renderizar el modal y Desabilita el boton de continuar en cada step
+    useEffect(() => {
+        formik.validateForm().then(errors => {
+            setIsValid(Object.keys(errors).length === 0);
+        });
+    }, [step, validationSchema]);
 
+    //Habilita el boton de continuar cuando los inputs sean validos
+    useEffect(() => {
+        setIsValid(Object.keys(formik.errors).length === 0);
+    }, [formik.errors]);
+
+    //----------------------------------------------------------------------------------------------------------------//
 
     return (
         <>
@@ -246,11 +246,11 @@ export const ModalTest = ({ show, onHide, title, emp, setRefetch, modalType }: P
                     <div className="stepper-container mt-3">
                         <div className="stepper mt-2 mx-5">
                             {Array.from({ length: 5 }, (_, index) => (
-                                <div key={index} className={`step${step === index ? " active" : ""}`}>
+                                <div key={index} className={`step${step === index ? " active" : ""}${!validatedSteps[index] ? " disabled" : ""}`}>
                                     <div className="step-content">
                                         <div className="step-number"
                                              onClick={() => handleStepClick(index)}
-                                             onMouseEnter={() => { document.body.style.cursor = 'pointer' }}
+                                             onMouseEnter={() => { document.body.style.cursor = isValid ? 'pointer' : 'default' }}
                                              onMouseLeave={() => { document.body.style.cursor = 'default' }}
                                         >
                                             <span>{index + 1}</span>
@@ -267,108 +267,41 @@ export const ModalTest = ({ show, onHide, title, emp, setRefetch, modalType }: P
                     <Modal.Body>
                         <Form onSubmit={formik.handleSubmit}>
                             {step == 0 && (
-                                <Row className="mt-3">
+                                <Row>
                                     <Col>
-                                        {/*DATOS DEL INGREDIENTE*/}
-                                        <Row>
-                                            <Col>
-                                                <Form.Group controlId="formCategory">
-                                                    <Form.Label>Rubro Ingrediente:</Form.Label>
-                                                    <Form.Select
-                                                        name="category"
-                                                        value={selectedCategory || ""}
-                                                        onChange={(event) => {
-                                                            const selectedId = Number(event.target.value);
-                                                            setSelectedCategory(selectedId);
-                                                        }}
-                                                    >
-                                                        {categories.map((cat) => (
-                                                            <option key={cat.id} value={cat.id} disabled={cat.blocked}>
-                                                                {cat.denomination}
-                                                            </option>
-                                                        ))}
-                                                    </Form.Select>
-                                                </Form.Group>
-                                            </Col>
-                                            <Col>
-                                                <Form.Group controlId="formIngredients">
-                                                    <Form.Label>Ingrediente:</Form.Label>
-                                                    <Form.Select
-                                                        name="ingredients"
-                                                        value={ingrediente.name}
-                                                        onChange={(event) => {
-                                                            const selectedId = Number(event.target.value);
-                                                            const selectedIngredient = ingredients.find(ing => ing.id === selectedId) || ingrediente;
-                                                            formik.setFieldValue("ingredient", selectedId);
-                                                            setIngrediente(selectedIngredient);
-                                                        }}
-                                                    >
-                                                        {ingredients.filter(ing => ing.categoryId === selectedCategory).map((ing) => (
-                                                            <option key={ing.id} value={ing.id} disabled={ing.blocked}>
-                                                                {ing.name}
-                                                            </option>
-                                                        ))}
-                                                    </Form.Select>
-                                                </Form.Group>
-                                            </Col>
-                                        </Row>
-                                        <Row>
-                                            <Col>
-                                                <Form.Group controlId="formIngredientCant" className="mt-4">
-                                                    <Form.Label>Cantidad</Form.Label>
-                                                    <Form.Control
-                                                        name="ingrediente.cantidad"
-                                                        type="number"
-                                                        value={quantity}
-                                                        onChange={(event) => setQuantity(Number(event.target.value))}
-                                                    />
-                                                </Form.Group>
-                                            </Col>
-                                            <Col>
-                                                <Form.Group controlId="formIngredientM" className="mt-4">
-                                                    <Form.Label>U.Medida</Form.Label>
-                                                    <Form.Control
-                                                        disabled
-                                                        name="ingrediente.medida"
-                                                        type="text"
-                                                        value={ingrediente.measurementDenomination}
-                                                    />
-                                                </Form.Group>
-                                            </Col>
-                                        </Row>
-                                        <Row>
-                                            <div className="mt-4 d-flex justify-content-center">
-                                                <Button className="mt-2" onClick={() => setSelectedIngredients([...selectedIngredients, {...ingrediente, quantity}])}>
-                                                    Agregar Ingrediente
-                                                </Button>
-                                            </div>
-                                        </Row>
+                                        <Form.Group controlId="formNombre">
+                                            <Form.Label>Nombre</Form.Label>
+                                            <Form.Control
+                                                name="name"
+                                                type="text"
+                                                value={formik.values.name || ''}
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                                isInvalid={Boolean(formik.errors.name && formik.touched.name)}
+                                            />
+                                            <Form.Control.Feedback type="invalid">
+                                                {formik.errors.name}
+                                            </Form.Control.Feedback>
+                                        </Form.Group>
                                     </Col>
                                     <Col>
-                                        <div style={{ maxHeight: '250px', overflowY: 'auto' }}>
-                                            <Table hover>
-                                                <thead>
-                                                <tr className="encabezado">
-                                                    <th>Nombre</th>
-                                                    <th>Cantidad</th>
-                                                    <th>U. Medida</th>
-                                                    <th></th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                {selectedIngredients.map((ing, index) => (
-                                                    <tr key={index} className="tr-miniTable">
-                                                        <td>{ing.name}</td>
-                                                        <td>{ing.quantity}</td>
-                                                        <td>{ing.measurementDenomination}</td>
-                                                        <td className="justify-content-center"> <DeleteButton onClick={() => deleteIngredient(index)}/></td>
-                                                    </tr>
-                                                ))}
-                                                </tbody>
-                                            </Table>
-                                        </div>
+                                        <Form.Group controlId="formlastName">
+                                            <Form.Label>Apellido</Form.Label>
+                                            <Form.Control
+                                                name="lastname"
+                                                type="text"
+                                                value={formik.values.lastname || ''}
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                                isInvalid={Boolean(formik.errors.lastname && formik.touched.lastname)}
+                                            />
+                                            <Form.Control.Feedback type="invalid">
+                                                {formik.errors.lastname}
+                                            </Form.Control.Feedback>
+                                        </Form.Group>
                                     </Col>
-                                </Row>)}
+                                </Row>
+                            )}
                             {step == 1 && (
                                 <Row>
                                     <Col>
@@ -522,18 +455,18 @@ export const ModalTest = ({ show, onHide, title, emp, setRefetch, modalType }: P
                                 {step < 4 ? (
                                     <>
                                         {step > 0 && (
-                                            <Button variant="outline-primary" onClick={handleBack}>
+                                            <Button variant="outline-primary" type="button" onClick={handleBack}>
                                                 Volver
                                             </Button>
                                         )}
-                                        <Button variant="primary" onClick={handleContinue}>
+                                        <Button variant="primary" type="button" onClick={(event) => handleContinue(event)} disabled={!isValid}>
                                             Continuar
                                         </Button>
                                     </>
                                 ) : (
                                     <>
                                         {step > 0 && (
-                                            <Button variant="outline-primary" onClick={handleBack}>
+                                            <Button variant="outline-primary" type="button" onClick={handleBack}>
                                                 Volver
                                             </Button>
                                         )}

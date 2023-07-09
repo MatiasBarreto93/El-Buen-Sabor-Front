@@ -78,6 +78,19 @@
     color: #fff;
 }
 
+.step.disabled {
+    color: #cccccc;
+}
 
+.step.disabled .step-number {
+    border-color: #cccccc;
+}
 
+.step:first-child.disabled {
+    color: #ffffff;
+}
 
+.step:first-child.disabled .step-number {
+    border: 2px solid #D32F2F;
+    color: inherit;
+}
