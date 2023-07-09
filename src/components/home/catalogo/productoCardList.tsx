@@ -1,5 +1,6 @@
 import {Col, Container, Row} from "react-bootstrap";
 import {Producto, ProductoCard} from "./productoCard.tsx";
+import "./../../styles/productCard.css"
 
 //DUMMY TEST
     const productosList: Producto[] = [
@@ -23,7 +24,7 @@ import {Producto, ProductoCard} from "./productoCard.tsx";
 export const ProductoCardList = () =>{
     return(
         <Container>
-            <Row>
+            <Row className="card-container">
                 {productosList.map((p:Producto) => (
                     <Col xl={2} lg={3} md={4} sm={6} xs={12} key={p.id}>
                     <ProductoCard id={p.id} nombre={p.nombre} img={p.img} precio={p.precio}/>

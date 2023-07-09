@@ -1,7 +1,7 @@
 import React from "react";
 import {Button, Card} from "react-bootstrap";
+import './../../styles/productCard.css'
 
-//Hay que crear una carpeta separada para las interfaces
 export interface Producto{
     id: number
     nombre:string
@@ -11,14 +11,17 @@ export interface Producto{
 
 export const ProductoCard:React.FC<Producto> = ({ id, nombre, img, precio }) =>{
     return(
-        <Card style={{  maxWidth: "14rem" }} id={id.toString()} className="mx-auto mt-2 mb-2 p-2">
-            <Card.Img variant="top" src={img} className="img-fluid"/>
+        <div className="mb-3">
+        <Card style={{  maxWidth: "14rem" }}  id={id.toString()} className="custom-card">
+            <Card.Img variant="top" src={img} className="img-card" />
             <Card.Body>
                 <Card.Title>{nombre}</Card.Title>
                 <Card.Text>${precio}</Card.Text>
-                <Button variant="primary" className="mb-2" >Comprar</Button>
-                <Button variant="secondary">Ver Detalles</Button>
             </Card.Body>
+            <Card.Footer className="d-grid bg-transparent border-top-0">
+                <Button variant="primary" className="btn-card mb-2">Agregar</Button>
+            </Card.Footer>
         </Card>
+        </div>
     )
 }

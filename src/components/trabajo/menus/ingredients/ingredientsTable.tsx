@@ -6,12 +6,11 @@ import {useInitializeIngredient} from "./hooks/useInitializeIngredient";
 import {Button, Table} from "react-bootstrap";
 import {EditButton} from "../../../table/EditButton";
 import {StatusButton} from "../../../table/StatusButton";
-import {CategoryModal} from "../categories/categoryModal";
 import {IngredientModal} from "./ingredientModal";
 
 export const IngredientsTable = () => {
     const [refetch, setRefetch] = useState(false);
-    const data = useGenericGet<Ingredient>("items", "Ingredientes", refetch);
+    const data = useGenericGet<Ingredient>("ingredients", "Ingredientes", refetch);
     const [ingredients, setIngredients] = useState<Ingredient[]>([]);
 
     useEffect(() => {
