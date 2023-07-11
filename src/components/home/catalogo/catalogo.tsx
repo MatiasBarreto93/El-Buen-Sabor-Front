@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {Container, ToggleButton, ToggleButtonGroup} from "react-bootstrap";
+import {Button, Col, Navbar, Row} from "react-bootstrap";
 import {ProductoCardList} from "./productoCardList.tsx";
 import './../../styles/toggle-buttons.css'
 import {useGenericGet} from "../../../services/useGenericGet.ts";
@@ -29,24 +29,25 @@ export const Catalogo = () => {
     };
 
     return (
-        <Container fluid>
-            <div className="mb-5 text-center border-bottom border-3 display-3 fw-bold">Catálogo</div>
-            <ToggleButtonGroup className="d-flex flex-wrap mb-4 w-60" type="radio" name={"options"} defaultValue={1}>
-                {categories.map((category) => (
-                    <ToggleButton
-                        key={category.id}
-                        id={`tbg-radio-${category.id}`}
-                        value={category.id}
-                        className={`toggle-button ${activeCategory === category.id ? 'active' : ''}`}
-                        onClick={() => handleToggle(category.id, category.denomination)}
-                    >
-                        {category.denomination}
-                    </ToggleButton>
-                ))}
-            </ToggleButtonGroup>
+        <>
+            <Navbar bg="light" expand="lg" className="sticky mb-4 justify-content-center navbar-2">
+                <Row className='mt-1 gx-2 gy-3 justify-content-center'>
+                    {categories.map((category) => (
+                        <Col xs={'auto'} className='my-2' key={category.id}>
+                            <Button
+                                href={"#"+category.denomination}
+                                className={`mx-3 toggle-button ${activeCategory === category.id ? 'active' : ''}`}
+                                onClick={() => handleToggle(category.id, category.denomination)}
+                            >
+                                {category.denomination}
+                            </Button>
+                        </Col>
+                    ))}
+                </Row>
+            </Navbar>
             <div className="mb-4 text-center border-bottom border-2 display-6 fw-bold">{activeCategoryDenomination}</div>
             <ProductoCardList/>
-        </Container>
+        </>
     );
 };
 
