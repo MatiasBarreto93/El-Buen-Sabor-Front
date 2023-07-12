@@ -6,7 +6,7 @@ import {useEffect} from "react";
 import {CustomerPersonalData} from "./customerPersonalData.tsx";
 import './../styles/background.css'
 
-export const MiPerfil = () => {
+const MiPerfil = () => {
 
     const getCustomer = useGetCustomer();
     const {user} = useAuth0();
@@ -31,3 +31,5 @@ export const MiPerfil = () => {
         </div>
     )
 }
+
+export default MiPerfil;

@@ -7,7 +7,7 @@ import {useEffect} from "react";
 import {EmpyCart} from "./empyCart/EmpyCart.tsx";
 import './../styles/background.css'
 
-export const MiPedido = () => {
+const MiPedido = () => {
 
 //Hay que verificar si el carrito de compras esta vacio para mostrar un componente u otro
 
@@ -35,3 +35,5 @@ export const MiPedido = () => {
         </div>
     )
 }
+
+export default MiPedido;

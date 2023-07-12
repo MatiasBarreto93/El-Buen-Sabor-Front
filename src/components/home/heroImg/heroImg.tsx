@@ -1,9 +1,12 @@
-import Image from 'react-bootstrap/Image'
-import {Button} from "react-bootstrap";
+import {Button, Image} from "react-bootstrap";
+import {FireEmbers} from "./fireEmbers.tsx";
+import '../../styles/background.css'
+
 export const HeroIMG = () => {
     return (
-        <div style={{width: '100%', height: '800px', overflow:'hidden'}}>
-            <Image src="/img/LandingPage2.jpg" alt="burger" fluid style={{objectFit: 'cover', height: '800px', width: '100%'}} />
+        <div style={{position: "relative", width: '100%', height: "800px", overflow: "hidden"}}>
+            <FireEmbers/>
+            <Image src="/img/LandingPage2.jpg" alt="" fluid style={{objectFit: 'cover', height: '800px', width: '100%'}} />
             <div style={{position: 'absolute', top: '50%', left: '10%', transform: 'translateY(-50%)', color: 'white', textAlign: 'left'}}>
                 <div className="display-2 fw-bold">La mejor <span style={{color: '#E53935'}}>Comida</span></div>
                 <div className="display-2 fw-bold">hasta la puerta</div>
