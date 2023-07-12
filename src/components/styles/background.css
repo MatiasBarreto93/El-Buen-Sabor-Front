@@ -1,0 +1,11 @@
+.background-img{
+    background-image: url('public/img/background1.jpg');
+    background-size: auto;
+    background-repeat: repeat;
+}
+
+.perfil-img{
+    background-image: url('public/img/miperfil-img.jpg');
+    background-size: auto;
+    background-repeat: repeat;
+}

@@ -45,7 +45,7 @@ export const Catalogo = () => {
                     ))}
                 </Row>
             </Navbar>
-            <div className="mb-4 text-center border-bottom border-2 display-6 fw-bold">{activeCategoryDenomination}</div>
+            <div className="mb-4 text-center display-6 fw-bold" style={{borderBottom: "2px solid grey"}}>{activeCategoryDenomination}</div>
             <ProductoCardList/>
         </>
     );

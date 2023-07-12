@@ -5,6 +5,7 @@ import {useAuth0} from "@auth0/auth0-react";
 import {useInitializeCustomer} from "../trabajo/menus/employees/hooks/useInitializeCustomer.ts";
 import {useEffect} from "react";
 import {EmpyCart} from "./empyCart/EmpyCart.tsx";
+import './../styles/background.css'
 
 export const MiPedido = () => {
 
@@ -26,9 +27,11 @@ export const MiPedido = () => {
     }, [user?.sub, setCliente]);
     
     return(
+        <div className="perfil-img">
         <Layout>
             <EmpyCart/>
             <FullCart cliente={cliente}/>
         </Layout>
+        </div>
     )
 }

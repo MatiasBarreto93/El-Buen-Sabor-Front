@@ -4,6 +4,7 @@ import {useAuth0} from "@auth0/auth0-react";
 import {useInitializeCustomer} from "../trabajo/menus/employees/hooks/useInitializeCustomer.ts";
 import {useEffect} from "react";
 import {CustomerPersonalData} from "./customerPersonalData.tsx";
+import './../styles/background.css'
 
 export const MiPerfil = () => {
 
@@ -23,8 +24,10 @@ export const MiPerfil = () => {
     }, [user?.sub, setCliente]);
 
     return(
+        <div className="perfil-img">
         <Layout>
             <CustomerPersonalData cliente={cliente}/>
         </Layout>
+        </div>
     )
 }

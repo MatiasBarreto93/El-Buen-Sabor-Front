@@ -1,6 +1,6 @@
 import './../../styles/table.css'
 import './fullCart.css'
-import {Button, Col, Form, Row, Table, Image} from "react-bootstrap";
+import {Button, Col, Form, Row, Table, Image, FloatingLabel} from "react-bootstrap";
 import {Dash, Plus, Trash3Fill} from "react-bootstrap-icons";
 import {Customer} from "../../../interfaces/customer.ts";
 import {useConfetti} from "../../../services/useConfetti.ts";
@@ -186,89 +186,99 @@ export const FullCart = ({cliente}:Props) => {
                 <Row>
                     <Col>
                         <Form.Group controlId="formNombre" className="mb-3">
-                            <Form.Label className="custom-label">Nombre</Form.Label>
-                            <Form.Control
-                                className="custom-input"
-                                name="name"
-                                type="text"
-                                value={formik.values.name}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                isInvalid={Boolean(formik.errors.name && formik.touched.name)}
-                            />
-                            <Form.Control.Feedback type="invalid">
-                                {formik.errors.name}
-                            </Form.Control.Feedback>
+                            <FloatingLabel controlId="floatingInput" label={"Nombre:"} className="mt-3 custom-label">
+                                <Form.Control
+                                    className="custom-input"
+                                    name="name"
+                                    type="text"
+                                    placeholder="Nombre"
+                                    value={formik.values.name || ''}
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
+                                    isInvalid={Boolean(formik.errors.name && formik.touched.name)}
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    {formik.errors.name}
+                                </Form.Control.Feedback>
+                            </FloatingLabel>
                         </Form.Group>
                     </Col>
                     <Col>
                         <Form.Group controlId="formlastName" className="mb-3">
-                            <Form.Label className="custom-label">Apellido</Form.Label>
-                            <Form.Control
-                                className="custom-input"
-                                name="lastname"
-                                type="text"
-                                value={formik.values.lastname}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                isInvalid={Boolean(formik.errors.lastname && formik.touched.lastname)}
-                            />
-                            <Form.Control.Feedback type="invalid">
-                                {formik.errors.lastname}
-                            </Form.Control.Feedback>
+                            <FloatingLabel controlId="floatingInput" label={"Apellido:"} className="mt-3 custom-label">
+                                <Form.Control
+                                    className="custom-input"
+                                    name="lastname"
+                                    type="text"
+                                    placeholder="Apellido"
+                                    value={formik.values.lastname || ''}
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
+                                    isInvalid={Boolean(formik.errors.lastname && formik.touched.lastname)}
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    {formik.errors.lastname}
+                                </Form.Control.Feedback>
+                            </FloatingLabel>
                         </Form.Group>
                     </Col>
                 </Row>
                 <Row>
                     <Col>
                         <Form.Group controlId="formPhone" className="mb-3">
-                            <Form.Label className="custom-label">Telefono</Form.Label>
-                            <Form.Control
-                                className="custom-input"
-                                name="phone"
-                                type="text"
-                                value={formik.values.phone}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                isInvalid={Boolean(formik.errors.phone && formik.touched.phone)}
-                            />
-                            <Form.Control.Feedback type="invalid">
-                                {formik.errors.phone}
-                            </Form.Control.Feedback>
+                            <FloatingLabel controlId="floatingInput" label={"Telefono:"} className="mt-3 custom-label">
+                                <Form.Control
+                                    className="custom-input"
+                                    name="phone"
+                                    type="text"
+                                    placeholder="Telefono"
+                                    value={formik.values.phone || ''}
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
+                                    isInvalid={Boolean(formik.errors.phone && formik.touched.phone)}
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    {formik.errors.phone}
+                                </Form.Control.Feedback>
+                            </FloatingLabel>
                         </Form.Group>
                     </Col>
                     <Col>
                         <Form.Group controlId="formApartment" className="mb-3">
-                            <Form.Label className="custom-label">Departamento</Form.Label>
-                            <Form.Control
-                                className="custom-input"
-                                name="apartment"
-                                type="text"
-                                value={formik.values.apartment}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                isInvalid={Boolean(formik.errors.apartment && formik.touched.apartment)}
-                            />
-                            <Form.Control.Feedback type="invalid">
-                                {formik.errors.apartment}
-                            </Form.Control.Feedback>
+                            <FloatingLabel controlId="floatingInput" label={"Departamento:"} className="mt-3 custom-label">
+                                <Form.Control
+                                    className="custom-input"
+                                    name="apartment"
+                                    type="text"
+                                    placeholder="Departamento"
+                                    value={formik.values.apartment || ''}
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
+                                    isInvalid={Boolean(formik.errors.apartment && formik.touched.apartment)}
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    {formik.errors.apartment}
+                                </Form.Control.Feedback>
+                            </FloatingLabel>
                         </Form.Group>
                     </Col>
                 </Row>
                 <Form.Group controlId="formAdress" className="mb-3">
-                    <Form.Label className="custom-label">Direccion de Entrega</Form.Label>
-                    <Form.Control
-                        className="custom-input"
-                        name="address"
-                        type="text"
-                        value={formik.values.address}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        isInvalid={Boolean(formik.errors.address && formik.touched.address)}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                        {formik.errors.address}
-                    </Form.Control.Feedback>
+                    <FloatingLabel controlId="floatingInput" label={"Direccion:"} className="mt-3 custom-label">
+                        <Form.Control
+                            className="custom-input"
+                            name="address"
+                            type="text"
+                            placeholder="Direccion"
+                            value={formik.values.address || ''}
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                            isInvalid={Boolean(formik.errors.address && formik.touched.address)}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                            {formik.errors.address}
+                        </Form.Control.Feedback>
+                    </FloatingLabel>
                 </Form.Group>
             </div>
             <div className="rectangle">

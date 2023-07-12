@@ -12,7 +12,7 @@ export interface Producto{
 export const ProductoCard:React.FC<Producto> = ({ id, nombre, img, precio }) =>{
     return(
         <div className="mb-3">
-        <Card style={{  maxWidth: "14rem" }}  id={id.toString()} className="custom-card">
+        <Card style={{  maxWidth: "14rem", background:"#FFFFFFFF"}}  id={id.toString()} className="custom-card">
             <Card.Img variant="top" src={img} className="img-card" />
             <Card.Body>
                 <Card.Title>{nombre}</Card.Title>
