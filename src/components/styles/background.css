@@ -6,6 +6,6 @@
 
 .perfil-img{
     background-image: url('/img/brownwood.jpg');
-    background-size: auto;
+    background-size: cover;
     background-repeat: repeat;
 }

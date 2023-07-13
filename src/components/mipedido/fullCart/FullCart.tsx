@@ -66,11 +66,12 @@ export const FullCart = ({cliente}:Props) => {
     });
 
     return(
-        <Form style={{ minHeight: '800px' }} onSubmit={formik.handleSubmit}>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <Form style={{ minHeight: '509px', width: "1200px" }} onSubmit={formik.handleSubmit}>
             <div className="rectangle">
                 <h4 className="title">Mi Pedido</h4>
                 <Row>
-                    <Col md={10}>
+                    <Col md={8}>
                         <Card className="mb-2">
                             <Row className="no-gutters">
                                 <Col>
@@ -279,5 +280,6 @@ export const FullCart = ({cliente}:Props) => {
                 </div>
             </div>
         </Form>
+        </div>
     )
 }

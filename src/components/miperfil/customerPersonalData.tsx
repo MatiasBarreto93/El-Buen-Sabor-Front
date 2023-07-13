@@ -69,8 +69,9 @@ export const CustomerPersonalData = ({cliente}: Props) => {
     });
 
     return(
-        <Form style={{ minHeight: '509px' }} onSubmit={formik.handleSubmit} className="mt-5">
-            <div className="rectangle">
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <Form style={{ minHeight: '509px', width: "1200px" }} onSubmit={formik.handleSubmit} className="mt-5 mb-5">
+            <div className="rectangle" style={{maxWidth: "1200px"}}>
                 <h4 className="title">Mi Perfil</h4>
                 <Row>
                     <Col>
@@ -176,5 +177,6 @@ export const CustomerPersonalData = ({cliente}: Props) => {
                 </div>
             </div>
         </Form>
+        </div>
     )
 }
