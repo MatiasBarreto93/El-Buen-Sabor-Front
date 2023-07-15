@@ -1,12 +1,14 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import {ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import {Home} from "./components/home/home.tsx";
-import {Trabajo} from "./components/trabajo/trabajo.tsx";
+import {lazy, Suspense, useState} from "react";
+import {Loader} from "./components/Loader/loader.tsx";
 import {EmployeeSignUp} from "./components/Auth0/EmployeeSignUp.tsx";
-import {useState} from "react";
-import {MiPedido} from "./components/mipedido/MiPedido.tsx";
-import {MiPerfil} from "./components/miperfil/MiPerfil.tsx";
+
+const Home = lazy(() => import("./components/home/home.tsx"));
+const MiPedido = lazy(() => import("./components/mipedido/MiPedido.tsx"));
+const MiPerfil = lazy(() => import("./components/miperfil/MiPerfil.tsx"));
+const Trabajo = lazy(() => import("./components/trabajo/trabajo.tsx"));
 
 export function App() {
 
@@ -20,6 +22,7 @@ export function App() {
       <>
           <ToastContainer/>
           {firtsRender ? <EmployeeSignUp firstRender={firtsRender} setFirstRender={setFirtsRender}/> : null}
+          <Suspense fallback={<Loader/>}>
           <Router>
               <Routes>
                   <Route path="/" element={<Home />} />
@@ -29,6 +32,7 @@ export function App() {
                   <Route path="/trabajo" element={<Trabajo />}/>
               </Routes>
           </Router>
+          </Suspense>
       </>
   )
 }

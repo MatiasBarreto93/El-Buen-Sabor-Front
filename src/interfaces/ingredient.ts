@@ -13,3 +13,7 @@ export interface Ingredient{
     minStock: number;
     maxStock: number;
 }
+
+export interface IngredientQuantity extends Ingredient{
+    quantity: number;
+}

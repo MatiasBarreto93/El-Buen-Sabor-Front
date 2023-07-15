@@ -1,12 +1,14 @@
 import './../../styles/table.css'
 import './fullCart.css'
-import {Button, Col, Form, Row, Table, Image} from "react-bootstrap";
-import {Dash, Plus, Trash3Fill} from "react-bootstrap-icons";
+import "./../../styles/toggle-buttons.css"
+import {Button, Col, Form, Row, FloatingLabel, Card, ToggleButtonGroup, ToggleButton} from "react-bootstrap";
 import {Customer} from "../../../interfaces/customer.ts";
 import {useConfetti} from "../../../services/useConfetti.ts";
 import {useState} from "react";
 import {useFormik} from "formik";
 import {customerDataValidationSchema} from "../../miperfil/customerDataValidationSchema.ts";
+import {DeleteButton} from "../../table/DeleteButton.tsx";
+import {QuantityButton} from "../../table/QuantityButton.tsx";
 
 interface Props{
     cliente:Customer;
@@ -16,15 +18,35 @@ export const FullCart = ({cliente}:Props) => {
 
     const confettiEffect = useConfetti();
 
-    //Botones de + y - en la tabla (deben ser estados separados por cada item)
-    const [quantity, setQuantity] = useState(1);
-    const increaseQuantity = () => {
-        setQuantity(quantity + 1);
+    const [count, setCount] = useState(0);
+    const increment = () => {
+        setCount(count + 1);
     };
-    const decreaseQuantity = () => {
-        if (quantity > 1) {
-            setQuantity(quantity - 1);
+
+    const decrement = () => {
+        if (count > 0) {
+            setCount(count - 1);
         }
+    };
+
+    const removeItem = () => {
+        // Logic to remove item from the cart
+    };
+
+
+    //TOGGLE BUTTONS
+    //Delivery
+    const [deliveryType, setDeliveryType] = useState(1);
+    const handleToggleDeliveryType = (selectedValue: number) => {
+        setDeliveryType(selectedValue);
+    };
+
+
+    //TOGGLE BUTTONS
+    //Payment
+    const [paymentType, setPaymentType] = useState(1);
+    const handleTogglePaymentType = (selectedValue: number) => {
+        setPaymentType(selectedValue);
     };
 
     const handleSave = async (cli: Customer) => {
@@ -44,275 +66,220 @@ export const FullCart = ({cliente}:Props) => {
     });
 
     return(
-        <Form style={{ minHeight: '800px' }} onSubmit={formik.handleSubmit}>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <Form style={{ minHeight: '509px', width: "1200px" }} onSubmit={formik.handleSubmit}>
             <div className="rectangle">
-                <h4 className="title">Productos</h4>
-            <Table hover>
-                <thead>
-                <tr className="encabezado">
-                    <th>Imagen</th>
-                    <th>Producto</th>
-                    <th>Precio</th>
-                    <th>Cantidad</th>
-                    <th>Subtotal</th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>
-                        <Image
-                            src="https://www.cookingclassy.com/wp-content/uploads/2014/07/pepperoni-pizza3+srgb..jpg"
-                            style={{ maxWidth: '65px', maxHeight: '65px', }}
-                            rounded
-                        />
-                    </td>
-                    <td>Pepperoni Pizza</td>
-                    <td>$2700</td>
-                    <td>
-                        <Dash
-                            color='#D32F2F'
-                            size={24}
-                            //onClick
-                            onMouseEnter={() => {document.body.style.cursor = 'pointer'}}
-                            onMouseLeave={() => {document.body.style.cursor = 'default'}}
-                            onClick={decreaseQuantity}
-                        />
-                        {quantity}
-                        <Plus
-                            color='#D32F2F'
-                            size={24}
-                            //onClick
-                            onMouseEnter={() => {document.body.style.cursor = 'pointer'}}
-                            onMouseLeave={() => {document.body.style.cursor = 'default'}}
-                            onClick={increaseQuantity}
-                        />
-                    </td>
-                    <td>$2700</td>
-                    <td>
-                        <Trash3Fill
-                            color='#D32F2F'
-                            size={24}
-                            //onClick
-                            onMouseEnter={() => {document.body.style.cursor = 'pointer'}}
-                            onMouseLeave={() => {document.body.style.cursor = 'default'}}
-                        />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Image
-                            src="http://www.reylupulo.com/image/cache/catalog/imagenes/bebidas/4-228x228.png"
-                            style={{ maxWidth: '65px', maxHeight: '65px', }}
-                            rounded
-                        />
-                    </td>
-                    <td>Coca 500ml</td>
-                    <td>$600</td>
-                    <td>
-                        <Dash
-                            color='#D32F2F'
-                            size={24}
-                            //onClick
-                            onMouseEnter={() => {document.body.style.cursor = 'pointer'}}
-                            onMouseLeave={() => {document.body.style.cursor = 'default'}}
-                            onClick={decreaseQuantity}
-                        />
-                        {quantity}
-                        <Plus
-                            color='#D32F2F'
-                            size={24}
-                            onMouseEnter={() => {document.body.style.cursor = 'pointer'}}
-                            onMouseLeave={() => {document.body.style.cursor = 'default'}}
-                            onClick={increaseQuantity}
-                        />
-                    </td>
-                    <td>$1800</td>
-                    <td>
-                        <Trash3Fill
-                            color='#D32F2F'
-                            size={24}
-                            onMouseEnter={() => {document.body.style.cursor = 'pointer'}}
-                            onMouseLeave={() => {document.body.style.cursor = 'default'}}
-                        />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Image
-                            src="https://tastesbetterfromscratch.com/wp-content/uploads/2020/06/Hamburger-recipe-7.jpg"
-                            style={{ maxWidth: '65px', maxHeight: '65px', }}
-                            rounded
-                        />
-                    </td>
-                    <td>Burger Clasica</td>
-                    <td>$2500</td>
-                    <td>
-                        <Dash
-                            color='#D32F2F'
-                            size={24}
-                            onMouseEnter={() => {document.body.style.cursor = 'pointer'}}
-                            onMouseLeave={() => {document.body.style.cursor = 'default'}}
-                            onClick={decreaseQuantity}
-                        />
-                        {quantity}
-                        <Plus
-                            color='#D32F2F'
-                            size={24}
-                            onMouseEnter={() => {document.body.style.cursor = 'pointer'}}
-                            onMouseLeave={() => {document.body.style.cursor = 'default'}}
-                            onClick={increaseQuantity}
-                        />
-                    </td>
-                    <td>$5000</td>
-                    <td>
-                        <Trash3Fill
-                            color='#D32F2F'
-                            size={24}
-                            //onClick
-                            onMouseEnter={() => {document.body.style.cursor = 'pointer'}}
-                            onMouseLeave={() => {document.body.style.cursor = 'default'}}
-                        />
-                    </td>
-                </tr>
-                </tbody>
-                <tfoot>
-
-                </tfoot>
-            </Table>
+                <h4 className="title">Mi Pedido</h4>
+                <Row>
+                    <Col md={8}>
+                        <Card className="mb-2">
+                            <Row className="no-gutters">
+                                <Col>
+                                    <Card.Img
+                                        src="https://www.cookingclassy.com/wp-content/uploads/2014/07/pepperoni-pizza3+srgb..jpg"
+                                        style={{maxWidth: "100px" , maxHeight: "100px", minHeight: "100px", minWidth: "100px"}}
+                                        className="mt-2 my-2 mx-2"
+                                    />
+                                </Col>
+                                <Col>
+                                    <Card.Body>
+                                        <Card.Title>Nombre Producto</Card.Title>
+                                        <Card.Text>$800</Card.Text>
+                                    </Card.Body>
+                                </Col>
+                                <Col className="d-flex align-items-center justify-content-center mb-3">
+                                    <QuantityButton increment={increment} decrement={decrement} count={count}/>
+                                </Col>
+                                <Col className="d-flex align-items-center justify-content-center mb-3">
+                                    <DeleteButton onClick={removeItem}/>
+                                </Col>
+                            </Row>
+                        </Card>
+                        <Card className="mb-2">
+                            <Row className="no-gutters">
+                                <Col>
+                                    <Card.Img
+                                        src="https://www.cookingclassy.com/wp-content/uploads/2014/07/pepperoni-pizza3+srgb..jpg"
+                                        style={{maxWidth: "100px" , maxHeight: "100px", minHeight: "100px", minWidth: "100px"}}
+                                        className="mt-2 my-2 mx-2"
+                                    />
+                                </Col>
+                                <Col>
+                                    <Card.Body>
+                                        <Card.Title>Nombre Producto</Card.Title>
+                                        <Card.Text>$800</Card.Text>
+                                    </Card.Body>
+                                </Col>
+                                <Col className="d-flex align-items-center justify-content-center mb-3">
+                                    <QuantityButton increment={increment} decrement={decrement} count={count}/>
+                                </Col>
+                                <Col className="d-flex align-items-center justify-content-center mb-3">
+                                    <DeleteButton onClick={removeItem}/>
+                                </Col>
+                            </Row>
+                        </Card>
+                        <Card className="mb-2">
+                            <Row className="no-gutters">
+                                <Col>
+                                    <Card.Img
+                                        src="https://www.cookingclassy.com/wp-content/uploads/2014/07/pepperoni-pizza3+srgb..jpg"
+                                        style={{maxWidth: "100px" , maxHeight: "100px", minHeight: "100px", minWidth: "100px"}}
+                                        className="mt-2 my-2 mx-2"
+                                    />
+                                </Col>
+                                <Col>
+                                    <Card.Body>
+                                        <Card.Title>Nombre Producto</Card.Title>
+                                        <Card.Text>$800</Card.Text>
+                                    </Card.Body>
+                                </Col>
+                                <Col className="d-flex align-items-center justify-content-center mb-3">
+                                    <QuantityButton increment={increment} decrement={decrement} count={count}/>
+                                </Col>
+                                <Col className="d-flex align-items-center justify-content-center mb-3">
+                                    <DeleteButton onClick={removeItem}/>
+                                </Col>
+                            </Row>
+                        </Card>
+                    </Col>
+                    <Col className="border rounded d-flex flex-column align-items-center justify-content-center">
+                        <div className="m-3">
+                            <h5>12 Articulos - $8000</h5>
+                        </div>
+                        <div className="text-center">
+                            <Button variant={"primary"} className="mb-3 mx-3">Confirmar Pedido</Button>
+                            <Button variant={"outline-primary"} className="mb-3 mx-3">Continuar Comprando</Button>
+                        </div>
+                    </Col>
+                </Row>
             </div>
             <div className="rectangle">
                 <h4 className="title">Datos Personales</h4>
                 <Row>
                     <Col>
                         <Form.Group controlId="formNombre" className="mb-3">
-                            <Form.Label className="custom-label">Nombre</Form.Label>
-                            <Form.Control
-                                className="custom-input"
-                                name="name"
-                                type="text"
-                                value={formik.values.name}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                isInvalid={Boolean(formik.errors.name && formik.touched.name)}
-                            />
-                            <Form.Control.Feedback type="invalid">
-                                {formik.errors.name}
-                            </Form.Control.Feedback>
+                            <FloatingLabel controlId="floatingInput" label={"Nombre:"} className="mt-3 custom-label">
+                                <Form.Control
+                                    className="custom-input"
+                                    name="name"
+                                    type="text"
+                                    placeholder="Nombre"
+                                    value={formik.values.name || ''}
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
+                                    isInvalid={Boolean(formik.errors.name && formik.touched.name)}
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    {formik.errors.name}
+                                </Form.Control.Feedback>
+                            </FloatingLabel>
                         </Form.Group>
                     </Col>
                     <Col>
                         <Form.Group controlId="formlastName" className="mb-3">
-                            <Form.Label className="custom-label">Apellido</Form.Label>
-                            <Form.Control
-                                className="custom-input"
-                                name="lastname"
-                                type="text"
-                                value={formik.values.lastname}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                isInvalid={Boolean(formik.errors.lastname && formik.touched.lastname)}
-                            />
-                            <Form.Control.Feedback type="invalid">
-                                {formik.errors.lastname}
-                            </Form.Control.Feedback>
+                            <FloatingLabel controlId="floatingInput" label={"Apellido:"} className="mt-3 custom-label">
+                                <Form.Control
+                                    className="custom-input"
+                                    name="lastname"
+                                    type="text"
+                                    placeholder="Apellido"
+                                    value={formik.values.lastname || ''}
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
+                                    isInvalid={Boolean(formik.errors.lastname && formik.touched.lastname)}
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    {formik.errors.lastname}
+                                </Form.Control.Feedback>
+                            </FloatingLabel>
                         </Form.Group>
                     </Col>
                 </Row>
                 <Row>
                     <Col>
                         <Form.Group controlId="formPhone" className="mb-3">
-                            <Form.Label className="custom-label">Telefono</Form.Label>
-                            <Form.Control
-                                className="custom-input"
-                                name="phone"
-                                type="text"
-                                value={formik.values.phone}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                isInvalid={Boolean(formik.errors.phone && formik.touched.phone)}
-                            />
-                            <Form.Control.Feedback type="invalid">
-                                {formik.errors.phone}
-                            </Form.Control.Feedback>
+                            <FloatingLabel controlId="floatingInput" label={"Telefono:"} className="mt-3 custom-label">
+                                <Form.Control
+                                    className="custom-input"
+                                    name="phone"
+                                    type="text"
+                                    placeholder="Telefono"
+                                    value={formik.values.phone || ''}
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
+                                    isInvalid={Boolean(formik.errors.phone && formik.touched.phone)}
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    {formik.errors.phone}
+                                </Form.Control.Feedback>
+                            </FloatingLabel>
                         </Form.Group>
                     </Col>
                     <Col>
                         <Form.Group controlId="formApartment" className="mb-3">
-                            <Form.Label className="custom-label">Departamento</Form.Label>
-                            <Form.Control
-                                className="custom-input"
-                                name="apartment"
-                                type="text"
-                                value={formik.values.apartment}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                isInvalid={Boolean(formik.errors.apartment && formik.touched.apartment)}
-                            />
-                            <Form.Control.Feedback type="invalid">
-                                {formik.errors.apartment}
-                            </Form.Control.Feedback>
+                            <FloatingLabel controlId="floatingInput" label={"Departamento:"} className="mt-3 custom-label">
+                                <Form.Control
+                                    className="custom-input"
+                                    name="apartment"
+                                    type="text"
+                                    placeholder="Departamento"
+                                    value={formik.values.apartment || ''}
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
+                                    isInvalid={Boolean(formik.errors.apartment && formik.touched.apartment)}
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    {formik.errors.apartment}
+                                </Form.Control.Feedback>
+                            </FloatingLabel>
                         </Form.Group>
                     </Col>
                 </Row>
                 <Form.Group controlId="formAdress" className="mb-3">
-                    <Form.Label className="custom-label">Direccion de Entrega</Form.Label>
-                    <Form.Control
-                        className="custom-input"
-                        name="address"
-                        type="text"
-                        value={formik.values.address}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        isInvalid={Boolean(formik.errors.address && formik.touched.address)}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                        {formik.errors.address}
-                    </Form.Control.Feedback>
+                    <FloatingLabel controlId="floatingInput" label={"Direccion:"} className="mt-3 custom-label">
+                        <Form.Control
+                            className="custom-input"
+                            name="address"
+                            type="text"
+                            placeholder="Direccion"
+                            value={formik.values.address || ''}
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                            isInvalid={Boolean(formik.errors.address && formik.touched.address)}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                            {formik.errors.address}
+                        </Form.Control.Feedback>
+                    </FloatingLabel>
                 </Form.Group>
-            </div>
-            <div className="rectangle">
-                <h4 className="title">Forma de Entrega</h4>
-                <Form.Check
-                    type="radio"
-                    name="tipo-entrega"
-                    id="custom-radio-1"
-                    className="custom-radio"
-                    label="Retiro en Local"
-                />
-                <Form.Check
-                    type="radio"
-                    name="tipo-entrega"
-                    id="custom-radio-2"
-                    className="custom-radio"
-                    label="Envio a Domicilio"
-                />
-            </div>
-            <div className="rectangle">
-                <h4 className="title">Forma de Pago</h4>
-                <Form.Check
-                    type="radio"
-                    name="tipo-pago"
-                    id="custom-radio-3"
-                    className="custom-radio"
-                    label="Efectivo"
-                />
-                <Form.Check
-                    type="radio"
-                    name="tipo-pago"
-                    id="custom-radio-4"
-                    className="custom-radio"
-                    label="MercadoPago"
-                />
-            </div>
-            <div className="rectangle-btn">
+                <h4 className="title mt-5">Forma de Entrega</h4>
+                <ToggleButtonGroup type="radio" name={"options"} defaultValue={1} onChange={handleToggleDeliveryType}>
+                    <ToggleButton id="tbg-radio-1" value={1} className={`toggle-button ${deliveryType === 1 ? 'active' : ''}`}>
+                        Envio a Domicilio
+                    </ToggleButton>
+                    <ToggleButton id="tbg-radio-2" value={2} className={`toggle-button ${deliveryType === 2 ? 'active' : ''}`}>
+                        Retiro en Local
+                    </ToggleButton>
+                </ToggleButtonGroup>
+                <h4 className="title mt-5">Forma de Pago</h4>
+                <ToggleButtonGroup type="radio" name={"options"} defaultValue={1} onChange={handleTogglePaymentType}>
+                    <ToggleButton id="tbg-radio-3" value={1} className={`toggle-button ${paymentType === 1 ? 'active' : ''}`}>
+                        Efectivo
+                    </ToggleButton>
+                    <ToggleButton id="tbg-radio-4" value={2} className={`toggle-button ${paymentType === 2 ? 'active' : ''}`}>
+                        MercadoPago
+                    </ToggleButton>
+                </ToggleButtonGroup>
+                <div className="mt-5 text-center">
                 <Button variant="secondary" className="btn-cart-shadow">
                     Cancelar Pedido
                 </Button>
                 <Button variant="primary" type="submit" disabled={!formik.isValid} className="btn-cart-shadow">
                     ¡Confirmar Pedido!
                 </Button>
+                </div>
             </div>
         </Form>
+        </div>
     )
 }

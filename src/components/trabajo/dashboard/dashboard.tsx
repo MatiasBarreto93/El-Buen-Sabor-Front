@@ -5,7 +5,7 @@ import {EmployeesTable} from "../menus/employees/employeesTable.tsx";
 import {CategoriesTable} from "../menus/categories/categoriesTable";
 import {CustomersTable} from "../menus/customers/customersTable.tsx";
 import {IngredientsTable} from "../menus/ingredients/ingredientsTable";
-//import {TableTest} from "../menus/testModal/tableTest.tsx";
+import {TableTest} from "../menus/testModal/tableTest.tsx";
 
 export const DashBoard = () => {
 
@@ -55,7 +55,7 @@ export const DashBoard = () => {
                         <Tab.Content>
                             <Tab.Pane eventKey="Principal">
                                 <div className="col">Principal</div>
-                                {/*<TableTest/>*/}
+                                <TableTest/>
                             </Tab.Pane>
                             <Tab.Pane eventKey="Empleados">
                                 <EmployeesTable/>
