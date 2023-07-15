@@ -4,9 +4,10 @@ import {useGetCustomer} from "../../services/useGetCustomer.ts";
 import {useAuth0} from "@auth0/auth0-react";
 import {useInitializeCustomer} from "../trabajo/menus/employees/hooks/useInitializeCustomer.ts";
 import {useEffect} from "react";
-import {EmpyCart} from "./empyCart/EmpyCart.tsx";
+//import {EmpyCart} from "./empyCart/EmpyCart.tsx";
+import './../styles/background.css'
 
-export const MiPedido = () => {
+const MiPedido = () => {
 
 //Hay que verificar si el carrito de compras esta vacio para mostrar un componente u otro
 
@@ -26,9 +27,13 @@ export const MiPedido = () => {
     }, [user?.sub, setCliente]);
     
     return(
+        <div className="perfil-img">
         <Layout>
-            <EmpyCart/>
+            {/*<EmpyCart/>*/}
             <FullCart cliente={cliente}/>
         </Layout>
+        </div>
     )
 }
+
+export default MiPedido;

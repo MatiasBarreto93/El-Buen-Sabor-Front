@@ -1,0 +1,11 @@
+.background-img{
+    background-image: url('/img/background1.jpg');
+    background-size: auto;
+    background-repeat: repeat;
+}
+
+.perfil-img{
+    background-image: url('/img/brownwood.jpg');
+    background-size: cover;
+    background-repeat: repeat;
+}

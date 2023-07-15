@@ -37,7 +37,7 @@ export const EmployeeSignUp = ({firstRender, setFirstRender}:Props) => {
     useEffect(() =>{
         async function getLoginCount(){
             if (user && user.sub != null && firstRender){
-                const logins = await getAuth0LoginCount(user.sub)
+                const logins:number = await getAuth0LoginCount(user.sub)
                 if (logins === 1){
                     const userRoles: Auth0Roles[] = await getUserRolesAuth0(user.sub);
                     if (userRoles.at(0)?.name !== "Cliente"){
@@ -46,6 +46,7 @@ export const EmployeeSignUp = ({firstRender, setFirstRender}:Props) => {
                     }
                 } else{
                     setFirstRender(false);
+                    localStorage.setItem('firstRender', JSON.stringify(false));
                 }
             }
         }

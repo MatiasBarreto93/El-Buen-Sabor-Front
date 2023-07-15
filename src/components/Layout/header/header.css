@@ -1,17 +1,13 @@
 .navbar{
-    background: #ffffff;
+    background: #f8f9fa;
+    border: 1px solid #5d6d7e;
     width: 100%;
-    border-radius: 0 0 10px 10px;
-    border-style: solid;
-    border-color: #5d6d7e;
-    border-width: 1px;
     display: flex;
     flex-direction: row;
     align-items: center;
     position: sticky;
     z-index: 100;
     top: 0;
-    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
 }
 
 .nav-img{
@@ -32,6 +28,7 @@
 }
 
 .navUserMenuContainer{
+    background: #ffffff;
     box-sizing: border-box;
     display: flex;
     flex-direction: row;
@@ -48,4 +45,15 @@
 .dropdown-item.active, .dropdown-item:active {
     background-color: #ffffff;
     color: #000000;
+}
+
+.navbar-2{
+    background: #ffffff;
+    border-radius: 0 0 10px 10px;
+    border-style: solid;
+    border-color: #5d6d7e;
+    border-width: 1px;
+    z-index: 99;
+    top: 65px;
+    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
 }

@@ -12,9 +12,8 @@ import {useGenericPost} from "../../../../services/useGenericPost.ts";
 import {useGenericPut} from "../../../../services/useGenericPut.ts";
 import {useFormik} from "formik";
 import {ModalType} from "../../../../interfaces/ModalType.ts";
-import {employeeValidationSchema} from "../employees/employeeValidationSchema.ts";
-
-import './HorizontalStepper.css';
+import '../../../styles/HorizontalStepper.css';
+import {formikMultiStepTestSchema} from "./formikMultiStepTestSchema.ts";
 
 interface Props  {
     show: boolean;
@@ -56,6 +55,8 @@ export const ModalTest = ({ show, onHide, title, emp, setRefetch, modalType }: P
     useEffect(() =>{
         setRoles(data);
     },[data])
+
+
 
     //POST-PUT Empleado de AUTH0 y BBDD
     const handleSaveUpdate = async (empleado: Customer) => {
@@ -147,40 +148,73 @@ export const ModalTest = ({ show, onHide, title, emp, setRefetch, modalType }: P
         }
     };
 
+
+    //----------------------------------------------------------------------------------------------------------------//
+    const [step, setStep] = useState(0);
+
+    const [validationSchema, setValidationSchema] = useState(formikMultiStepTestSchema(emp.id)[0]); // set initial schema
+    const [isValid, setIsValid] = useState(false);
+
+    const [highestValidatedStep, setHighestValidatedStep] = useState(0);
+    const [validatedSteps, setValidatedSteps] = useState([false, false, false, false, false]);
+
     //Config del Formulario
     const formik = useFormik({
         initialValues: emp,
-        validationSchema: employeeValidationSchema(emp.id),
+        validationSchema: validationSchema,
         validateOnChange: true,
         validateOnBlur: true,
+        isInitialValid: false,
         onSubmit: (obj: Customer) => handleSaveUpdate(obj)
     });
 
-    const [step, setStep] = useState(0);
-
-    const handleContinue = () => {
+    const handleContinue = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
         if (step < 5) {
+            setValidationSchema(formikMultiStepTestSchema(emp.id)[step + 1]);
             setStep(step + 1);
+            if (step + 1 > highestValidatedStep) {
+                setHighestValidatedStep(step + 1);
+                setValidatedSteps(validatedSteps.map((validated, index) => index <= step + 1 ? true : validated));
+            }
         }
     };
 
     const handleBack = () => {
         if (step > 0) {
+            setValidationSchema(formikMultiStepTestSchema(emp.id)[step - 1]);
             setStep(step - 1);
         }
     };
 
     const handleStepClick = (index:number) => {
-        setStep(index);
+        if (isValid && index <= highestValidatedStep && validatedSteps[index]){
+            setValidationSchema(formikMultiStepTestSchema(emp.id)[index]);
+            setStep(index);
+        }
     };
 
     const stepTitles = [
-        "Datos",
-        "Precio",
-        "Receta",
-        "Ingredientes",
-        "Imagen",
+        "Nombre",
+        "Email",
+        "Direccion",
+        "Password",
+        "Rol",
     ];
+
+    //Hace que el boton "continuar" este como disabled al renderizar el modal y Desabilita el boton de continuar en cada step
+    useEffect(() => {
+        formik.validateForm().then(errors => {
+            setIsValid(Object.keys(errors).length === 0);
+        });
+    }, [step, validationSchema]);
+
+    //Habilita el boton de continuar cuando los inputs sean validos
+    useEffect(() => {
+        setIsValid(Object.keys(formik.errors).length === 0);
+    }, [formik.errors]);
+
+    //----------------------------------------------------------------------------------------------------------------//
 
     return (
         <>
@@ -207,14 +241,16 @@ export const ModalTest = ({ show, onHide, title, emp, setRefetch, modalType }: P
                     <Modal.Header closeButton>
                         <Modal.Title>{title}</Modal.Title>
                     </Modal.Header>
-                    <div className="stepper-container">
+
+                    {/*------------------------------------------Stepper----------------------------------------------*/}
+                    <div className="stepper-container mt-3">
                         <div className="stepper mt-2 mx-5">
                             {Array.from({ length: 5 }, (_, index) => (
-                                <div key={index} className={`step${step === index ? " active" : ""}`}>
+                                <div key={index} className={`step${step === index ? " active" : ""}${!validatedSteps[index] ? " disabled" : ""}`}>
                                     <div className="step-content">
                                         <div className="step-number"
                                              onClick={() => handleStepClick(index)}
-                                             onMouseEnter={() => { document.body.style.cursor = 'pointer' }}
+                                             onMouseEnter={() => { document.body.style.cursor = isValid ? 'pointer' : 'default' }}
                                              onMouseLeave={() => { document.body.style.cursor = 'default' }}
                                         >
                                             <span>{index + 1}</span>
@@ -226,6 +262,8 @@ export const ModalTest = ({ show, onHide, title, emp, setRefetch, modalType }: P
                             <style>{`.stepper::after { width: ${(step / 4) * 100}%; }`}</style>
                         </div>
                     </div>
+                    {/*--------------------------------------------**********-----------------------------------------*/}
+
                     <Modal.Body>
                         <Form onSubmit={formik.handleSubmit}>
                             {step == 0 && (
@@ -262,8 +300,8 @@ export const ModalTest = ({ show, onHide, title, emp, setRefetch, modalType }: P
                                             </Form.Control.Feedback>
                                         </Form.Group>
                                     </Col>
-                                </Row>)}
-
+                                </Row>
+                            )}
                             {step == 1 && (
                                 <Row>
                                     <Col>
@@ -417,18 +455,18 @@ export const ModalTest = ({ show, onHide, title, emp, setRefetch, modalType }: P
                                 {step < 4 ? (
                                     <>
                                         {step > 0 && (
-                                            <Button variant="outline-primary" onClick={handleBack}>
+                                            <Button variant="outline-primary" type="button" onClick={handleBack}>
                                                 Volver
                                             </Button>
                                         )}
-                                        <Button variant="primary" onClick={handleContinue}>
+                                        <Button variant="primary" type="button" onClick={(event) => handleContinue(event)} disabled={!isValid}>
                                             Continuar
                                         </Button>
                                     </>
                                 ) : (
                                     <>
                                         {step > 0 && (
-                                            <Button variant="outline-primary" onClick={handleBack}>
+                                            <Button variant="outline-primary" type="button" onClick={handleBack}>
                                                 Volver
                                             </Button>
                                         )}

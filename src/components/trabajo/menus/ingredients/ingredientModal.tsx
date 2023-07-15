@@ -40,9 +40,9 @@ export const IngredientModal = ({ show, onHide, title, ing, setRefetch, modalTyp
     const handleSaveUpdate = async(ingredient: Ingredient) => {
         const isNew = ingredient.id === 0;
         if (!isNew) {
-            await genericPut<Ingredient>("items", ingredient.id, ingredient, "Ingrediente Editado");
+            await genericPut<Ingredient>("ingredients", ingredient.id, ingredient, "Ingrediente Editado");
         } else {
-            await genericPost<Ingredient>("items", "Ingrediente Creado", ingredient);
+            await genericPost<Ingredient>("ingredients", "Ingrediente Creado", ingredient);
         }
         setRefetch(true);
         onHide();
@@ -53,7 +53,7 @@ export const IngredientModal = ({ show, onHide, title, ing, setRefetch, modalTyp
             const id = ing.id;
             const isBlocked = !ing.blocked;
 
-            await updateCategoryStatus(id, isBlocked, "items", "Ingrediente");
+            await updateCategoryStatus(id, isBlocked, "ingredients", "Ingrediente");
 
             setRefetch(true);
             onHide();
@@ -73,7 +73,7 @@ export const IngredientModal = ({ show, onHide, title, ing, setRefetch, modalTyp
             measurementDenomination: Yup.string().nullable(),
             currentStock: Yup.number().integer().min(0),
             costPrice: Yup.number().integer().min(0),
-            minStock: Yup.number().integer().min(0),
+            minStock: Yup.number().integer().min(0).required("El numero no puede ser menor a 0"),
             maxStock: Yup.number().integer().min(0),
         });
     }
@@ -123,10 +123,10 @@ export const IngredientModal = ({ show, onHide, title, ing, setRefetch, modalTyp
                                             value={formik.values.name || ''}
                                             onChange={formik.handleChange}
                                             onBlur={formik.handleBlur}
-                                            isInvalid={Boolean(formik.errors.denomination && formik.touched.denomination)}
+                                            isInvalid={Boolean(formik.errors.name && formik.touched.name)}
                                         />
                                         <Form.Control.Feedback type="invalid">
-                                            {formik.errors.denomination}
+                                            {formik.errors.name}
                                         </Form.Control.Feedback>
                                     </Form.Group>
                                 </Col>
@@ -197,10 +197,10 @@ export const IngredientModal = ({ show, onHide, title, ing, setRefetch, modalTyp
                                                 formik.setFieldValue("costPrice", isNaN(value) ? 0 : value);
                                             }}
                                             onBlur={formik.handleBlur}
-                                            isInvalid={Boolean(formik.errors.denomination && formik.touched.denomination)}
+                                            isInvalid={Boolean(formik.errors.costPrice && formik.touched.costPrice)}
                                         />
                                         <Form.Control.Feedback type="invalid">
-                                            {formik.errors.denomination}
+                                            {formik.errors.costPrice}
                                         </Form.Control.Feedback>
                                     </Form.Group>
                                 </Col>
@@ -218,10 +218,10 @@ export const IngredientModal = ({ show, onHide, title, ing, setRefetch, modalTyp
                                                 formik.setFieldValue("currentStock", isNaN(value) ? 0 : value);
                                             }}
                                             onBlur={formik.handleBlur}
-                                            isInvalid={Boolean(formik.errors.denomination && formik.touched.denomination)}
+                                            isInvalid={Boolean(formik.errors.currentStock && formik.touched.currentStock)}
                                         />
                                         <Form.Control.Feedback type="invalid">
-                                            {formik.errors.denomination}
+                                            {formik.errors.currentStock}
                                         </Form.Control.Feedback>
                                     </Form.Group>
                                 </Col>
@@ -237,10 +237,10 @@ export const IngredientModal = ({ show, onHide, title, ing, setRefetch, modalTyp
                                                 formik.setFieldValue("minStock", isNaN(value) ? 0 : value);
                                             }}
                                             onBlur={formik.handleBlur}
-                                            isInvalid={Boolean(formik.errors.denomination && formik.touched.denomination)}
+                                            isInvalid={Boolean(formik.errors.minStock && formik.touched.minStock)}
                                         />
                                         <Form.Control.Feedback type="invalid">
-                                            {formik.errors.denomination}
+                                            {formik.errors.minStock}
                                         </Form.Control.Feedback>
                                     </Form.Group>
                                 </Col>
@@ -248,7 +248,7 @@ export const IngredientModal = ({ show, onHide, title, ing, setRefetch, modalTyp
                                     <Form.Group controlId="formMaxStock">
                                         <Form.Label>Stock Maximo</Form.Label>
                                         <Form.Control
-                                            name="minStock"
+                                            name="maxStock"
                                             type="number"
                                             value={formik.values.maxStock || 0}
                                             onChange={(event) => {
@@ -256,10 +256,10 @@ export const IngredientModal = ({ show, onHide, title, ing, setRefetch, modalTyp
                                                 formik.setFieldValue("maxStock", isNaN(value) ? 0 : value);
                                             }}
                                             onBlur={formik.handleBlur}
-                                            isInvalid={Boolean(formik.errors.denomination && formik.touched.denomination)}
+                                            isInvalid={Boolean(formik.errors.maxStock && formik.touched.maxStock)}
                                         />
                                         <Form.Control.Feedback type="invalid">
-                                            {formik.errors.denomination}
+                                            {formik.errors.maxStock}
                                         </Form.Control.Feedback>
                                     </Form.Group>
                                 </Col>
