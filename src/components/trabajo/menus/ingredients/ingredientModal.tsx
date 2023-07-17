@@ -48,7 +48,7 @@ export const IngredientModal = ({ show, onHide, title, ing, setRefetch, modalTyp
         onHide();
     }
 
-    const handleStateCategory = async () => {
+    const handleStateIngredient = async () => {
         if(ing) {
             const id = ing.id;
             const isBlocked = !ing.blocked;
@@ -101,7 +101,7 @@ export const IngredientModal = ({ show, onHide, title, ing, setRefetch, modalTyp
                         <Button variant="secondary" onClick={onHide}>
                             Cancelar
                         </Button>
-                        <Button variant="danger" onClick={handleStateCategory}>
+                        <Button variant="danger" onClick={handleStateIngredient}>
                             Guardar
                         </Button>
                     </Modal.Footer>

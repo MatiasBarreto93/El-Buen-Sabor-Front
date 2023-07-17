@@ -5,7 +5,6 @@ export interface Ingredient{
     categoryId: number;
     categoryDenomination: string;
     itemTypeId: number;
-    itemTypeDenomination: string;
     measurementUnitId: number;
     measurementDenomination: string;
     currentStock: number;

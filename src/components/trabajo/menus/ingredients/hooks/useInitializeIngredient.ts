@@ -8,7 +8,6 @@ const defaultIngredient = {
     categoryId: 0,
     categoryDenomination: "",
     itemTypeId: 1,
-    itemTypeDenomination: "",
     measurementUnitId: 0,
     measurementDenomination: "",
     currentStock: 0,
