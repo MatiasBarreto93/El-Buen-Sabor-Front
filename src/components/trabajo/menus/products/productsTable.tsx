@@ -6,8 +6,8 @@ import {useInitializeProduct} from "./hooks/useInitializeProduct";
 import {Button, Table} from "react-bootstrap";
 import {EditButton} from "../../../table/EditButton";
 import {StatusButton} from "../../../table/StatusButton";
-
-
+import {ProductModal} from "./productModal";
+import "./../../../styles/table.css"
 
 export const ProductsTable = () => {
 
@@ -85,6 +85,16 @@ export const ProductsTable = () => {
                 ))}
                 </tbody>
             </Table>
+            {showModal && (
+                <ProductModal
+                    prod={newProduct}
+                    title={title}
+                    show={showModal}
+                    onHide={() => setShowModal(false)}
+                    setRefetch={setRefetch}
+                    modalType={modalType}
+                />
+            )}
         </>
     )
 }
