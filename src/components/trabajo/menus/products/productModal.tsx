@@ -8,11 +8,12 @@ import {Ingredient, IngredientQuantity} from "../../../../interfaces/ingredient"
 import {useGenericGet} from "../../../../services/useGenericGet";
 import {useInitializeIngredient} from "../ingredients/hooks/useInitializeIngredient";
 import {Category} from "../../../../interfaces/category";
-import {Button, Col, Form, Modal, Row} from "react-bootstrap";
+import {Button, Col, Form, Modal, Row, Table} from "react-bootstrap";
 import {formikMultiStepTestSchema} from "../testModal/formikMultiStepTestSchema";
 import {formikMultiStepProductSchema} from "./productsValidationSchema";
 import {useFormik} from "formik";
 import '../../../styles/HorizontalStepper.css';
+import {DeleteButton} from "../../../table/DeleteButton";
 
 interface Props {
     show: boolean;
@@ -40,7 +41,7 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
     const [quantity, setQuantity] = useState(0);
 
     //Categories HTMLSelect
-    const dataCategories = useGenericGet<Category>(`categories/filter/2`, "Categorías");
+    const dataCategories = useGenericGet<Category>(`categories/filter/1`, "Categorías");
     const [categories, setCategories] = useState<Category[]> ([]);
     const [selectedCategory, setSelectedCategory] = useState(0);
 
@@ -157,6 +158,12 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
         else {
             formik.setFieldError("image", "La imagen debe ser en formato JPG o JPEG y de tamaño 2MB o menos");
         };
+    };
+
+    const deleteIngredient = (index: number) => {
+        const newIngredients = [...selectedIngredients];
+        newIngredients.splice(index, 1);
+        setSelectedIngredients(newIngredients);
     };
 
     return (
@@ -288,6 +295,115 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
                                                 {formik.errors.image}
                                             </Form.Control.Feedback>
                                         </Form.Group>
+                                    </Col>
+                                </Row>
+                            )}
+                            {step == 2 && (
+                                <Row>
+                                    <Col>
+                                        <Row>
+                                            <Col>
+                                                {/*-------------------------Category---------------------------------*/}
+                                                <Form.Group controlId="formCategory">
+                                                    <Form.Label>Rubro Ingrediente:</Form.Label>
+                                                    <Form.Select
+                                                        name="category"
+                                                        value={selectedCategory || ""}
+                                                        onChange={(event) => {
+                                                            const selectedId = Number(event.target.value);
+                                                            setSelectedCategory(selectedId);
+                                                        }}
+                                                    >
+                                                        {categories.map((cat) => (
+                                                            <option key={cat.id} value={cat.id} disabled={cat.blocked}>
+                                                                {cat.denomination}
+                                                            </option>
+                                                        ))}
+                                                    </Form.Select>
+                                                </Form.Group>
+                                            </Col>
+                                            <Col>
+                                                {/*-------------------------Ingredient-------------------------------*/}
+                                                <Form.Group controlId="formIngredients">
+                                                    <Form.Label>Ingrediente:</Form.Label>
+                                                    <Form.Select
+                                                        name="ingredients"
+                                                        value={ingrediente.name}
+                                                        onChange={(event) => {
+                                                            const selectedId = Number(event.target.value);
+                                                            const selectedIngredient = ingredients.find(ing => ing.id === selectedId) || ingrediente;
+                                                            setIngrediente(selectedIngredient);
+                                                        }}
+                                                    >
+                                                        {ingredients.filter(ing => ing.categoryId === selectedCategory).map((ing) => (
+                                                            <option key={ing.id} value={ing.id} disabled={ing.blocked}>
+                                                                {ing.name}
+                                                            </option>
+                                                        ))}
+                                                    </Form.Select>
+                                                </Form.Group>
+                                            </Col>
+                                        </Row>
+                                        <Row>
+                                            <Col>
+                                                {/*Quantity Ingredient*/}
+                                                {/*todo Formik integer min(0)*/}
+                                                <Form.Group controlId="formIngredientCant" className="mt-4">
+                                                    <Form.Label>Cantidad</Form.Label>
+                                                    <Form.Control
+                                                        name="ingrediente.cantidad"
+                                                        type="number"
+                                                        value={quantity}
+                                                        onChange={(event) => setQuantity(Number(event.target.value))}
+                                                    />
+                                                </Form.Group>
+                                            </Col>
+                                            <Col>
+                                                {/*Ingredient Unit Measurement*/}
+                                                <Form.Group controlId="formIngredientM" className="mt-4">
+                                                    <Form.Label>U.Medida</Form.Label>
+                                                    <Form.Control
+                                                        disabled
+                                                        name="ingrediente.medida"
+                                                        type="text"
+                                                        value={ingrediente.measurementDenomination}
+                                                    />
+                                                </Form.Group>
+                                            </Col>
+                                        </Row>
+                                        <Row>
+                                            {/*Add Ingredient to Table*/}
+                                            <div className="mt-4 d-flex justify-content-center">
+                                                <Button className="mt-2" onClick={() => setSelectedIngredients([...selectedIngredients, {...ingrediente, quantity}])}>
+                                                    Agregar Ingrediente
+                                                </Button>
+                                            </div>
+                                        </Row>
+                                    </Col>
+                                    <Col>
+                                        {/*----------------------------Recipe Table-----------------------------------*/}
+                                        <div style={{ maxHeight: '250px', overflowY: 'auto' }}>
+                                            <Table hover>
+                                                <thead>
+                                                <tr className="encabezado">
+                                                    <th>Nombre</th>
+                                                    <th>Cantidad</th>
+                                                    <th>U. Medida</th>
+                                                    <th></th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {selectedIngredients.map((ing, index) => (
+                                                    <tr key={index} className="tr-miniTable">
+                                                        <td>{ing.name}</td>
+                                                        <td>{ing.quantity}</td>
+                                                        <td>{ing.measurementDenomination}</td>
+                                                        <td className="justify-content-center"> <DeleteButton onClick={() => deleteIngredient(index)}/></td>
+                                                    </tr>
+                                                ))}
+                                                </tbody>
+                                            </Table>
+                                        </div>
                                     </Col>
                                 </Row>
                             )}
