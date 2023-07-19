@@ -52,7 +52,7 @@ export const ProductsTable = () => {
         <>
             <h5 className="encabezado mb-3">Productos</h5>
             <Button onClick={() => handleClick("Nuevo Producto", createNewProduct(), ModalType.Create)}>Nuevo Producto</Button>
-            <Table hoover>
+            <Table hover>
                 <thead>
                 <tr className="encabezado">
                     <th>Nombre</th>

@@ -8,10 +8,8 @@ export const formikMultiStepProductSchema = (id: number) => [
 
     Yup.object({
         description: Yup.string().required('La descripción es requerida'),
-        image: Yup.mixed().test('fileType', 'El archivo debe ser una imagen en formato JPG o JPEG', (value) => {
-            if (!value) return false;
-            return value && (value.type === 'image/jpeg' || value.type === 'image/jpg');
-        }).required('La imagen es requerida'),
+        image: Yup.mixed()
+            .required('La imagen es requerida'),
     }),
 
     Yup.object({

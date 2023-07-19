@@ -93,7 +93,7 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
     const handleContinue = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
         if (step < 3) {
-            setValidationSchema(formikMultiStepTestSchema(prod.id)[step + 1]);
+            setValidationSchema(formikMultiStepProductSchema(prod.id)[step + 1]);
             setStep(step + 1);
             if (step + 1 > highestValidatedStep) {
                 setHighestValidatedStep(step + 1);
@@ -133,6 +133,31 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
     useEffect(() => {
         setIsValid(Object.keys(formik.errors).length === 0);
     }, [formik.errors]);
+
+    const convertToBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const fileReader = new FileReader();
+            fileReader.readAsDataURL(file);
+            fileReader.onload = () => {
+                resolve(fileReader.result);
+            };
+            fileReader.onerror = (error) => {
+                reject(error);
+            };
+        });
+    };
+
+    const handleImageUpload = async (e, setFieldValue) => {
+        const file = e.target.files[0];
+        if (file && (file.type === 'image/jpeg' || file.type === 'image/jpg') && file?.size / 1024 / 1024 < 2) {
+            const base64 = await convertToBase64(file);
+            console.log(base64);
+            setFieldValue('image', base64);
+        }
+        else {
+            formik.setFieldError("image", "La imagen debe ser en formato JPG o JPEG y de tamaño 2MB o menos");
+        };
+    };
 
     return (
         <>
@@ -257,20 +282,7 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
                                             <Form.Label>Seleccionar imagen</Form.Label>
                                             <Form.Control
                                                 type="file"
-                                                onChange={(event) => {
-                                                    const file = event.currentTarget.files[0];
-                                                    if (file && (file.type === 'image/jpeg' || file.type === 'image/jpg')) {
-                                                        const reader = new FileReader();
-                                                        reader.onloadend = () => {
-                                                            // copy formik.values into a new obj, add file
-                                                            const newPayload = {...formik.values, file: reader.result};
-                                                            formik.setValues(newPayload); // update formik values
-                                                        }
-                                                        reader.readAsDataURL(file);
-                                                    } else {
-                                                        formik.setFieldError("image", "El archivo debe ser una imagen en formato JPG o JPEG");
-                                                    }
-                                                }}
+                                                onChange={(e) => handleImageUpload(e, formik.setFieldValue)}
                                             />
                                             <Form.Control.Feedback type="invalid">
                                                 {formik.errors.image}
