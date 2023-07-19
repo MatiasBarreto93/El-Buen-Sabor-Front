@@ -53,14 +53,14 @@ export const ProductoCard = ({item}:Props) =>{
             </div>
             <Card.Body
                 className="content"
-                style={{ backgroundColor: active ? '#c6eccd' : '#f8f9fa' }}
+                style={{backgroundColor: active ? '#c6eccd' : '#ffffff'}}
                 onMouseEnter={handleOnHover}
                 onMouseLeave={handleOnHover}
             >
                 <Collapse in={!isOpen}>
                     <Row>
                         <Col xs={9} sm={9} md={9}>
-                            <Card.Title as="h5" className="text-card-cart"><strong>{item.name}</strong></Card.Title>
+                            <Card.Title as="h6" className="text-card-cart"><strong>{item.name}</strong></Card.Title>
                             <Card.Text as="h6" className="text-card-cart"><p>${item.sellPrice}</p></Card.Text>
                         </Col>
                         <Col xs={3} sm={3} md={3} className="d-flex align-items-center justify-content-center icon-cart">
@@ -79,7 +79,7 @@ export const ProductoCard = ({item}:Props) =>{
                                 <Check2 size={32} color="#34A853" onClick={handleOnCartClick} />
                             </Col>}
                         <Col xs={9} sm={9} md={9}>
-                            <Card.Title as="h5" className="text-card-add"><strong>{item.name}</strong></Card.Title>
+                            <Card.Title as="h6" className="text-card-add"><strong>{item.name}</strong></Card.Title>
                             <Card.Text as="h6" className="text-card-add"><p>Agregado al Carrito</p></Card.Text>
                         </Col>
                     </Row>
