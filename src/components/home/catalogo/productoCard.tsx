@@ -1,90 +1,43 @@
-import {Card, Col, Collapse, Row} from "react-bootstrap";
-import './../../styles/productCard.css'
 import {Item} from "../../../interfaces/products.ts";
-import {CartPlus, Check2, InfoCircle, X} from "react-bootstrap-icons";
-import {useState} from "react";
-
+import {Button, Card, Col, Form, Row} from "react-bootstrap";
+import './../../styles/productCard.css'
+import {CartPlus} from "react-bootstrap-icons";
 interface Props{
     item: Item;
 }
 
 export const ProductoCard = ({item}:Props) =>{
-
-    const [isOpen, setIsOpen] = useState(false);
-    const [active, setActive] = useState(false);
-    const [isHovering, setIsHovering] = useState(false);
-    const [showInfo, setShowInfo] = useState(false);
-
-
-    const handleOnCartClick = () => {
-        setIsOpen(!isOpen);
-        setActive(!active);
-    };
-
-    const handleOnHover = () => {
-        setIsHovering(!isHovering);
-    };
-
-    const handleInfoClick = () => {
-        setShowInfo(!showInfo);
-    };
-
-
-
     return(
-        <Card
-            style={{overflow:"hidden", position: "relative"}}
-            className="card-product"
-            onMouseEnter={() => { document.body.style.cursor = 'pointer' }}
-            onMouseLeave={() => {document.body.style.cursor = 'default'; if (showInfo) handleInfoClick();}}
-        >
-            <div className="icon-info">
-                <InfoCircle size={24} color="#FFF" onClick={handleInfoClick} />
-            </div>
-            <div
-                className="card-prod-img"
-                style={{background: `url(data:image/jpeg;base64,${item.image}) center / cover`}}
+        <>
+            <Card
+                style={{overflow:"hidden", position: "relative"}}
+                className="card-product"
+                onMouseEnter={() => { document.body.style.cursor = 'pointer' }}
+                onMouseLeave={() => {document.body.style.cursor = 'default'}}
             >
-                {showInfo &&
-                    <div className="info-container">
-                        <p className="info-text">{item.description}</p>
-                    </div>
-                }
-            </div>
-            <Card.Body
-                className="content"
-                style={{backgroundColor: active ? '#c6eccd' : '#ffffff'}}
-                onMouseEnter={handleOnHover}
-                onMouseLeave={handleOnHover}
-            >
-                <Collapse in={!isOpen}>
+
+            <Card.Img src={`data:image/jpeg;base64,${item.image}`} className={"card-prod-img"}/>
+                <Card.Body className="body-cart-content">
+                    <Card.Title className={"text-center"}><strong>{item.name}</strong></Card.Title>
+                    <Card.Text className={"text-center"} style={{color: "#0d86c4"}} ><strong>${item.sellPrice}</strong></Card.Text>
                     <Row>
-                        <Col xs={9} sm={9} md={9}>
-                            <Card.Title as="h6" className="text-card-cart"><strong>{item.name}</strong></Card.Title>
-                            <Card.Text as="h6" className="text-card-cart"><p>${item.sellPrice}</p></Card.Text>
+                        <Col xs={3} sm={3} md={3}>
+                            <Form.Control
+                                size={"sm"}
+                                name="quantity"
+                                type="number"
+                                min={1}
+                                max={99}
+                                placeholder={"1"}
+                                className="custom-quantity"
+                            />
                         </Col>
-                        <Col xs={3} sm={3} md={3} className="d-flex align-items-center justify-content-center icon-cart">
-                            <CartPlus size={32} color="#34A853" onClick={handleOnCartClick}/>
+                        <Col xs={9} sm={9} md={9}>
+                            <Button className="w-100"><CartPlus size={20}/> Agregar</Button>
                         </Col>
                     </Row>
-                </Collapse>
-                <Collapse in={isOpen}>
-                    <Row>
-                        {isHovering ?
-                            <Col xs={3} sm={3} md={3} className="d-flex align-items-center justify-content-center icon-close">
-                                <X size={32} color="#D32F2F" onClick={handleOnCartClick} />
-                            </Col>
-                            :
-                            <Col xs={3} sm={3} md={3} className="d-flex align-items-center justify-content-center icon-check">
-                                <Check2 size={32} color="#34A853" onClick={handleOnCartClick} />
-                            </Col>}
-                        <Col xs={9} sm={9} md={9}>
-                            <Card.Title as="h6" className="text-card-add"><strong>{item.name}</strong></Card.Title>
-                            <Card.Text as="h6" className="text-card-add"><p>Agregado al Carrito</p></Card.Text>
-                        </Col>
-                    </Row>
-                </Collapse>
-            </Card.Body>
-        </Card>
+                </Card.Body>
+            </Card>
+        </>
     )
 }
