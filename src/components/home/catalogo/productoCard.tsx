@@ -1,12 +1,23 @@
 import {Item} from "../../../interfaces/products.ts";
 import {Button, Card, Col, Form, Row} from "react-bootstrap";
+import {CartPlus, InfoCircle} from "react-bootstrap-icons";
+import {useState} from "react";
 import './../../styles/productCard.css'
-import {CartPlus} from "react-bootstrap-icons";
+import {ProductDetailModal} from "./productDetailModal.tsx";
+
 interface Props{
     item: Item;
 }
 
 export const ProductoCard = ({item}:Props) =>{
+
+    const [showInfo, setShowInfo] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+    const handleInfoClick = () => {
+        setShowInfo(true)
+        setShowModal(true);
+    };
+
     return(
         <>
             <Card
@@ -15,11 +26,13 @@ export const ProductoCard = ({item}:Props) =>{
                 onMouseEnter={() => { document.body.style.cursor = 'pointer' }}
                 onMouseLeave={() => {document.body.style.cursor = 'default'}}
             >
-
-            <Card.Img src={`data:image/jpeg;base64,${item.image}`} className={"card-prod-img"}/>
+                <div className="icon-info">
+                    <InfoCircle size={24} color="#FFF" onClick={handleInfoClick} />
+                </div>
+                <Card.Img src={`data:image/jpeg;base64,${item.image}`} className={"card-prod-img"}/>
                 <Card.Body className="body-cart-content">
                     <Card.Title className={"text-center"}><strong>{item.name}</strong></Card.Title>
-                    <Card.Text className={"text-center"} style={{color: "#0d86c4"}} ><strong>${item.sellPrice}</strong></Card.Text>
+                    <Card.Text className={"text-center"} style={{color: "#b92020"}} ><strong>${item.sellPrice}</strong></Card.Text>
                     <Row>
                         <Col xs={3} sm={3} md={3}>
                             <Form.Control
@@ -38,6 +51,16 @@ export const ProductoCard = ({item}:Props) =>{
                     </Row>
                 </Card.Body>
             </Card>
+            {showInfo && (
+                <ProductDetailModal
+                    show={showModal}
+                    onHide={() => setShowModal(false)}
+                    name={item.name}
+                    description={item.description}
+                    sellPrice={item.sellPrice}
+                    image={item.image}
+                />
+            )}
         </>
     )
 }
