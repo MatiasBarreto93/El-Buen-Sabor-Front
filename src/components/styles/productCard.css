@@ -1,34 +1,77 @@
-.custom-card {
+.card-product{
+    min-height: 250px;
+    min-width: 250px;
+    max-width: 250px;
     box-shadow: 1px 2px 2px 1px rgba(0, 0, 0, 0.25);
-    transition: transform 0.3s;
-    overflow: hidden;
-    border: 2px solid #99a3a4;
-    background-color: rgba(245, 245, 245, 0.35);
 }
 
-.custom-card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 2px 2px rgba(211, 47, 47, 0.3)
-    , 0 0 5px 2px rgba(211, 47, 47, 0.3)
-    , 0 0 10px 2px rgba(211, 47, 47, 0.3);
+.card-product:hover{
+    box-shadow: 0 0 1px 1px rgba(166, 43, 43, 0.4)
+    , 0 0 1px 1px rgba(166, 43, 43, 0.4)
+    , 0 0 1px 1px rgba(166, 43, 43, 0.4);
 }
 
-.custom-card .btn-card {
-    position: relative;
-    left: -100%;
-    opacity: 0;
-    transition: left 0.3s, opacity 0.3s;
+.card-product:hover .body-cart-content{
+    background: #ffffff;
+    border-top:  2px solid rgba(166, 43, 43, 0.4);
 }
 
-.custom-card:hover .btn-card {
-    left: 0;
-    opacity: 1;
+.card-prod-img{
+    height: 200px;
+    object-fit: cover;
+    width: 100%;
 }
 
-.custom-card .img-card{
-    transition: transform 0.3s; /* Add transition for the image */
+.body-cart-content{
+    background: #ffffff;
+    border-top:  2px solid rgba(0, 0, 0, 0);
 }
 
-.custom-card:hover .img-card {
-    transform: scale(1.15); /* Increase the size of the image by 10% */
+.custom-quantity{
+    width: 55px;
+    height: 40px;
+    outline: none;
+    box-shadow: none;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+.icon-info{
+    display: flex;
+    position: absolute;
+    right: -50%;
+    background: #D32F2F;
+    margin: 8px;
+    padding: 4px;
+    border-radius: 24px;
+    z-index: 2;
+    transition: 0.3s ease-in;
+}
+
+.icon-info:hover{
+    scale: 1.15;
+}
+
+.card-product:hover .icon-info {
+    display: flex;
+    right: 0;
+}
+
+.product-detail-body{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.description-container {
+    overflow:auto;
+    max-height: 200px;
+}
+
+.description{
+    color: #5d6d7e;
+    word-wrap: break-word;
+}
+
+.description-added{
+    word-wrap: break-word;
 }

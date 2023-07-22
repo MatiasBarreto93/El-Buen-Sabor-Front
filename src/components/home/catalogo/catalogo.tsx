@@ -1,31 +1,82 @@
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Button, Col, Navbar, Row} from "react-bootstrap";
-import {ProductoCardList} from "./productoCardList.tsx";
 import './../../styles/toggle-buttons.css'
 import {useGenericGet} from "../../../services/useGenericGet.ts";
 import {Category} from "../../../interfaces/category.ts";
+import {Drink, Item, Product} from "../../../interfaces/products.ts";
+import {ProductoCard} from "./productoCard.tsx";
 
 export const Catalogo = () => {
 
-    const [refetch, setRefetch] = useState(false)
-
     const [activeCategory, setActiveCategory] = useState(1);
-    const [activeCategoryDenomination, setActiveCategoryDenomination] = useState("");
 
     const [categories, setCategories] = useState<Category[]>([]);
-    const data = useGenericGet<Category>("categories/filter/2", "Categorías", refetch);
-    useEffect(() => {
-        if (data.length > 0) {
-            setCategories(data);
-            setActiveCategory(data[0].id);
-            setActiveCategoryDenomination(data[0].denomination);
-            setRefetch(false);
-        }
-    }, [data]);
+    const dataCategories = useGenericGet<Category>("categories/filter/2", "Categorías");
+    const [categoryRefs, setCategoryRefs] = useState<{[key: string]: React.RefObject<HTMLDivElement>}>({});
 
+    const [products, setProducts] = useState<Product[]>([]);
+    const dataProducts = useGenericGet<Product>("products", "Productos");
+
+    const [drinks, setDrinks] = useState<Drink[]>([]);
+    const dataDrink = useGenericGet<Drink>("drinks", "Bebidas");
+
+
+    useEffect(() => {
+        const onRender = async () => {
+            //Get data
+            setProducts(dataProducts);
+            setDrinks(dataDrink);
+            setCategories(dataCategories);
+
+            //Primer boton seleccionado
+            if (dataCategories.length > 0){
+                setActiveCategory(dataCategories[0].id);
+            }
+
+            //Se crean los #href por categoria
+            const newRefs: {[key: string]: React.RefObject<HTMLDivElement>} = {};
+            dataCategories.forEach(category => {
+                newRefs[category.denomination] = React.createRef();
+            });
+            setCategoryRefs(newRefs);
+        }
+        onRender();
+    }, [dataCategories, dataProducts, dataDrink]);
+
+    //Filtro los items por las categorias que no estan bloqueadas
+    const unblockedCategoryIds = categories.map(category => category.id);
+    const filteredProducts = products.filter(product => unblockedCategoryIds.includes(product.categoryId));
+    const filteredDrinks = drinks.filter(drink => unblockedCategoryIds.includes(drink.categoryId));
+
+    //Junto los productos con las bebidas
+    const items: Item[] = [...filteredProducts, ...filteredDrinks];
+
+    //Se arma el catalogo donde "key" es la denominacion de la categoria y el array de item[] donde estan todos los productos
+    //que pertenen a esa categoria en particular
+    const categorizedItems = items.reduce((acc: {[key: string]: Item[]}, curr: Item) => {
+
+        //Extrae el nombre de la categoria del item
+        const { categoryDenomination } = curr;
+
+        //Si el nombre de la categoria es distinto lo coloca en un array de Item distinto
+        if (!acc[categoryDenomination]) {
+            acc[categoryDenomination] = [];
+        }
+
+        //Agrega al item si es de la misma categoria
+        acc[categoryDenomination].push(curr);
+
+        return acc;
+    }, {});
+
+    //Funcion de los botones y que se "navege" hasta el href de la categoria creada en el useEffect
     const handleToggle = (selectedValue: number, denomination:string) => {
         setActiveCategory(selectedValue);
-        setActiveCategoryDenomination(denomination)
+        const sectionPosition = categoryRefs[denomination]?.current?.offsetTop;
+        const navbarHeight = 200;
+        if (sectionPosition) {
+            window.scrollTo({ top: sectionPosition - navbarHeight, behavior: 'smooth' });
+        }
     };
 
     return (
@@ -45,8 +96,18 @@ export const Catalogo = () => {
                     ))}
                 </Row>
             </Navbar>
-            <div className="mb-4 text-center display-6 fw-bold" style={{borderBottom: "2px solid grey"}}>{activeCategoryDenomination}</div>
-            <ProductoCardList/>
+            {Object.keys(categorizedItems).map((categoryDenomination) => (
+                <div key={categoryDenomination} ref={categoryRefs[categoryDenomination]}>
+                    <div className="mb-4 text-center display-6 fw-bold" style={{borderBottom: "2px solid grey"}}>{categoryDenomination}</div>
+                    <Row className='d-flex justify-content-center'>
+                    {categorizedItems[categoryDenomination].map((item: Item) => (
+                        <Col xl={2} lg={3} md={4} sm={6} xs={12} key={item.id} className="d-flex justify-content-center mb-3">
+                            <ProductoCard item={item}/>
+                        </Col>
+                    ))}
+                    </Row>
+                </div>
+            ))}
         </>
     );
 };
