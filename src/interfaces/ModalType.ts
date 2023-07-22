@@ -5,6 +5,6 @@ export enum ModalType{
     Delete,
     ChangeStatus,
     Details,
-    SingUp,
+    Added,
     ChangePass,
 }
