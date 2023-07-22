@@ -1,6 +1,7 @@
 import {Button, Col, Form, Image, Modal, Row} from "react-bootstrap";
 import {CartPlus} from "react-bootstrap-icons";
 import './../../styles/productCard.css'
+import React, {useEffect, useState} from "react";
 
 interface Props{
     show: boolean;
@@ -9,12 +10,39 @@ interface Props{
     description: string;
     sellPrice: number;
     image: string;
+    quantity: number;
+    handleAddedtoCartClick:() => void;
+    handleQuantityChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export const ProductDetailModal = ({show, onHide ,name, description, sellPrice, image}:Props) => {
+export const ProductDetailModal = ({show, onHide ,name, description, sellPrice, image, quantity, handleAddedtoCartClick, handleQuantityChange}:Props) => {
+
+    const [quantityDetail, setQuantityDetail] = useState(1);
+
+    useEffect(() => {
+        setQuantityDetail(quantity);
+    }, [quantity]);
+
+    const handleQuantityDetailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const quantityValue = Number(event.target.value);
+        setQuantityDetail(isNaN(quantityValue) ? 1 : Math.max(1, quantityValue));
+        //Actualiza la cantidad en el componente padre
+        handleQuantityChange(event)
+    };
+
+    const handleAdd = () => {
+        handleAddedtoCartClick();
+        onClose()
+    }
+
+    const onClose = () => {
+        setQuantityDetail(quantity)
+        onHide();
+    }
 
     return(
-        <Modal show={show} onHide={onHide} centered backdrop="static">
+        <>
+        <Modal show={show} onHide={onClose} centered backdrop="static">
             <Modal.Header closeButton>
                 <Modal.Title><strong>{name}</strong></Modal.Title>
             </Modal.Header>
@@ -34,16 +62,18 @@ export const ProductDetailModal = ({show, onHide ,name, description, sellPrice, 
             </Modal.Body>
             <Modal.Footer>
                 <Form.Control
+                    className="custom-quantity"
                     size={"sm"}
                     name="quantity"
                     type="number"
                     min={1}
                     max={99}
-                    placeholder={"1"}
-                    className="custom-quantity"
+                    value={quantityDetail}
+                    onChange={handleQuantityDetailChange}
                 />
-                <Button className="w-50"><CartPlus size={20}/> Agregar</Button>
+                <Button className="w-50" onClick={handleAdd}><CartPlus size={20}/> Agregar</Button>
             </Modal.Footer>
         </Modal>
+        </>
     )
 }

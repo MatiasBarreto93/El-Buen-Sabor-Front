@@ -1,9 +1,10 @@
 import {Item} from "../../../interfaces/products.ts";
 import {Button, Card, Col, Form, Row} from "react-bootstrap";
 import {CartPlus, InfoCircle} from "react-bootstrap-icons";
-import {useState} from "react";
+import React, {useState} from "react";
 import './../../styles/productCard.css'
 import {ProductDetailModal} from "./productDetailModal.tsx";
+import {ProductAdded} from "./productAdded.tsx";
 
 interface Props{
     item: Item;
@@ -11,11 +12,32 @@ interface Props{
 
 export const ProductoCard = ({item}:Props) =>{
 
+    const [quantity, setQuantity] = useState(1);
+
     const [showInfo, setShowInfo] = useState(false);
-    const [showModal, setShowModal] = useState(false);
+    const [showModalInfo, setShowModalInfo] = useState(false);
+
+    const [showAddedtoCart, setShowAddedtoCart] = useState(false);
+    const [showModalAdd, setShowModalAdd] = useState(false);
+
+    //Info Button
     const handleInfoClick = () => {
         setShowInfo(true)
-        setShowModal(true);
+        setShowModalInfo(true);
+    };
+
+    //Add to Cart Button
+    const handleAddedtoCartClick = () => {
+        setShowAddedtoCart(true)
+        setShowModalAdd(true);
+        setShowModalInfo(false)
+    };
+
+    //Quantity
+    const handleQuantityChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        //Asegura que siempre va a se mayor o igual a 1, aunque el usuario coloque letras
+        const quantityValue = Number(event.target.value);
+        setQuantity(isNaN(quantityValue) ? 1 : Math.max(1, quantityValue));
     };
 
     return(
@@ -41,24 +63,38 @@ export const ProductoCard = ({item}:Props) =>{
                                 type="number"
                                 min={1}
                                 max={99}
-                                placeholder={"1"}
                                 className="custom-quantity"
+                                value={quantity}
+                                onChange={handleQuantityChange}
                             />
                         </Col>
                         <Col xs={9} sm={9} md={9}>
-                            <Button className="w-100"><CartPlus size={20}/> Agregar</Button>
+                            <Button className="w-100" onClick={handleAddedtoCartClick}><CartPlus size={20}/> Agregar</Button>
                         </Col>
                     </Row>
                 </Card.Body>
             </Card>
             {showInfo && (
                 <ProductDetailModal
-                    show={showModal}
-                    onHide={() => setShowModal(false)}
+                    show={showModalInfo}
+                    onHide={() => setShowModalInfo(false)}
                     name={item.name}
                     description={item.description}
                     sellPrice={item.sellPrice}
                     image={item.image}
+                    quantity={quantity}
+                    handleAddedtoCartClick={handleAddedtoCartClick}
+                    handleQuantityChange={handleQuantityChange}
+                />
+            )}
+            {showAddedtoCart && (
+                <ProductAdded
+                    show={showModalAdd}
+                    onHide={() => setShowModalAdd(false)}
+                    name={item.name}
+                    sellPrice={item.sellPrice}
+                    image={item.image}
+                    quantity={quantity}
                 />
             )}
         </>

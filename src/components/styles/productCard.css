@@ -71,3 +71,7 @@
     color: #5d6d7e;
     word-wrap: break-word;
 }
+
+.description-added{
+    word-wrap: break-word;
+}
