@@ -35,9 +35,10 @@ export const ProductoCard = ({item}:Props) =>{
 
     //Quantity
     const handleQuantityChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        //Asegura que siempre va a se mayor o igual a 1, aunque el usuario coloque letras
         const quantityValue = Number(event.target.value);
-        setQuantity(isNaN(quantityValue) ? 1 : Math.max(1, quantityValue));
+        let quantity = isNaN(quantityValue) ? 1 : Math.max(1, quantityValue);
+        quantity = Math.min(quantity, item.currentStock);
+        setQuantity(quantity);
     };
 
     return(
@@ -62,7 +63,7 @@ export const ProductoCard = ({item}:Props) =>{
                                 name="quantity"
                                 type="number"
                                 min={1}
-                                max={99}
+                                max={item.currentStock}
                                 className="custom-quantity"
                                 value={quantity}
                                 onChange={handleQuantityChange}
@@ -83,6 +84,7 @@ export const ProductoCard = ({item}:Props) =>{
                     sellPrice={item.sellPrice}
                     image={item.image}
                     quantity={quantity}
+                    maxQuantity={item.currentStock}
                     handleAddedtoCartClick={handleAddedtoCartClick}
                     handleQuantityChange={handleQuantityChange}
                 />

@@ -11,11 +11,12 @@ interface Props{
     sellPrice: number;
     image: string;
     quantity: number;
+    maxQuantity:number
     handleAddedtoCartClick:() => void;
     handleQuantityChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export const ProductDetailModal = ({show, onHide ,name, description, sellPrice, image, quantity, handleAddedtoCartClick, handleQuantityChange}:Props) => {
+export const ProductDetailModal = ({show, onHide ,name, description, sellPrice, image, quantity,maxQuantity, handleAddedtoCartClick, handleQuantityChange}:Props) => {
 
     const [quantityDetail, setQuantityDetail] = useState(1);
 
@@ -25,8 +26,9 @@ export const ProductDetailModal = ({show, onHide ,name, description, sellPrice, 
 
     const handleQuantityDetailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const quantityValue = Number(event.target.value);
-        setQuantityDetail(isNaN(quantityValue) ? 1 : Math.max(1, quantityValue));
-        //Actualiza la cantidad en el componente padre
+        let quantity = isNaN(quantityValue) ? 1 : Math.max(1, quantityValue);
+        quantity = Math.min(quantity, maxQuantity);
+        setQuantityDetail(quantity);
         handleQuantityChange(event)
     };
 
@@ -56,6 +58,7 @@ export const ProductDetailModal = ({show, onHide ,name, description, sellPrice, 
                             <h5>Descripción:</h5>
                             <p className="description">{description}</p>
                         </div>
+                        <div>Unidades Disponibles: {maxQuantity}</div>
                         <h5 className="text-center" style={{color: "#b92020"}}><strong>${sellPrice}</strong></h5>
                     </Col>
                 </Row>
@@ -67,7 +70,7 @@ export const ProductDetailModal = ({show, onHide ,name, description, sellPrice, 
                     name="quantity"
                     type="number"
                     min={1}
-                    max={99}
+                    max={maxQuantity}
                     value={quantityDetail}
                     onChange={handleQuantityDetailChange}
                 />
