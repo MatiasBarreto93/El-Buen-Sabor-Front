@@ -1,3 +1,5 @@
+import {IngredientQuantity} from "./ingredient";
+
 export interface Product{
     id:number;
     name: string;
@@ -7,12 +9,7 @@ export interface Product{
     itemTypeId: number;
     description: string;
     recipeDescription: string;
-    ingredients: IngredientProduct[];
+    ingredients: IngredientQuantity[];
     image: string;
     sellPrice: number;
-}
-
-export interface IngredientProduct {
-    idIngredient: number;
-    quantity: number;
 }

@@ -4,6 +4,7 @@ export const formikMultiStepProductSchema = (id: number) => [
 
     Yup.object({
         name: Yup.string().required('El nombre es requerido'),
+        categoryId: Yup.number().integer().min(0),
     }),
 
     Yup.object({

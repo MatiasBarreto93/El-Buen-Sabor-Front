@@ -57,10 +57,17 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
 
     const handleSaveUpdate = async(product: Product) => {
         const isNew = product.id === 0;
+
+        const updatedProduct: Product = { ...product };
+
+        updatedProduct.ingredients = selectedIngredients;
+
+        console.log(updatedProduct);
+
         if (!isNew) {
-            await genericPut<Ingredient>("products", product.id, product, "Producto Editado");
+            await genericPut<Ingredient>("products", product.id, updatedProduct, "Producto Editado");
         } else {
-            await genericPost<Ingredient>("products", "Producto Creado", product);
+            await genericPost<Ingredient>("products", "Producto Creado", updatedProduct);
         }
         setRefetch(true);
         onHide();
@@ -241,7 +248,7 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
                                                 name="categoryId"
                                                 value={formik.values.categoryId}
                                                 onChange={(event) => {
-                                                    formik.setFieldValue("categoryId", event.target.value);
+                                                    formik.setFieldValue("categoryId", Number(event.target.value));
                                                 }}
                                             >
                                                 <option value="">Seleccionar</option>)
@@ -334,7 +341,6 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
                                                             value={selectedCategory}
                                                             onChange={(event) => {
                                                                 const selectedId = Number(event.target.value);
-                                                                console.log(selectedId);
                                                                 setSelectedCategory(selectedId);
                                                             }}
                                                         >
@@ -356,7 +362,6 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
                                                             onChange={(event) => {
                                                                 const selectedId = Number(event.target.value);
                                                                 const selectedIngredient = ingredients.find(ing => ing.id === selectedId) || ingrediente;
-                                                                console.log(selectedId);
                                                                 setIngrediente(selectedIngredient);
                                                             }}
                                                         >
