@@ -57,7 +57,7 @@ export const IngredientsTable = () => {
                         <td>{ingredient.currentStock}</td>
                         <td>{ingredient.measurementDenomination}</td>
                         <td style={{ fontWeight: 'bold', color: ingredient.blocked ? '#D32F2F' : '#34A853' }}>{ingredient.blocked ? 'Bloqueado' : 'Activo'}</td>
-                        <td><EditButton onClick={() => {handleClick("Editar Empleado", ingredient, ModalType.Edit)}}/></td>
+                        <td><EditButton onClick={() => {handleClick("Editar Ingrediente", ingredient, ModalType.Edit)}}/></td>
                         <td><StatusButton
                             isBlocked={ingredient.blocked}
                             onClick={() => {handleClick(ingredient.blocked ? "¿Desbloquear Empleado?" : "¿Bloquear Empleado?",
