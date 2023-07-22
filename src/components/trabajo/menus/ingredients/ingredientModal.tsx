@@ -39,6 +39,7 @@ export const IngredientModal = ({ show, onHide, title, ing, setRefetch, modalTyp
 
     const handleSaveUpdate = async(ingredient: Ingredient) => {
         const isNew = ingredient.id === 0;
+        console.log(ingredient);
         if (!isNew) {
             await genericPut<Ingredient>("ingredients", ingredient.id, ingredient, "Ingrediente Editado");
         } else {
@@ -48,7 +49,7 @@ export const IngredientModal = ({ show, onHide, title, ing, setRefetch, modalTyp
         onHide();
     }
 
-    const handleStateCategory = async () => {
+    const handleStateIngredient = async () => {
         if(ing) {
             const id = ing.id;
             const isBlocked = !ing.blocked;
@@ -101,7 +102,7 @@ export const IngredientModal = ({ show, onHide, title, ing, setRefetch, modalTyp
                         <Button variant="secondary" onClick={onHide}>
                             Cancelar
                         </Button>
-                        <Button variant="danger" onClick={handleStateCategory}>
+                        <Button variant="danger" onClick={handleStateIngredient}>
                             Guardar
                         </Button>
                     </Modal.Footer>
