@@ -7,6 +7,7 @@ import {CustomersTable} from "../menus/customers/customersTable.tsx";
 import {IngredientsTable} from "../menus/ingredients/ingredientsTable";
 import {TableTest} from "../menus/testModal/tableTest.tsx";
 import {ProductsTable} from "../menus/products/productsTable";
+import {StockTable} from "../menus/stock/stockTable.tsx";
 
 export const DashBoard = () => {
 
@@ -55,7 +56,6 @@ export const DashBoard = () => {
                     <div className="row">
                         <Tab.Content>
                             <Tab.Pane eventKey="Principal">
-                                <div className="col">Principal</div>
                                 <TableTest/>
                             </Tab.Pane>
                             <Tab.Pane eventKey="Empleados">
@@ -74,7 +74,7 @@ export const DashBoard = () => {
                                 {<ProductsTable/>}
                             </Tab.Pane>
                             <Tab.Pane eventKey="Stock">
-                                <p>Stock</p>
+                                {<StockTable/>}
                             </Tab.Pane>
                             <Tab.Pane eventKey="Movimientos">
                                 <p>Movimientos</p>
