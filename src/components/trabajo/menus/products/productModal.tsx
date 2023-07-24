@@ -159,16 +159,12 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
         });
     };
 
-    const handleImageUpload = async (e, setFieldValue) => {
+    const handleImageUpload = async (e, setFieldValue, validateField) => {
         const file = e.target.files[0];
-        if (file && (file.type === 'image/jpeg' || file.type === 'image/jpg') && file?.size / 1024 / 1024 < 2) {
-            const base64 = await convertToBase64(file);
-            console.log(base64);
-            setFieldValue('image', base64);
-        }
-        else {
-            formik.setFieldError("image", "La imagen debe ser en formato JPG o JPEG y de tamaño 2MB o menos");
-        };
+        const base64 = await convertToBase64(file);
+        console.log(base64);
+        setFieldValue('image', base64);
+        await validateField('image');
     };
 
     const deleteIngredient = (index: number) => {
@@ -250,6 +246,8 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
                                                 onChange={(event) => {
                                                     formik.setFieldValue("categoryId", Number(event.target.value));
                                                 }}
+                                                onBlur={formik.handleBlur}
+                                                isInvalid={Boolean(formik.errors.categoryId && formik.touched.categoryId)}
                                             >
                                                 <option value="">Seleccionar</option>)
                                                 {categories.map((category) => (
@@ -258,6 +256,9 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
                                                     </option>
                                                 ))}
                                             </Form.Select>
+                                            <Form.Control.Feedback type="invalid">
+                                                {formik.errors.categoryId}
+                                            </Form.Control.Feedback>
                                         </Form.Group>
                                     </Col>
                                     <Col>
@@ -296,11 +297,14 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
                                         </Form.Group>
                                     </Col>
                                     <Col>
-                                        <Form.Group controlId="formFile">
+                                        <Form.Group controlId="formImage">
                                             <Form.Label>Seleccionar imagen</Form.Label>
                                             <Form.Control
+                                                name="image"
                                                 type="file"
-                                                onChange={(e) => handleImageUpload(e, formik.setFieldValue)}
+                                                onChange={(e) => handleImageUpload(e, formik.setFieldValue, formik.validateField)}
+                                                onBlur={formik.handleBlur}
+                                                isInvalid={Boolean(formik.errors.image && formik.touched.image)}
                                             />
                                             <Form.Control.Feedback type="invalid">
                                                 {formik.errors.image}
