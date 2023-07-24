@@ -8,7 +8,7 @@ import {Ingredient, IngredientQuantity} from "../../../../interfaces/ingredient"
 import {useGenericGet} from "../../../../services/useGenericGet";
 import {useInitializeIngredient} from "../ingredients/hooks/useInitializeIngredient";
 import {Category} from "../../../../interfaces/category";
-import {Button, Col, Form, Modal, Row, Table} from "react-bootstrap";
+import {Button, Col, Form, Image, Modal, Row, Table} from "react-bootstrap";
 import {formikMultiStepTestSchema} from "../testModal/formikMultiStepTestSchema";
 import {formikMultiStepProductSchema} from "./productsValidationSchema";
 import {useFormik} from "formik";
@@ -92,6 +92,8 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
 
     const [highestValidatedStep, setHighestValidatedStep] = useState(0);
     const [validatedSteps, setValidatedSteps] = useState([false, false, false]);
+
+    const [imagePreview, setImagePreview] = useState();
 
     const formik = useFormik({
         initialValues: prod,
@@ -249,7 +251,7 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
                                                 onBlur={formik.handleBlur}
                                                 isInvalid={Boolean(formik.errors.categoryId && formik.touched.categoryId)}
                                             >
-                                                <option value="">Seleccionar</option>)
+                                                <option value="">Seleccionar</option>
                                                 {categories.map((category) => (
                                                     <option key={category.id} value={category.id}>
                                                         {category.denomination}
@@ -285,7 +287,7 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
                                             <Form.Label>Descripcion</Form.Label>
                                             <Form.Control
                                                 name="description"
-                                                type="text"
+                                                as="textarea"
                                                 value={formik.values.description || ''}
                                                 onChange={formik.handleChange}
                                                 onBlur={formik.handleBlur}
@@ -295,8 +297,6 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
                                                 {formik.errors.description}
                                             </Form.Control.Feedback>
                                         </Form.Group>
-                                    </Col>
-                                    <Col>
                                         <Form.Group controlId="formImage">
                                             <Form.Label>Seleccionar imagen</Form.Label>
                                             <Form.Control
@@ -309,6 +309,12 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
                                             <Form.Control.Feedback type="invalid">
                                                 {formik.errors.image}
                                             </Form.Control.Feedback>
+                                        </Form.Group>
+                                    </Col>
+                                    <Col>
+                                        <Form.Group controlId="formImagePreview">
+                                            <Form.Label>Previsualización de la imagen :</Form.Label>
+                                            {formik.values.image && <img src={formik.values.image} alt="Imagen seleccionada" style={{width: '100%', maxHeight: '300px'}} />}
                                         </Form.Group>
                                     </Col>
                                 </Row>
@@ -338,44 +344,59 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
                                             <Row>
                                                 <Col>
                                                     {/*-------------------------Category---------------------------------*/}
-                                                    <Form.Group controlId="formCategory">
+                                                    <Form.Group controlId="formCategoryIngredientId">
                                                         <Form.Label>Rubro Ingrediente:</Form.Label>
                                                         <Form.Select
-                                                            name="category"
-                                                            value={selectedCategory}
+                                                            name="categoryIngredientId"
+                                                            value={formik.values.categoryIngredientId}
                                                             onChange={(event) => {
-                                                                const selectedId = Number(event.target.value);
-                                                                setSelectedCategory(selectedId);
+                                                                const newValue = Number(event.target.value);
+                                                                formik.setFieldValue("categoryIngredientId", newValue);
+                                                                setSelectedCategory(newValue);
+                                                                formik.setFieldValue("ingredientId", 0);
+                                                                setIngrediente(ingrediente);
                                                             }}
+                                                            onBlur={formik.handleBlur}
+                                                            isInvalid={Boolean(formik.errors.categoryIngredientId && formik.touched.categoryIngredientId)}
                                                         >
+                                                            <option value="">Seleccionar</option>
                                                             {categoriesIngredient.map((cat) => (
                                                                 <option key={cat.id} value={cat.id} disabled={cat.blocked}>
                                                                     {cat.denomination}
                                                                 </option>
                                                             ))}
                                                         </Form.Select>
+                                                        <Form.Control.Feedback type="invalid">
+                                                            {formik.errors.categoryIngredientId}
+                                                        </Form.Control.Feedback>
                                                     </Form.Group>
                                                 </Col>
                                                 <Col>
                                                     {/*-------------------------Ingredient-------------------------------*/}
-                                                    <Form.Group controlId="formIngredients">
+                                                    <Form.Group controlId="formIngredientId">
                                                         <Form.Label>Ingrediente:</Form.Label>
                                                         <Form.Select
-                                                            name="ingredient"
-                                                            value={ingrediente.id}
+                                                            name="ingredientId"
+                                                            value={formik.values.ingredientId}
                                                             onChange={(event) => {
-                                                                const selectedId = Number(event.target.value);
-                                                                const selectedIngredient = ingredients.find(ing => ing.id === selectedId) || ingrediente;
+                                                                const newValue = Number(event.target.value);
+                                                                formik.setFieldValue("ingredientId", newValue);
+                                                                const selectedIngredient = ingredients.find(ing => ing.id === newValue) || ingrediente;
                                                                 setIngrediente(selectedIngredient);
                                                             }}
+                                                            onBlur={formik.handleBlur}
+                                                            isInvalid={Boolean(formik.errors.ingredientId && formik.touched.ingredientId)}
                                                         >
-                                                            <option value="">Seleccionar</option>)
+                                                            <option value="">Seleccionar</option>
                                                             {ingredients.filter(ing => ing.categoryId === selectedCategory).map((ing) => (
                                                                 <option key={ing.id} value={ing.id} disabled={ing.blocked}>
                                                                     {ing.name}
                                                                 </option>
                                                             ))}
                                                         </Form.Select>
+                                                        <Form.Control.Feedback type="invalid">
+                                                            {formik.errors.ingredientId}
+                                                        </Form.Control.Feedback>
                                                     </Form.Group>
                                                 </Col>
                                             </Row>
@@ -383,14 +404,19 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
                                                 <Col>
                                                     {/*Quantity Ingredient*/}
                                                     {/*todo Formik integer min(0)*/}
-                                                    <Form.Group controlId="formIngredientCant" className="mt-4">
+                                                    <Form.Group controlId="formIngredientQuantity" className="mt-4">
                                                         <Form.Label>Cantidad</Form.Label>
                                                         <Form.Control
-                                                            name="ingrediente.cantidad"
+                                                            name="ingredientQuantity"
                                                             type="number"
-                                                            value={quantity}
-                                                            onChange={(event) => setQuantity(Number(event.target.value))}
+                                                            value={formik.values.ingredientQuantity}
+                                                            onChange={(event) => formik.setFieldValue("ingredientQuantity", event.target.value)}
+                                                            onBlur={formik.handleBlur}
+                                                            isInvalid={Boolean(formik.errors.ingredientQuantity && formik.touched.ingredientQuantity)}
                                                         />
+                                                        <Form.Control.Feedback type="invalid">
+                                                            {formik.errors.ingredientQuantity}
+                                                        </Form.Control.Feedback>
                                                     </Form.Group>
                                                 </Col>
                                                 <Col>
@@ -409,7 +435,7 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
                                             <Row>
                                                 {/*Add Ingredient to Table*/}
                                                 <div className="mt-4 d-flex justify-content-center">
-                                                    <Button className="mt-2" onClick={() => setSelectedIngredients([...selectedIngredients, {...ingrediente, quantity}])}>
+                                                    <Button className="mt-2" onClick={() => setSelectedIngredients([...selectedIngredients, {...ingrediente, quantity: formik.values.ingredientQuantity}])}>
                                                         Agregar Ingrediente
                                                     </Button>
                                                 </div>
