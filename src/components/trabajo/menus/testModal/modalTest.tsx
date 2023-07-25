@@ -164,7 +164,7 @@ export const ModalTest = ({ show, onHide, title, emp, setRefetch, modalType }: P
         validationSchema: validationSchema,
         validateOnChange: true,
         validateOnBlur: true,
-        isInitialValid: false,
+        validateOnMount: true,
         onSubmit: (obj: Customer) => handleSaveUpdate(obj)
     });
 

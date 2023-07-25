@@ -2,7 +2,6 @@ import "./../../../styles/table.css"
 import "./../../../styles/toggle-buttons.css"
 import React, {useEffect, useState} from "react";
 import {Table, ToggleButton, ToggleButtonGroup, Form} from "react-bootstrap";
-import {useGenericGet} from "../../../../services/useGenericGet.ts";
 import {Ingredient} from "../../../../interfaces/ingredient.ts";
 import {Drink} from "../../../../interfaces/products.ts";
 import {BuyButton} from "../../../table/BuyButton.tsx";
@@ -11,24 +10,25 @@ import {useInitializeIngredient} from "../ingredients/hooks/useInitializeIngredi
 import {useInitializeDrink} from "../products/hooks/useInitializeDrink.ts";
 import {Category} from "../../../../interfaces/category.ts";
 import {StockFull} from "../../../table/StockFull.tsx";
+import {useGenericCacheGet} from "../../../../services/useGenericCacheGet.ts";
 
 export const StockTable = () => {
 
-    const [refetch, setRefetch] = useState(false)
+    const [refetchIngredient, setRefetchIngredient] = useState(false)
+    const [refetchDrink, setRefetchDrink] = useState(false)
 
     //Category Ingredients
-    const dataCategoryIngredients = useGenericGet<Category>("categories/filter/1", "Ingredientes", refetch);
+    const {data:dataCategoryIngredients} = useGenericCacheGet<Category>("categories/filter/1", "Ingredientes");
     const [categoriesIngredients, setCategoriesIngredients] = useState<Category[]> ([]);
     const [selectedCategory, setSelectedCategory] = useState(0);
 
-
     //Ingredientes
-    const dataIngredients = useGenericGet<Ingredient>("ingredients", "Ingredientes", refetch);
+    const {data:dataIngredients, fetchData:ingredientFetchData} = useGenericCacheGet<Ingredient>("ingredients", "Ingredientes");
     const [ingredients, setIngredients] = useState<Ingredient[]>([]);
     const [ingredient, setIngredient] = useInitializeIngredient(undefined);
 
     //Bebidas
-    const dataDrinks = useGenericGet<Drink>("drinks", "Bebidas", refetch);
+    const {data:dataDrinks, fetchData:drinkFetchData} = useGenericCacheGet<Drink>("drinks", "Bebidas");
     const [drinks, setDrinks] = useState<Drink[]>([]);
     const [drink, setDrink] = useInitializeDrink(undefined);
 
@@ -36,15 +36,29 @@ export const StockTable = () => {
     const [selectedItemType, setSelectedItemType] = useState(1);
     const handleToggle = (selectedValue: number) => {
         setSelectedItemType(selectedValue);
+        setSelectedCategory(0);
     };
 
     useEffect(() => {
+
+        //Set up data onMount
         setCategoriesIngredients(dataCategoryIngredients)
         setIngredients(dataIngredients);
         setDrinks(dataDrinks);
-        setRefetch(false);
-    }, [dataIngredients, dataDrinks, dataCategoryIngredients]);
 
+        //Ingredients
+        if (refetchIngredient){
+            ingredientFetchData();
+            setRefetchIngredient(false);
+        }
+
+        //Drinks
+        if (refetchDrink){
+            drinkFetchData();
+            setRefetchDrink(false);
+        }
+
+    }, [refetchIngredient, refetchDrink ,dataIngredients, dataDrinks, dataCategoryIngredients]);
 
     //ID Category en HTML Select
     const handleCategoryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -58,7 +72,6 @@ export const StockTable = () => {
         }
         return unfilteredIngredients.filter(ing => ing.categoryId === selectedCategory);
     };
-
 
     //Modal
     const [showModal, setShowModal] = useState(false);
@@ -201,7 +214,8 @@ export const StockTable = () => {
                 <StockModal
                     show={showModal}
                     onHide={() => setShowModal(false)}
-                    setRefetch={setRefetch}
+                    setRefetchIngredient={setRefetchIngredient}
+                    setRefetchDrink={setRefetchDrink}
                     item={selectedItemType === 1 ? ingredient : drink}
                     title={title}
                 />

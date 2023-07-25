@@ -25,6 +25,7 @@
     "react-router-dom": "^6.11.1",
     "react-toastify": "^9.1.2",
     "react-tsparticles": "^2.10.1",
+    "secure-ls": "^1.2.6",
     "tsparticles": "^2.10.1",
     "yup": "^1.2.0"
   },
