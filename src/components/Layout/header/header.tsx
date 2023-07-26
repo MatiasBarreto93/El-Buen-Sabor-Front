@@ -5,7 +5,7 @@ import {useAuth0} from "@auth0/auth0-react";
 import {DropDownMenu} from "./dropDownMenu.tsx";
 import {LogInButton} from "./logInButton.tsx";
 
-export const Header = () => {
+const Header = () => {
 
     const {isAuthenticated} = useAuth0()
 
@@ -32,3 +32,5 @@ export const Header = () => {
         </Navbar>
     );
 };
+
+export default Header;

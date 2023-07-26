@@ -5,17 +5,19 @@ import {useGenericPut} from "../../../../services/useGenericPut.ts";
 import {Button, Col, Form, Modal, Row} from "react-bootstrap";
 import {useFormik} from "formik";
 import * as Yup from "yup";
+import secureLS from "../../../../util/secureLS.ts";
 
 
 interface Props {
     show: boolean;
     onHide: () => void;
-    setRefetch: React.Dispatch<React.SetStateAction<boolean>>;
+    setRefetchIngredient: React.Dispatch<React.SetStateAction<boolean>>;
+    setRefetchDrink: React.Dispatch<React.SetStateAction<boolean>>;
     item: Ingredient | Drink;
     title: string;
 }
 
-export const StockModal = ({show, onHide, setRefetch, item, title}:Props) => {
+export const StockModal = ({show, onHide, setRefetchIngredient, setRefetchDrink, item, title}:Props) => {
 
     const genericPut = useGenericPut();
     const [isIngredient, setIsIngredient] = useState(true)
@@ -34,17 +36,20 @@ export const StockModal = ({show, onHide, setRefetch, item, title}:Props) => {
         itm = {...itm, currentStock: itm.currentStock + itemCurrentStock}
         if (isIngredient){
             await genericPut<Ingredient>("ingredients", itm.id, itm, `Compra de ${itm.name} Realizada`);
+            secureLS.remove("ingredients")
+            setRefetchIngredient(true);
         } else {
             await genericPut<Drink>("drinks", itm.id, itm, `Compra de ${itm.name} Realizada`);
+            secureLS.remove("drinks")
+            setRefetchDrink(true);
         }
-        setRefetch(true);
         onHide();
     }
 
     const validationSchema = () => {
         return Yup.object().shape({
-            costPrice: Yup.number().integer("Ingrese un numero Entero").min(0, "El numero no puede ser negativo").required("Ingrese un numero valido"),
-            currentStock: Yup.number().integer("Ingrese un numero Entero").min(0, "El numero no puede ser negativo").max(maxPossibleInput, `El numero no puede superar el Stock Maximo (${maxPossibleInput})`).required("Ingrese una cantidad valida"),
+            costPrice: Yup.number().integer("Ingrese un numero Entero").min(1, "El numero no puede ser 0").required("Ingrese un numero valido"),
+            currentStock: Yup.number().integer("Ingrese un numero Entero").min(1, "El numero no puede ser 0").max(maxPossibleInput, `El numero no puede superar el Stock Maximo (${maxPossibleInput})`).required("Ingrese una cantidad valida"),
         });
     }
 
@@ -53,6 +58,7 @@ export const StockModal = ({show, onHide, setRefetch, item, title}:Props) => {
         validationSchema: validationSchema,
         validateOnChange: true,
         validateOnBlur: true,
+        validateOnMount: true,
         onSubmit: (obj: Ingredient | Drink) => handleSaveUpdate(obj)
     })
 

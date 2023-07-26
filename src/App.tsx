@@ -1,14 +1,13 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import {ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import {lazy, Suspense, useState} from "react";
 import {Loader} from "./components/Loader/loader.tsx";
 import {EmployeeSignUp} from "./components/Auth0/EmployeeSignUp.tsx";
+import {Container} from "react-bootstrap";
 
-const Home = lazy(() => import("./components/home/home.tsx"));
-const MiPedido = lazy(() => import("./components/mipedido/MiPedido.tsx"));
-const MiPerfil = lazy(() => import("./components/miperfil/MiPerfil.tsx"));
-const Trabajo = lazy(() => import("./components/trabajo/trabajo.tsx"));
+const Header = lazy(() => import("./components/Layout/header/header.tsx"));
+const Footer = lazy(() => import("./components/Layout/footer/footer.tsx"));
+const Router =lazy(() => import("./routes/Router.tsx"));
 
 export function App() {
 
@@ -18,22 +17,18 @@ export function App() {
         return persistedFirstRender !== null ? JSON.parse(persistedFirstRender) : true;
     });
 
-  return (
-      <>
-          <ToastContainer/>
-          {firtsRender ? <EmployeeSignUp firstRender={firtsRender} setFirstRender={setFirtsRender}/> : null}
-          <Suspense fallback={<Loader/>}>
-          <Router>
-              <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/miperfil" element={<MiPerfil />}/>
-                  <Route path="/mipedido" element={<MiPedido />}/>
-                  <Route path="/historialpedido"/>
-                  <Route path="/trabajo" element={<Trabajo />}/>
-              </Routes>
-          </Router>
-          </Suspense>
-      </>
-  )
+    return (
+        <>
+            <ToastContainer/>
+            {firtsRender ? <EmployeeSignUp firstRender={firtsRender} setFirstRender={setFirtsRender}/> : null}
+            <Header/>
+            <Container style={{minHeight: '70vh', minWidth: '100%', padding: '0'}}>
+                <Suspense fallback={<Loader/>}>
+                    <Router/>
+                </Suspense>
+            </Container>
+            <Footer/>
+        </>
+    )
 }
 

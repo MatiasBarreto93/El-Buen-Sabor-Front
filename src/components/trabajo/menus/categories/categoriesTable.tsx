@@ -3,24 +3,28 @@ import {Category} from "../../../../interfaces/category";
 import "./../../../styles/table.css"
 import "./../../../styles/toggle-buttons.css"
 import {Button, Table, ToggleButton, ToggleButtonGroup} from "react-bootstrap";
-import {useGenericGet} from "../../../../services/useGenericGet";
 import {ModalType} from "../../../../interfaces/ModalType";
 import {useInitializeCategory} from "./hooks/useInitializeCategory";
 import {CategoryModal} from "./categoryModal";
 import {EditButton} from "../../../table/EditButton.tsx";
 import {StatusButton} from "../../../table/StatusButton.tsx";
+import {useGenericCacheGet} from "../../../../services/useGenericCacheGet.ts";
 
 export const CategoriesTable = () => {
     const [refetch, setRefetch] = useState(false)
 
-    const data = useGenericGet<Category>("categories", "Categorías", refetch);
+    const {data, fetchData} = useGenericCacheGet<Category>("categories", "Categorías");
     const [categories, setCategories] = useState<Category[]>([]);
     const [selectedItemType, setSelectedItemType] = useState(1);
 
     useEffect(() => {
         setCategories(data);
-        setRefetch(false);
-    }, [data]);
+        if (refetch){
+            fetchData();
+            setRefetch(false);
+        }
+    }, [data, refetch]);
+
 
     const [showModal, setShowModal] = useState(false);
     const [modalType, setModalType] = useState<ModalType>(ModalType.None);

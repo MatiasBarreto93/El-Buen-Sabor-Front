@@ -8,4 +8,5 @@
     background-image: url('/img/brownwood.jpg');
     background-size: cover;
     background-repeat: repeat;
+    min-height: 80vh;
 }

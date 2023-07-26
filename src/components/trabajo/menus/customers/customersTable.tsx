@@ -1,5 +1,4 @@
 import {useEffect, useState} from "react";
-import {useGenericGet} from "../../../../services/useGenericGet.ts";
 import {Customer} from "../../../../interfaces/customer.ts";
 import {ModalType} from "../../../../interfaces/ModalType.ts";
 import {useInitializeCustomer} from "../employees/hooks/useInitializeCustomer.ts";
@@ -8,6 +7,7 @@ import {CustomerModal} from "./customerModal.tsx";
 import "./../../../styles/table.css"
 import {EditButton} from "../../../table/EditButton.tsx";
 import {StatusButton} from "../../../table/StatusButton.tsx";
+import {useGenericCacheGet} from "../../../../services/useGenericCacheGet.ts";
 
 export const CustomersTable = () => {
 
@@ -15,12 +15,16 @@ export const CustomersTable = () => {
     const [refetch, setRefetch] = useState(false)
 
     //Obtener los Clientes para llenar la tabla
-    const data = useGenericGet<Customer>("customers/cliente-role","Clientes" ,refetch);
+    const {data, fetchData} = useGenericCacheGet<Customer>("customers/cliente-role","Clientes");
     const [customers, setCustomers] = useState<Customer[]>([]);
-    useEffect(() =>{
+
+    useEffect(() => {
         setCustomers(data);
-        setRefetch(false);
-    },[data])
+        if (refetch){
+            fetchData();
+            setRefetch(false);
+        }
+    }, [data, refetch]);
 
     //Manejo de Modal
     const [showModal, setShowModal] = useState(false);
@@ -37,7 +41,6 @@ export const CustomersTable = () => {
         setModalType(modal)
         setShowModal(true);
     };
-
 
     return(
         <>

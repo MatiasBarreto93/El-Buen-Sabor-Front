@@ -9,8 +9,9 @@ import {useAssignRoleToUserAuth0} from "../../../Auth0/hooks/useAssignRoleToUser
 import {useChangeAuth0UserState} from "../../../Auth0/hooks/useChangeAuth0UserState.ts";
 import {Button, Col, Form, Modal, Row} from "react-bootstrap";
 import {useFormik} from "formik";
-import {useGenericGet} from "../../../../services/useGenericGet.ts";
 import {customerValidationSchema} from "./customerValidationSchema.ts";
+import {useGenericCacheGet} from "../../../../services/useGenericCacheGet.ts";
+import secureLS from "../../../../util/secureLS.ts";
 
 interface Props  {
     show: boolean;
@@ -34,7 +35,7 @@ export const CustomerModal = ({ show, onHide, title, cus, setRefetch, modalType 
     const defaultRole:Role | undefined = roles.find((role) => role.id === 5);
 
     //Obtener los roles y llenar el HTMLSelect del formulario cada vez que se renderiza el Modal
-    const data = useGenericGet<Role>("roles", "Roles");
+    const {data} = useGenericCacheGet<Role>("roles", "Roles");
     useEffect(() =>{
         setRoles(data);
     },[data])
@@ -71,6 +72,7 @@ export const CustomerModal = ({ show, onHide, title, cus, setRefetch, modalType 
             const clientePost:Customer = await asignarAuth0IdRoleInfo(customer, newAuth0ID);
             await genericPost<Customer>("customers", "Cliente Creado", clientePost);
         }
+        secureLS.remove("customers/cliente-role")
         setRefetch(true);
         onHide();
     };
@@ -131,6 +133,7 @@ export const CustomerModal = ({ show, onHide, title, cus, setRefetch, modalType 
             //AUTH0
             await updateAuth0UserStatus(authId, isBlocked);
 
+            secureLS.remove("customers/cliente-role")
             setRefetch(true);
             onHide();
         }
