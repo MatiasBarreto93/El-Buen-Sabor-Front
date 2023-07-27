@@ -6,6 +6,7 @@ export const formikMultiStepProductSchema = (id: number) => [
 
     Yup.object({
         name: Yup.string().required('El nombre es requerido'),
+        preparationTime: Yup.number().integer().min(1, 'El tiempo de preparación debe ser mayor a 0').required('El tiempo de preparación debe ser mayor a 0'),
         categoryId: Yup.number().integer().min(1, 'Debe seleccionar un rubro').required('Debe seleccionar un rubro'),
     }),
 
@@ -27,6 +28,9 @@ export const formikMultiStepProductSchema = (id: number) => [
         categoryIngredientId: Yup.number().integer().min(1, 'Debe seleccionar un rubro').required('Debe seleccionar un rubro'),
         ingredientId: Yup.number().integer().min(1, 'Debe seleccionar un ingrediente').required('Debe seleccionar un ingrediente'),
         ingredientQuantity: Yup.number().integer().min(1, 'La cantidad debe ser mayor a 0').required('La cantidad debe ser mayor a 0'),
+        sellPrice: Yup.number().integer().min(1, 'El precio de venta debe ser mayor a 0').required('El precio de venta debe ser mayor a 0'),
+        costPrice: Yup.number().integer().min(1).required(),
+        currentStock: Yup.number().integer().min(1).required(),
     })
 
 ]
