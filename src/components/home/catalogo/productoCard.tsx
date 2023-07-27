@@ -52,7 +52,7 @@ export const ProductoCard = ({item}:Props) =>{
                 <div className="icon-info">
                     <InfoCircle size={24} color="#FFF" onClick={handleInfoClick} />
                 </div>
-                <Card.Img src={`data:image/jpeg;base64,${item.image}`} className={"card-prod-img"}/>
+                <Card.Img src={item.image} className={"card-prod-img"}/>
                 <Card.Body className="body-cart-content">
                     <Card.Title className={"text-center"}><strong>{item.name}</strong></Card.Title>
                     <Card.Text className={"text-center"} style={{color: "#b92020"}} ><strong>${item.sellPrice}</strong></Card.Text>

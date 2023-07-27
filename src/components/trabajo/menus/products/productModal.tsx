@@ -48,6 +48,8 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
     const [ingrediente, setIngrediente] = useInitializeIngredient(undefined);
     const [selectedIngredients, setSelectedIngredients] = useState<IngredientQuantity[]>([]);
 
+    const [currentStock, setCurrentStock] = useState(0);
+
     //Fill modal form inputs fields with ingredients, categoriesIngredient
     useEffect(() =>{
         setCategories(dataCategories);
@@ -60,6 +62,8 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
         const isNew = product.id === 0;
         const updatedProduct: Product = { ...product };
         updatedProduct.ingredients = selectedIngredients;
+        updatedProduct.currentStock = currentStock;
+        console.log("Stock que se guarda: " + updatedProduct.currentStock);
 
         if (!isNew) {
             await genericPut<Ingredient>("products", product.id, updatedProduct, "Producto Editado");
@@ -145,29 +149,14 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
 
     useEffect(() => {
         const costPrice = selectedIngredients.reduce((total, ingredient) => {
-            return total + (ingredient.costPrice * ingredient.quantity);
-        }, 0);
+            return total + (ingredient.costPrice * ingredient.quantity); }, 0);
         formik.setFieldValue('costPrice', costPrice);
 
         const productStock = selectedIngredients.reduce((minimumStock, ingredient) => {
             const currentIngredientPotential = ingredient.currentStock / ingredient.quantity;
             return currentIngredientPotential < minimumStock ? currentIngredientPotential : minimumStock;
         }, Infinity);
-        prod.currentStock = productStock;
-        formik.setFieldValue('currentStock', prod.currentStock)
-        console.log(prod.currentStock);
-
-    }, [selectedIngredients]);
-
-    useEffect(() => {
-        const productStock = selectedIngredients.reduce((minimumStock, ingredient) => {
-            const currentIngredientPotential = ingredient.currentStock / ingredient.quantity;
-            return currentIngredientPotential < minimumStock ? currentIngredientPotential : minimumStock;
-        }, Infinity);
-
-        prod.currentStock = productStock;
-        formik.setFieldValue('currentStock', prod.currentStock)
-        console.log(prod.currentStock);
+        setCurrentStock(productStock);
 
     }, [selectedIngredients]);
 

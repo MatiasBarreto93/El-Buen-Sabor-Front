@@ -30,7 +30,6 @@ export const formikMultiStepProductSchema = (id: number) => [
         ingredientQuantity: Yup.number().integer().min(1, 'La cantidad debe ser mayor a 0').required('La cantidad debe ser mayor a 0'),
         sellPrice: Yup.number().integer().min(1, 'El precio de venta debe ser mayor a 0').required('El precio de venta debe ser mayor a 0'),
         costPrice: Yup.number().integer().min(1).required(),
-        currentStock: Yup.number().integer().min(1).required(),
     })
 
 ]
