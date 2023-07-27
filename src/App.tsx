@@ -22,7 +22,7 @@ export function App() {
             <ToastContainer/>
             {firtsRender ? <EmployeeSignUp firstRender={firtsRender} setFirstRender={setFirtsRender}/> : null}
             <Header/>
-            <Container style={{minHeight: '70vh', minWidth: '100%', padding: '0'}}>
+            <Container style={{minHeight: '63vh', minWidth: '100%', padding: '0'}}>
                 <Suspense fallback={<Loader/>}>
                     <Router/>
                 </Suspense>
