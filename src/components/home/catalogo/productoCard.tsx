@@ -5,7 +5,7 @@ import React, {useState} from "react";
 import './../../styles/productCard.css'
 import {ProductDetailModal} from "./productDetailModal.tsx";
 import {ProductAdded} from "./productAdded.tsx";
-import { useNavigate } from "react-router-dom";
+//import { useNavigate } from "react-router-dom";
 
 interface Props{
     item: Item;
@@ -13,7 +13,7 @@ interface Props{
 
 export const ProductoCard = ({item}:Props) =>{
 
-    const navigate = useNavigate();
+    //const navigate = useNavigate();
 
     const [quantity, setQuantity] = useState(1);
 
@@ -24,13 +24,13 @@ export const ProductoCard = ({item}:Props) =>{
     const [showModalAdd, setShowModalAdd] = useState(false);
 
     //Card Click
-    const handleCardClick = (event: React.MouseEvent) => {
-        const target = event.target as Element;
-        if (target.closest('input') || target.closest('button')) {
-            return;
-        }
-        navigate(`/product/${item.itemTypeId}/${item.id}`);
-    };
+    // const handleCardClick = (event: React.MouseEvent) => {
+    //     const target = event.target as Element;
+    //     if (target.closest('input') || target.closest('button')) {
+    //         return;
+    //     }
+    //     navigate(`/product/${item.itemTypeId}/${item.id}`);
+    // };
 
     const handlePreventNavigation = (event: React.MouseEvent) => {
         event.stopPropagation();
@@ -70,7 +70,7 @@ export const ProductoCard = ({item}:Props) =>{
             <Card
                 style={{overflow:"hidden", position: "relative"}}
                 className="card-product"
-                onClick={handleCardClick}
+                // onClick={handleCardClick}
                 onMouseEnter={() => { document.body.style.cursor = 'pointer' }}
                 onMouseLeave={() => {document.body.style.cursor = 'default'}}
             >
