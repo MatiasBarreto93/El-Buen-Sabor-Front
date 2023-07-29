@@ -7,12 +7,22 @@ import {CustomersTable} from "../menus/customers/customersTable.tsx";
 import {IngredientsTable} from "../menus/ingredients/ingredientsTable";
 import {TableTest} from "../menus/testModal/tableTest.tsx";
 import {ProductsTable} from "../menus/products/productsTable";
+import {StockTable} from "../menus/stock/stockTable.tsx";
+import {useState} from "react";
 
 export const DashBoard = () => {
 
+    const [activeKey, setActiveKey] = useState("Principal");
+
+    const handleSelect = (selectedKey:string | null) => {
+        if (selectedKey){
+        setActiveKey(selectedKey);
+        }
+    }
+    
     return (
         <Container fluid className="containerDB mt-5 mb-5 mx-2">
-        <Tab.Container defaultActiveKey="Principal">
+        <Tab.Container defaultActiveKey="Principal" activeKey={activeKey} onSelect={handleSelect}>
             <Row className="w-100">
                 <Col sm={3} style={{ maxWidth: "fit-content"}}>
                     <div className="p-2 text-center userinfoDB">
@@ -54,31 +64,46 @@ export const DashBoard = () => {
                 <Col>
                     <div className="row">
                         <Tab.Content>
+                            {activeKey === "Principal" && (
                             <Tab.Pane eventKey="Principal">
-                                <div className="col">Principal</div>
                                 <TableTest/>
                             </Tab.Pane>
+                            )}
+                            {activeKey === "Empleados" && (
                             <Tab.Pane eventKey="Empleados">
                                 <EmployeesTable/>
                             </Tab.Pane>
+                            )}
+                            {activeKey === "Clientes" && (
                             <Tab.Pane eventKey="Clientes">
                                 <CustomersTable/>
                             </Tab.Pane>
+                            )}
+                            {activeKey === "Rubros" && (
                             <Tab.Pane eventKey="Rubros">
                                 {<CategoriesTable/>}
                             </Tab.Pane>
+                            )}
+                            {activeKey === "Ingredientes" && (
                             <Tab.Pane eventKey="Ingredientes">
                                 {<IngredientsTable/>}
                             </Tab.Pane>
+                            )}
+                            {activeKey === "Productos" && (
                             <Tab.Pane eventKey="Productos">
                                 {<ProductsTable/>}
                             </Tab.Pane>
+                            )}
+                            {activeKey === "Stock" && (
                             <Tab.Pane eventKey="Stock">
-                                <p>Stock</p>
+                                {<StockTable/>}
                             </Tab.Pane>
+                            )}
+                            {activeKey === "Movimientos" && (
                             <Tab.Pane eventKey="Movimientos">
                                 <p>Movimientos</p>
                             </Tab.Pane>
+                            )}
                         </Tab.Content>
                     </div>
                 </Col>

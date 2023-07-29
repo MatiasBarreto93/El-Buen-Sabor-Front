@@ -7,7 +7,6 @@ export const useGenericGet = <T>(endpoint: string, entidadMsj: string, refetch?:
     const { getAccessTokenSilently } = useAuth0();
 
     const [data, setData] = useState<T[]>([]);
-
     useEffect(() => {
         fetchData();
     }, [refetch]);
@@ -20,10 +19,8 @@ export const useGenericGet = <T>(endpoint: string, entidadMsj: string, refetch?:
                     Authorization: `Bearer ${token}`,
                 },
             });
-            //console.log(response.status);
             if (response.ok) {
-                const data = await response.json();
-                //console.log(data);
+                const data  = await response.json();
                 setData(data)
             } else {
                 console.error(`Error fetching ${entidadMsj} data:`, response.status);

@@ -1,10 +1,8 @@
-import {Layout} from "../Layout/layout.tsx";
 import {FullCart} from "./fullCart/FullCart.tsx";
 import {useGetCustomer} from "../../services/useGetCustomer.ts";
 import {useAuth0} from "@auth0/auth0-react";
 import {useInitializeCustomer} from "../trabajo/menus/employees/hooks/useInitializeCustomer.ts";
 import {useEffect} from "react";
-//import {EmpyCart} from "./empyCart/EmpyCart.tsx";
 import './../styles/background.css'
 
 const MiPedido = () => {
@@ -24,14 +22,11 @@ const MiPedido = () => {
             }
         };
         onRender();
-    }, [user?.sub, setCliente]);
+    }, [user?.sub, setCliente, getCustomer]);
     
     return(
         <div className="perfil-img">
-        <Layout>
-            {/*<EmpyCart/>*/}
             <FullCart cliente={cliente}/>
-        </Layout>
         </div>
     )
 }

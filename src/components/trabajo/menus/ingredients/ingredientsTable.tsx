@@ -1,5 +1,4 @@
 import {useEffect, useState} from "react";
-import {useGenericGet} from "../../../../services/useGenericGet";
 import {Ingredient} from "../../../../interfaces/ingredient";
 import {ModalType} from "../../../../interfaces/ModalType";
 import {useInitializeIngredient} from "./hooks/useInitializeIngredient";
@@ -7,16 +6,21 @@ import {Button, Table} from "react-bootstrap";
 import {EditButton} from "../../../table/EditButton";
 import {StatusButton} from "../../../table/StatusButton";
 import {IngredientModal} from "./ingredientModal";
+import {useGenericCacheGet} from "../../../../services/useGenericCacheGet.ts";
 
 export const IngredientsTable = () => {
+
     const [refetch, setRefetch] = useState(false);
-    const data = useGenericGet<Ingredient>("ingredients", "Ingredientes", refetch);
+    const {data, fetchData} = useGenericCacheGet<Ingredient>("ingredients", "Ingredientes");
     const [ingredients, setIngredients] = useState<Ingredient[]>([]);
 
     useEffect(() => {
         setIngredients(data);
-        setRefetch(false);
-    }, [data]);
+        if (refetch){
+            fetchData();
+            setRefetch(false);
+        }
+    }, [data, refetch]);
 
     const [showModal, setShowModal] = useState(false);
     const [modalType, setModalType] = useState<ModalType>(ModalType.None);

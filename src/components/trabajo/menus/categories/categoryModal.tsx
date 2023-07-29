@@ -1,13 +1,14 @@
 import React, {useEffect, useState} from "react";
 import {Category} from "../../../../interfaces/category";
 import {ModalType} from "../../../../interfaces/ModalType";
-import {useGenericGet} from "../../../../services/useGenericGet";
 import {useGenericPost} from "../../../../services/useGenericPost";
 import {useGenericPut} from "../../../../services/useGenericPut";
 import {useGenericChangeStatus} from "../../../../services/useGenericChangeStatus";
 import * as Yup from 'yup';
 import {useFormik} from "formik";
 import {Button, Col, Form, Modal, Row} from "react-bootstrap";
+import {useGenericCacheGet} from "../../../../services/useGenericCacheGet.ts";
+import secureLS from "../../../../util/secureLS.ts";
 
 interface Props {
     show: boolean;
@@ -26,7 +27,7 @@ export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType
     const genericPut = useGenericPut();
     const updateCategoryStatus = useGenericChangeStatus();
 
-    const data = useGenericGet<Category>("categories/filter", "Categorías");
+    const {data} = useGenericCacheGet<Category>("categories/filter", "Categorías");
 
     const handleSaveUpdate = async(category: Category) => {
         const isNew = category.id === 0;
@@ -35,9 +36,11 @@ export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType
         } else {
             await genericPost<Category>("categories", "Categoría Creada", category);
         }
+        secureLS.remove("categories/filter/1")
+        secureLS.remove("categories/filter")
+        secureLS.remove("categories")
         setRefetch(true);
         onHide();
-
     }
 
     const handleStateCategory = async () => {
@@ -47,6 +50,7 @@ export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType
 
             await updateCategoryStatus(id, isBlocked, "categories", "Categoría");
 
+            secureLS.remove("categories")
             setRefetch(true);
             onHide();
         }
@@ -92,7 +96,7 @@ export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType
         onRender();
     }, [data, formik.values.itemTypeId]);
 
-    const filterCategories = (itemTypeId: number) => {
+    const filterCategories = async (itemTypeId: number) => {
         const filteredCategories = data.filter(
             (category) => category.itemTypeId === itemTypeId
         );

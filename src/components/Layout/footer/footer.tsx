@@ -1,7 +1,7 @@
 import './footer.css';
 import {Col, Container, Row} from "react-bootstrap";
 import {Telephone, Envelope, GeoAlt, Facebook} from "react-bootstrap-icons";
-export const Footer = () => {
+const Footer = () => {
     return (
         <footer className="bg-dark w-100">
             <Container fluid className="d-flex justify-content-center">
@@ -36,3 +36,5 @@ export const Footer = () => {
         </footer>
     );
 }
+
+export default Footer;

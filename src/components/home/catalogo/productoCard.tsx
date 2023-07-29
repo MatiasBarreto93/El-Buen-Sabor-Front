@@ -5,12 +5,15 @@ import React, {useState} from "react";
 import './../../styles/productCard.css'
 import {ProductDetailModal} from "./productDetailModal.tsx";
 import {ProductAdded} from "./productAdded.tsx";
+import { useNavigate } from "react-router-dom";
 
 interface Props{
     item: Item;
 }
 
 export const ProductoCard = ({item}:Props) =>{
+
+    const navigate = useNavigate();
 
     const [quantity, setQuantity] = useState(1);
 
@@ -20,8 +23,22 @@ export const ProductoCard = ({item}:Props) =>{
     const [showAddedtoCart, setShowAddedtoCart] = useState(false);
     const [showModalAdd, setShowModalAdd] = useState(false);
 
+    //Card Click
+    const handleCardClick = (event: React.MouseEvent) => {
+        const target = event.target as Element;
+        if (target.closest('input') || target.closest('button')) {
+            return;
+        }
+        navigate(`/product/${item.id}`);
+    };
+
+    const handlePreventNavigation = (event: React.MouseEvent) => {
+        event.stopPropagation();
+    };
+
     //Info Button
-    const handleInfoClick = () => {
+    const handleInfoClick = (event: React.MouseEvent) => {
+        event.stopPropagation();
         setShowInfo(true)
         setShowModalInfo(true);
     };
@@ -33,8 +50,15 @@ export const ProductoCard = ({item}:Props) =>{
         setShowModalInfo(false)
     };
 
+    //Prevent navigation on button "add to cart"
+    const handleButtonClick = (event: React.MouseEvent) => {
+        handlePreventNavigation(event);
+        handleAddedtoCartClick();
+    };
+
     //Quantity
     const handleQuantityChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        event.stopPropagation();
         const quantityValue = Number(event.target.value);
         let quantity = isNaN(quantityValue) ? 1 : Math.max(1, quantityValue);
         quantity = Math.min(quantity, item.currentStock);

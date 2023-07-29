@@ -7,9 +7,10 @@ import {useGenericChangeStatus} from "../../../../services/useGenericChangeStatu
 import * as Yup from 'yup';
 import {useFormik} from "formik";
 import {Category} from "../../../../interfaces/category";
-import {useGenericGet} from "../../../../services/useGenericGet";
 import {MeasurementUnit} from "../../../../interfaces/MeasurementUnit";
 import {Button, Col, Form, Modal, Row} from "react-bootstrap";
+import {useGenericCacheGet} from "../../../../services/useGenericCacheGet.ts";
+import secureLS from "../../../../util/secureLS.ts";
 
 interface Props {
     show: boolean;
@@ -29,13 +30,13 @@ export const IngredientModal = ({ show, onHide, title, ing, setRefetch, modalTyp
     const genericPut = useGenericPut();
     const updateCategoryStatus = useGenericChangeStatus();
 
-    const dataCategories = useGenericGet<Category>(`categories/filter/${ing.itemTypeId}`, "Categorías");
-    const dataMeasurementsUnits = useGenericGet<MeasurementUnit>("measurementUnits", "Unidades de Medida");
+    const {data: categoriesData} = useGenericCacheGet<Category>("categories/filter/1", "Categorías");
+    const {data: measurementUnitData} = useGenericCacheGet<MeasurementUnit>("measurementUnits", "Unidades de Medida");
 
     useEffect(() => {
-        setCategories(dataCategories);
-        setMeasurementsUnits(dataMeasurementsUnits)
-    }, [dataCategories, dataMeasurementsUnits]);
+        setCategories(categoriesData);
+        setMeasurementsUnits(measurementUnitData)
+    }, [categoriesData, measurementUnitData]);
 
     const handleSaveUpdate = async(ingredient: Ingredient) => {
         const isNew = ingredient.id === 0;
@@ -45,6 +46,8 @@ export const IngredientModal = ({ show, onHide, title, ing, setRefetch, modalTyp
         } else {
             await genericPost<Ingredient>("ingredients", "Ingrediente Creado", ingredient);
         }
+
+        secureLS.remove("ingredients")
         setRefetch(true);
         onHide();
     }
@@ -56,6 +59,7 @@ export const IngredientModal = ({ show, onHide, title, ing, setRefetch, modalTyp
 
             await updateCategoryStatus(id, isBlocked, "ingredients", "Ingrediente");
 
+            secureLS.remove("ingredients")
             setRefetch(true);
             onHide();
         }

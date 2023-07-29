@@ -1,7 +1,6 @@
 import {Button, Col, Form, Modal, Row} from "react-bootstrap";
 import React, {useEffect, useRef, useState} from "react";
 import {Auth0Roles, Auth0User, Customer, Role} from "../../../../interfaces/customer.ts";
-import {useGenericGet} from "../../../../services/useGenericGet.ts";
 import {useGenericChangeStatus} from "../../../../services/useGenericChangeStatus.ts";
 import {useCreateUserAuth0} from "../../../Auth0/hooks/useCreateUserAuth0.ts";
 import {useAssignRoleToUserAuth0} from "../../../Auth0/hooks/useAssignRoleToUserAuth0.ts";
@@ -13,6 +12,8 @@ import {useGenericPut} from "../../../../services/useGenericPut.ts";
 import {useFormik} from "formik";
 import {ModalType} from "../../../../interfaces/ModalType.ts";
 import {employeeValidationSchema} from "./employeeValidationSchema.ts";
+import {useGenericCacheGet} from "../../../../services/useGenericCacheGet.ts";
+import secureLS from "../../../../util/secureLS.ts";
 
 interface Props  {
     show: boolean;
@@ -50,7 +51,7 @@ export const EmployeeModal = ({ show, onHide, title, emp, setRefetch, modalType 
     const updateAuth0UserStatus = useChangeAuth0UserState();
 
     //Obtener los roles y llenar el HTMLSelect del formulario cada vez que se renderiza el Modal
-    const data = useGenericGet<Role>("roles", "Roles");
+    const {data} = useGenericCacheGet<Role>("roles", "Roles");
     useEffect(() =>{
         setRoles(data);
     },[data])
@@ -77,6 +78,7 @@ export const EmployeeModal = ({ show, onHide, title, emp, setRefetch, modalType 
             const empleadoPost:Customer = await asignarAuth0Id(empleado, newAuth0ID);
             await genericPost<Customer>("customers", "Empleado Creado", empleadoPost);
         }
+        secureLS.remove("customers/different-role/5")
         setRefetch(true);
         onHide();
     };
@@ -140,6 +142,7 @@ export const EmployeeModal = ({ show, onHide, title, emp, setRefetch, modalType 
             //AUTH0
             await updateAuth0UserStatus(authId, isBlocked);
 
+            secureLS.remove("customers/different-role/5")
             setRefetch(true);
             onHide();
         }
