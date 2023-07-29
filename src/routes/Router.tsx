@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import {Route, Routes} from 'react-router-dom';
 import {useEffect} from "react";
 import {lazyWithPreload} from "../util/lazyWithPreload.ts";
 
@@ -17,29 +17,15 @@ const Router: React.FC = () => {
         MiPedido.preload();
     }, []);
 
-    const router = createBrowserRouter([
-        {
-            path: "/",
-            element: <Home />,
-        },
-        {
-            path: "/miperfil",
-            element: <MiPerfil />,
-        },
-        {
-            path: "/mipedido",
-            element: <MiPedido />,
-        },
-        {
-            path: "/trabajo",
-            element: <Trabajo />,
-        },
-        // {
-        //     path: "/product/:type/:id",
-        //     element: <ProductDetail />,
-        // },
-    ]);
-    return <RouterProvider router={router}/>
+    return (
+        <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/miperfil" element={<MiPerfil />} />
+            <Route path="/mipedido" element={<MiPedido />} />
+            <Route path="/trabajo" element={<Trabajo />} />
+        </Routes>
+    );
+
 }
 
 export default Router;

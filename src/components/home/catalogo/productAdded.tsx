@@ -1,5 +1,6 @@
 import {Button, Col, Image, Modal, Row} from "react-bootstrap";
 import './../../styles/productCard.css'
+import {useNavigate} from "react-router-dom";
 
 interface Props{
     show: boolean;
@@ -11,6 +12,8 @@ interface Props{
 }
 
 export const ProductAdded = ({show, onHide ,name, sellPrice, image, quantity}:Props) => {
+
+    const navigate = useNavigate();
 
     return(
         <Modal show={show} onHide={onHide} centered backdrop="static">
@@ -34,7 +37,7 @@ export const ProductAdded = ({show, onHide ,name, sellPrice, image, quantity}:Pr
             <Modal.Footer>
                 <div style={{ display: 'flex', justifyContent: 'center', width: "100%" }}>
                     <Button style={{ flex: '1', margin: '0 5px' }} variant={"secondary"} onClick={onHide}>Continuar Comprando</Button>
-                    <Button style={{ flex: '1', margin: '0 5px' }} href="/mipedido">Ir a Mi Pedido</Button>
+                    <Button style={{ flex: '1', margin: '0 5px' }} onClick={() => navigate('/mipedido')}>Ir a Mi Pedido</Button>
                 </div>
             </Modal.Footer>
         </Modal>

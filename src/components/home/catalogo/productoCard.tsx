@@ -5,7 +5,7 @@ import React, {useState} from "react";
 import './../../styles/productCard.css'
 import {ProductDetailModal} from "./productDetailModal.tsx";
 import {ProductAdded} from "./productAdded.tsx";
-//import { useNavigate } from "react-router-dom";
+import {useCart} from "../../../context/cart/CartContext.tsx";
 
 interface Props{
     item: Item;
@@ -13,7 +13,7 @@ interface Props{
 
 export const ProductoCard = ({item}:Props) =>{
 
-    //const navigate = useNavigate();
+    const {addToCart} = useCart();
 
     const [quantity, setQuantity] = useState(1);
 
@@ -32,10 +32,6 @@ export const ProductoCard = ({item}:Props) =>{
     //     navigate(`/product/${item.itemTypeId}/${item.id}`);
     // };
 
-    const handlePreventNavigation = (event: React.MouseEvent) => {
-        event.stopPropagation();
-    };
-
     //Info Button
     const handleInfoClick = (event: React.MouseEvent) => {
         event.stopPropagation();
@@ -45,15 +41,10 @@ export const ProductoCard = ({item}:Props) =>{
 
     //Add to Cart Button
     const handleAddedtoCartClick = () => {
+        addToCart(item,quantity);
         setShowAddedtoCart(true)
         setShowModalAdd(true);
         setShowModalInfo(false)
-    };
-
-    //Prevent navigation on button "add to cart"
-    const handleButtonClick = (event: React.MouseEvent) => {
-        handlePreventNavigation(event);
-        handleAddedtoCartClick();
     };
 
     //Quantity
@@ -95,7 +86,7 @@ export const ProductoCard = ({item}:Props) =>{
                             />
                         </Col>
                         <Col xs={9} sm={9} md={9}>
-                            <Button className="w-100" onClick={handleButtonClick}><CartPlus size={20}/> Agregar</Button>
+                            <Button className="w-100" onClick={handleAddedtoCartClick}><CartPlus size={20}/> Agregar</Button>
                         </Col>
                     </Row>
                 </Card.Body>

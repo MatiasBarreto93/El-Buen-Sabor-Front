@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {Button, Col, Navbar, Row} from "react-bootstrap";
-import './../../styles/toggle-buttons.css'
+import './../../styles/toggle-buttons.css';
+import './../../Layout/header/header.css';
 import {useGenericGet} from "../../../services/useGenericGet.ts";
 import {Category} from "../../../interfaces/category.ts";
 import {Drink, Item, Product} from "../../../interfaces/products.ts";
@@ -81,7 +82,7 @@ export const Catalogo = () => {
 
     return (
         <>
-            <Navbar bg="light" expand="lg" className="sticky mb-4 justify-content-center navbar-2">
+            <Navbar bg="light" expand="lg" className="mb-4 justify-content-center navbar-2">
                 <Row className='mt-1 gx-2 gy-3 justify-content-center'>
                     {categories.map((category) => (
                         <Col xs={'auto'} className='my-2' key={category.id}>
