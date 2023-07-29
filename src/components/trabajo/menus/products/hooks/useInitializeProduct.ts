@@ -9,10 +9,12 @@ const defaultProduct = {
     categoryDenomination: "",
     itemTypeId: 2,
     description: "",
+    preparationTime: 0,
     recipeDescription: "",
     ingredients: [],
     image: "",
-    sellPrice: 0
+    sellPrice: 0,
+    currentStock: 0
 }
 
 export const useInitializeProduct = (prod: Product | undefined): [Product , React.Dispatch<React.SetStateAction<Product>>, () => Product] => {
