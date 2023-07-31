@@ -10,7 +10,6 @@ import { useGenericPut } from "../../../../services/useGenericPut";
 import { useGenericChangeStatus } from "../../../../services/useGenericChangeStatus";
 import { useGenericGet } from "../../../../services/useGenericGet";
 import { useInitializeIngredient } from "../ingredients/hooks/useInitializeIngredient";
-import { formikMultiStepTestSchema } from "../testModal/formikMultiStepTestSchema";
 import { formikMultiStepProductSchema } from "./productsValidationSchema";
 import { DeleteButton } from "../../../table/DeleteButton";
 import "../../../styles/HorizontalStepper.css";
@@ -66,9 +65,9 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
         console.log("Stock que se guarda: " + updatedProduct.currentStock);
 
         if (!isNew) {
-            await genericPut<Ingredient>("products", product.id, updatedProduct, "Producto Editado");
+            await genericPut<Product>("products", product.id, updatedProduct, "Producto Editado");
         } else {
-            await genericPost<Ingredient>("products", "Producto Creado", updatedProduct);
+            await genericPost<Product>("products", "Producto Creado", updatedProduct);
         }
 
         setRefetch(true);
@@ -119,7 +118,7 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
     // Function to navigate back to the previous step
     const handleBack = () => {
         if (step > 0) {
-            setValidationSchema(formikMultiStepTestSchema(prod.id)[step - 1]);
+            setValidationSchema(formikMultiStepProductSchema(prod.id)[step - 1]);
             setStep(step - 1);
         }
     };
@@ -127,13 +126,13 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
     // Function to handle clicking on a step title to navigate to that step
     const handleStepClick = (index:number) => {
         if (isValid && index <= highestValidatedStep && validatedSteps[index]){
-            setValidationSchema(formikMultiStepTestSchema(prod.id)[index]);
+            setValidationSchema(formikMultiStepProductSchema(prod.id)[index]);
             setStep(index);
         }
     };
 
     // Step titles for display
-    const stepTitles = ["Nombre", "Imagen", "Ingredientes"];
+    const stepTitles = ["Datos", "Imagen", "Ingredientes"];
 
     // Enable/disable continue button on step change
     useEffect(() => {

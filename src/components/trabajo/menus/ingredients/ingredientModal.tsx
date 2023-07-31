@@ -40,7 +40,6 @@ export const IngredientModal = ({ show, onHide, title, ing, setRefetch, modalTyp
 
     const handleSaveUpdate = async(ingredient: Ingredient) => {
         const isNew = ingredient.id === 0;
-        console.log(ingredient);
         if (!isNew) {
             await genericPut<Ingredient>("ingredients", ingredient.id, ingredient, "Ingrediente Editado");
         } else {

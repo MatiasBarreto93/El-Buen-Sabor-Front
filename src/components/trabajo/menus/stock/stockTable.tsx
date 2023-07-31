@@ -7,7 +7,7 @@ import {Drink} from "../../../../interfaces/products.ts";
 import {BuyButton} from "../../../table/BuyButton.tsx";
 import {StockModal} from "./stockModal.tsx";
 import {useInitializeIngredient} from "../ingredients/hooks/useInitializeIngredient.ts";
-import {useInitializeDrink} from "../products/hooks/useInitializeDrink.ts";
+import {useInitializeDrink} from "../drinks/hooks/useInitializeDrink.ts";
 import {Category} from "../../../../interfaces/category.ts";
 import {StockFull} from "../../../table/StockFull.tsx";
 import {useGenericCacheGet} from "../../../../services/useGenericCacheGet.ts";
@@ -45,6 +45,9 @@ export const StockTable = () => {
         setCategoriesIngredients(dataCategoryIngredients)
         setIngredients(dataIngredients);
         setDrinks(dataDrinks);
+        console.log(dataCategoryIngredients)
+        console.log(dataIngredients)
+        console.log(dataDrinks)
 
         //Ingredients
         if (refetchIngredient){
@@ -109,7 +112,7 @@ export const StockTable = () => {
                     <ToggleButton id="tbg-radio-3" value={1} className={`toggle-button ${selectedItemType === 1 ? 'active' : ''}`}>
                         Ingredientes
                     </ToggleButton>
-                    <ToggleButton id="tbg-radio-4" value={2} className={`toggle-button ${selectedItemType === 2 ? 'active' : ''}`}>
+                    <ToggleButton id="tbg-radio-4" value={3} className={`toggle-button ${selectedItemType === 3 ? 'active' : ''}`}>
                         Bebidas
                     </ToggleButton>
                 </ToggleButtonGroup>
