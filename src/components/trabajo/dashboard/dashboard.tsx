@@ -9,6 +9,7 @@ import {TableTest} from "../menus/testModal/tableTest.tsx";
 import {ProductsTable} from "../menus/products/productsTable";
 import {StockTable} from "../menus/stock/stockTable.tsx";
 import {useState} from "react";
+import {DrinksTable} from "../menus/drinks/drinksTable";
 
 export const DashBoard = () => {
 
@@ -54,6 +55,9 @@ export const DashBoard = () => {
                             <Nav.Link eventKey="Productos" className="navLinkDB">Productos</Nav.Link>
                         </Nav.Item>
                         <Nav.Item className="navItemDB">
+                            <Nav.Link eventKey="Bebidas" className="navLinkDB">Bebidas</Nav.Link>
+                        </Nav.Item>
+                        <Nav.Item className="navItemDB">
                             <Nav.Link eventKey="Stock" className="navLinkDB">Stock</Nav.Link>
                         </Nav.Item>
                         <Nav.Item className="navItemDB">
@@ -93,6 +97,11 @@ export const DashBoard = () => {
                             <Tab.Pane eventKey="Productos">
                                 {<ProductsTable/>}
                             </Tab.Pane>
+                            )}
+                            {activeKey === "Bebidas" && (
+                                <Tab.Pane eventKey="Bebidas">
+                                    {<DrinksTable/>}
+                                </Tab.Pane>
                             )}
                             {activeKey === "Stock" && (
                             <Tab.Pane eventKey="Stock">

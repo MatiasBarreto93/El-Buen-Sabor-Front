@@ -63,7 +63,7 @@ export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType
             blocked: Yup.boolean(),
             categoryFatherId: Yup.number().integer().min(0).nullable(),
             categoryFatherDenomination: Yup.string().nullable(),
-            itemTypeId: Yup.number().oneOf([1, 2]).required('El tipo de item es requerido'),
+            itemTypeId: Yup.number().oneOf([1, 2, 3]).required('El tipo de item es requerido'),
         });
     }
 
@@ -169,6 +169,7 @@ export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType
                                         >
                                             <option value={1}>Ingrediente</option>
                                             <option value={2}>Producto</option>
+                                            <option value={3}>Bebida</option>
                                         </Form.Select>
                                         <Form.Control.Feedback type="invalid">
                                             {formik.errors.itemTypeId}

@@ -11,12 +11,6 @@ import "./../../../styles/table.css"
 
 export const ProductsTable = () => {
 
-    /*Todo al igual que categorias existe un toggle para cambiar entre comidas y bebidas?????*/
-    //Todo new Modal Type ???
-
-    // Todo productInitializer customHook
-    //  const [newProduct, setNewProduct, createNewProduct] = useInitializeProduct(undefined);
-
     const [refetch, setRefetch] = useState(false)
     const data = useGenericGet<Product>("products", "Productos", refetch);
     const [products, setProducts] = useState<Product[]>([]);
@@ -25,10 +19,6 @@ export const ProductsTable = () => {
         setProducts(data);
         setRefetch(false);
     }, [data]);
-
-
-    //const [product, setProduct] = useState<Product[]>([]);
-    //const [selectedItemType, setSelectedItemType] = useState(1);
 
     const [showModal, setShowModal] = useState(false);
     const [modalType, setModalType] = useState<ModalType>(ModalType.None);
@@ -43,11 +33,6 @@ export const ProductsTable = () => {
         setShowModal(true);
     }
 
-    // ????
-    // const handleToggle = (selectedValue: number) => {
-    //     setSelectedItemType(selectedValue);
-    // };
-
     return(
         <>
             <h5 className="encabezado mb-3">Productos</h5>
@@ -58,8 +43,7 @@ export const ProductsTable = () => {
                     <th>Nombre</th>
                     <th>Rubro</th>
                     <th>Precio</th>
-                    <th>Descripcion</th>
-                    <th>Receta</th>
+                    <th>Tiempo de Preparación</th>
                     <th>Estado</th>
                     <th></th>
                     <th></th>
@@ -71,8 +55,7 @@ export const ProductsTable = () => {
                         <td>{product.name}</td>
                         <td>{product.categoryDenomination}</td>
                         <td>${product.sellPrice}</td>
-                        <td>{product.description}</td>
-                        <td>{product.recipeDescription}</td>
+                        <td>{product.preparationTime} min</td>
                         <td style={{ fontWeight: 'bold', color: product.blocked ? '#D32F2F' : '#34A853' }}>{product.blocked ? 'Bloqueado' : 'Activo'}</td>
                         <td><EditButton onClick={() => {handleClick("Editar Producto", product, ModalType.Edit)}}/></td>
                         <td><StatusButton
