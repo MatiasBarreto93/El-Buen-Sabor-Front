@@ -20,6 +20,7 @@ export const DropDownMenu = () =>{
         logout({ logoutParams: { returnTo: window.location.origin } });
     };
 
+    //Todo useCallBACK
     const decodeToken = async () => {
         const fetchedToken = await getAccessTokenSilently();
         const decoded = jwt_decode<PermissionsType>(fetchedToken);

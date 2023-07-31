@@ -23,15 +23,6 @@ export const ProductoCard = ({item}:Props) =>{
     const [showAddedtoCart, setShowAddedtoCart] = useState(false);
     const [showModalAdd, setShowModalAdd] = useState(false);
 
-    //Card Click
-    // const handleCardClick = (event: React.MouseEvent) => {
-    //     const target = event.target as Element;
-    //     if (target.closest('input') || target.closest('button')) {
-    //         return;
-    //     }
-    //     navigate(`/product/${item.itemTypeId}/${item.id}`);
-    // };
-
     //Info Button
     const handleInfoClick = (event: React.MouseEvent) => {
         event.stopPropagation();
@@ -61,12 +52,15 @@ export const ProductoCard = ({item}:Props) =>{
             <Card
                 style={{overflow:"hidden", position: "relative"}}
                 className="card-product"
-                // onClick={handleCardClick}
-                onMouseEnter={() => { document.body.style.cursor = 'pointer' }}
-                onMouseLeave={() => {document.body.style.cursor = 'default'}}
             >
                 <div className="icon-info">
-                    <InfoCircle size={24} color="#FFF" onClick={handleInfoClick} />
+                    <InfoCircle
+                        size={24}
+                        color="#FFF"
+                        onMouseEnter={() => { document.body.style.cursor = 'pointer' }}
+                        onMouseLeave={() => {document.body.style.cursor = 'default'}}
+                        onClick={handleInfoClick}
+                    />
                 </div>
                 <Card.Img src={`data:image/jpeg;base64,${item.image}`} className={"card-prod-img"}/>
                 <Card.Body className="body-cart-content">

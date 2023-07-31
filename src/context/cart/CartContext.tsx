@@ -33,18 +33,20 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const addToCart = useCallback((item: Item, quantity: number) => {
         setItems((prevItems) => {
+            //Update quantity if exist on the cart
             const existingItem = prevItems.find((i) => i.id === item.id);
             if (existingItem) {
+                //Limit the max quantity to currentStock
+                const newQuantity = existingItem.quantity + quantity > item.currentStock ? item.currentStock : existingItem.quantity + quantity;
                 return prevItems.map((i) =>
-                    i.id === item.id ? { ...i, quantity: i.quantity + quantity } : i
+                    i.id === item.id ? { ...i, quantity: newQuantity } : i
                 );
             } else {
+                //New item is added
                 return [...prevItems, { ...item, quantity }];
             }
         });
     }, []);
-
-
 
     const removeFromCart = useCallback((itemId: number) => {
         setItems((prevItems) => prevItems.filter((item) => item.id !== itemId));

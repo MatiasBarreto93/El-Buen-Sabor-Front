@@ -11,7 +11,7 @@ export const HeroIMG = () => {
                 <div className="display-2 fw-bold">La mejor <span style={{color: '#E53935'}}>Comida</span></div>
                 <div className="display-2 fw-bold">hasta la puerta</div>
                 <div className="display-2 fw-bold">de tu casa</div>
-                <Button className="mt-5">¡Haga su Pedido!</Button>
+                <Button className="mt-5" onClick={() => window.scrollTo(0, 820)}>¡Haga su Pedido!</Button>
             </div>
         </div>
     );

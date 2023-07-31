@@ -1,21 +1,55 @@
 import * as React from 'react';
-import {Route, Routes} from 'react-router-dom';
-import {useEffect} from "react";
+import {Route, Routes, useLocation} from 'react-router-dom';
+import {useEffect, useLayoutEffect} from "react";
 import {lazyWithPreload} from "../util/lazyWithPreload.ts";
 
 const Home = lazyWithPreload(() => import("../components/home/home.tsx"));
 const MiPedido = lazyWithPreload(() => import("../components/mipedido/MiPedido.tsx"));
 const MiPerfil = lazyWithPreload(() => import("../components/miperfil/MiPerfil.tsx"));
 const Trabajo = lazyWithPreload(() => import("../components/trabajo/trabajo.tsx"));
-//const ProductDetail = lazy(() => import ("../components/home/catalogo/productDetail.tsx"))
+
 
 const Router: React.FC = () => {
+
+    const location = useLocation();
 
     useEffect(() => {
         Home.preload();
         MiPerfil.preload();
         MiPedido.preload();
+        Trabajo.preload();
     }, []);
+
+    // Save scroll position when the user scrolls
+    useEffect(() => {
+        const saveScrollPosition = () => {
+            if (location.pathname === "/") {
+                localStorage.setItem(location.pathname, JSON.stringify(window.scrollY.toFixed(1)));
+            }
+        };
+
+        // Save scroll position when the user scrolls
+        window.addEventListener('scroll', saveScrollPosition);
+
+        // Remove the event listener when the component is unmounted
+        return () => {
+            window.removeEventListener('scroll', saveScrollPosition);
+        };
+    }, [location.pathname]);
+
+    // Restore scroll position with a delay
+    useLayoutEffect(() => {
+        const restoreScrollPosition = async () => {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            if (location.pathname === "/") {
+                const savedPosition = localStorage.getItem(location.pathname);
+                window.scrollTo(0, savedPosition ? JSON.parse(savedPosition) : 0);
+            } else {
+                window.scrollTo(0, 0);
+            }
+        }
+        restoreScrollPosition();
+    }, [location.pathname]);
 
     return (
         <Routes>
