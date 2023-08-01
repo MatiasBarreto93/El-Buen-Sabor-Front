@@ -1,0 +1,32 @@
+.shop-cart {
+    position: relative;
+    margin-left: 10px;
+    margin-top: 5px;
+    transition: 0.3s linear;
+}
+
+.shop-cart:hover{
+    color: #D32F2F;
+    scale: 1.10;
+}
+
+.shop-cart-icon {
+    position: relative;
+    display: inline-block;
+}
+
+.shop-cart-count {
+    font-weight: bold;
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background-color: #D32F2F;
+    border-radius: 50%;
+    color: white;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.75rem;
+}

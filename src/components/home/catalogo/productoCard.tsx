@@ -5,7 +5,7 @@ import React, {useState} from "react";
 import './../../styles/productCard.css'
 import {ProductDetailModal} from "./productDetailModal.tsx";
 import {ProductAdded} from "./productAdded.tsx";
-import { useNavigate } from "react-router-dom";
+import {useCart} from "../../../context/cart/CartContext.tsx";
 
 interface Props{
     item: Item;
@@ -13,7 +13,7 @@ interface Props{
 
 export const ProductoCard = ({item}:Props) =>{
 
-    const navigate = useNavigate();
+    const {addToCart} = useCart();
 
     const [quantity, setQuantity] = useState(1);
 
@@ -22,19 +22,6 @@ export const ProductoCard = ({item}:Props) =>{
 
     const [showAddedtoCart, setShowAddedtoCart] = useState(false);
     const [showModalAdd, setShowModalAdd] = useState(false);
-
-    //Card Click
-    const handleCardClick = (event: React.MouseEvent) => {
-        const target = event.target as Element;
-        if (target.closest('input') || target.closest('button')) {
-            return;
-        }
-        navigate(`/product/${item.id}`);
-    };
-
-    const handlePreventNavigation = (event: React.MouseEvent) => {
-        event.stopPropagation();
-    };
 
     //Info Button
     const handleInfoClick = (event: React.MouseEvent) => {
@@ -45,15 +32,10 @@ export const ProductoCard = ({item}:Props) =>{
 
     //Add to Cart Button
     const handleAddedtoCartClick = () => {
+        addToCart(item,quantity);
         setShowAddedtoCart(true)
         setShowModalAdd(true);
         setShowModalInfo(false)
-    };
-
-    //Prevent navigation on button "add to cart"
-    const handleButtonClick = (event: React.MouseEvent) => {
-        handlePreventNavigation(event);
-        handleAddedtoCartClick();
     };
 
     //Quantity
@@ -70,13 +52,17 @@ export const ProductoCard = ({item}:Props) =>{
             <Card
                 style={{overflow:"hidden", position: "relative"}}
                 className="card-product"
-                onMouseEnter={() => { document.body.style.cursor = 'pointer' }}
-                onMouseLeave={() => {document.body.style.cursor = 'default'}}
             >
                 <div className="icon-info">
-                    <InfoCircle size={24} color="#FFF" onClick={handleInfoClick} />
+                    <InfoCircle
+                        size={24}
+                        color="#FFF"
+                        onMouseEnter={() => { document.body.style.cursor = 'pointer' }}
+                        onMouseLeave={() => {document.body.style.cursor = 'default'}}
+                        onClick={handleInfoClick}
+                    />
                 </div>
-                <Card.Img src={item.image} className={"card-prod-img"}/>
+                <Card.Img src={`data:image/jpeg;base64,${item.image}`} className={"card-prod-img"}/>
                 <Card.Body className="body-cart-content">
                     <Card.Title className={"text-center"}><strong>{item.name}</strong></Card.Title>
                     <Card.Text className={"text-center"} style={{color: "#b92020"}} ><strong>${item.sellPrice}</strong></Card.Text>

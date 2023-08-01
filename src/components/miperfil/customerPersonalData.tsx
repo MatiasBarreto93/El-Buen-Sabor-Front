@@ -25,7 +25,7 @@ export const CustomerPersonalData = ({cliente}: Props) => {
     const handleSave = async (cli: Customer) => {
         if (cli.id === 0){
             //POST BBDD
-            if (user && user.sub != null){
+            if (user?.sub){
                 const userRoles:Auth0Roles[] = await getUserRolesAuth0(user.sub);
                 const customerPost:Customer = await addCustomerAuth0Data(cli, user ,userRoles);
                 await genericPost<Customer>("customers", "Datos Actualizados", customerPost);
