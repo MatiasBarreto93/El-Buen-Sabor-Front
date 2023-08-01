@@ -1,38 +1,29 @@
 import {useAuth0} from "@auth0/auth0-react";
 import {NavDropdown} from "react-bootstrap";
 import {Person, Bag, Shop, Power, Receipt} from "react-bootstrap-icons";
-import jwt_decode from 'jwt-decode';
-import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
-
-interface PermissionsType {
-    permissions: string[];
-}
+import {useUserPermission} from "../../../context/permission/UserPermission.tsx";
+import {useEffect} from "react";
+import {UserRole} from "../../../interfaces/UserRole.ts";
+import secureLS from "../../../util/secureLS.ts";
 
 export const DropDownMenu = () =>{
 
     const navigate = useNavigate();
-    const { user, getAccessTokenSilently, logout } = useAuth0();
-    const [isCliente, setIsCliente] = useState(true);
+    const { user, logout } = useAuth0();
+    const { permission, loadUserPermission } = useUserPermission();
 
     const handleLogout = () => {
         localStorage.setItem('firstRender', JSON.stringify(true));
+        localStorage.removeItem('cartItems');
+        localStorage.removeItem('/')
+        secureLS.clear();
         logout({ logoutParams: { returnTo: window.location.origin } });
     };
 
-    //Todo useCallBACK
-    const decodeToken = async () => {
-        const fetchedToken = await getAccessTokenSilently();
-        const decoded = jwt_decode<PermissionsType>(fetchedToken);
-        setIsCliente(decoded.permissions[0] === "Cliente");
-    };
-
     useEffect(() => {
-        const onRender = async () => {
-            await decodeToken();
-        };
-        onRender();
-    }, [decodeToken]);
+        loadUserPermission();
+    }, [loadUserPermission]);
 
     return (
         <div className="d-flex">
@@ -43,7 +34,7 @@ export const DropDownMenu = () =>{
                 <NavDropdown.Divider />
                 <NavDropdown.Item onClick={() => navigate('/historialpedido')}><Receipt size={20} className="mx-2"/>Historial de Pedidos</NavDropdown.Item>
                 <NavDropdown.Divider />
-                {!isCliente && (
+                {permission !== UserRole.Cliente && (
                     <>
                         <NavDropdown.Item onClick={() => navigate('/trabajo')}><Shop size={20} className="mx-2"/>Trabajo</NavDropdown.Item>
                         <NavDropdown.Divider />

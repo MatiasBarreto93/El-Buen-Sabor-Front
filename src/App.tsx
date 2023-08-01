@@ -5,6 +5,7 @@ import {Loader} from "./components/Loader/loader.tsx";
 import {EmployeeSignUp} from "./components/Auth0/EmployeeSignUp.tsx";
 import {CartProvider} from "./context/cart/CartContext.tsx";
 import {BrowserRouter as Router} from "react-router-dom";
+import {UserPermissionProvider} from "./context/permission/UserPermission.tsx";
 
 const Header = lazy(() => import("./components/Layout/header/header.tsx"));
 const Footer = lazy(() => import("./components/Layout/footer/footer.tsx"));
@@ -21,15 +22,17 @@ export function App() {
     return (
         <>
             <Router>
-                <CartProvider>
-                    <ToastContainer/>
-                    {firtsRender ? <EmployeeSignUp firstRender={firtsRender} setFirstRender={setFirtsRender}/> : null}
-                    <Header/>
-                    <Suspense fallback={<Loader/>}>
-                        <Routes/>
-                    </Suspense>
-                    <Footer/>
-                </CartProvider>
+                <UserPermissionProvider>
+                    <CartProvider>
+                        <ToastContainer/>
+                        {firtsRender ? <EmployeeSignUp firstRender={firtsRender} setFirstRender={setFirtsRender}/> : null}
+                        <Header/>
+                        <Suspense fallback={<Loader/>}>
+                            <Routes/>
+                        </Suspense>
+                        <Footer/>
+                    </CartProvider>
+                </UserPermissionProvider>
             </Router>
         </>
     )
