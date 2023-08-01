@@ -15,6 +15,7 @@ import {useUserPermission} from "../../../context/permission/UserPermission.tsx"
 import {useGetCustomer} from "../../../services/useGetCustomer.ts";
 import {useAuth0} from "@auth0/auth0-react";
 import {useInitializeCustomer} from "../menus/employees/hooks/useInitializeCustomer.ts";
+import {DrinksTable} from "../menus/drinks/drinksTable";
 
 export const DashBoard = () => {
 
@@ -57,6 +58,7 @@ export const DashBoard = () => {
                         </div>
                         <div className="text-danger fw-bold mb-3">{permission}</div>
                     </div>
+
                     <Nav variant="pills" className="flex-column" style={{ position: "sticky", top: "80px"}}>
 
                         <UnlockAccess request={[UserRole.Admin, UserRole.Cocinero]}>
@@ -170,7 +172,7 @@ export const DashBoard = () => {
                             <UnlockAccess request={[UserRole.Admin, UserRole.Cocinero]}>
                                 {activeKey === "Bebidas" && (
                                     <Tab.Pane eventKey="Bebidas">
-                                        <p>Bebidas</p>
+                                        {<DrinksTable/>}
                                     </Tab.Pane>
                                 )}
                             </UnlockAccess>

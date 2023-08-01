@@ -1,19 +1,18 @@
-import React, {useEffect, useState} from "react";
-import {ModalType} from "../../../../interfaces/ModalType";
-import {Product} from "../../../../interfaces/products";
-import {useGenericPost} from "../../../../services/useGenericPost";
-import {useGenericPut} from "../../../../services/useGenericPut";
-import {useGenericChangeStatus} from "../../../../services/useGenericChangeStatus";
-import {Ingredient, IngredientQuantity} from "../../../../interfaces/ingredient";
-import {useGenericGet} from "../../../../services/useGenericGet";
-import {useInitializeIngredient} from "../ingredients/hooks/useInitializeIngredient";
-import {Category} from "../../../../interfaces/category";
-import {Button, Col, Form, Modal, Row, Table} from "react-bootstrap";
-import {formikMultiStepTestSchema} from "../testModal/formikMultiStepTestSchema";
-import {formikMultiStepProductSchema} from "./productsValidationSchema";
-import {useFormik} from "formik";
-import '../../../styles/HorizontalStepper.css';
-import {DeleteButton} from "../../../table/DeleteButton";
+import React, { useEffect, useState } from "react";
+import { useFormik } from "formik";
+import { Button, Col, Form, Modal, Row, Table } from "react-bootstrap";
+import { ModalType } from "../../../../interfaces/ModalType";
+import { Product } from "../../../../interfaces/products";
+import { Ingredient, IngredientQuantity } from "../../../../interfaces/ingredient";
+import { Category } from "../../../../interfaces/category";
+import { useGenericPost } from "../../../../services/useGenericPost";
+import { useGenericPut } from "../../../../services/useGenericPut";
+import { useGenericChangeStatus } from "../../../../services/useGenericChangeStatus";
+import { useGenericGet } from "../../../../services/useGenericGet";
+import { useInitializeIngredient } from "../ingredients/hooks/useInitializeIngredient";
+import { formikMultiStepProductSchema } from "./productsValidationSchema";
+import { DeleteButton } from "../../../table/DeleteButton";
+import "../../../styles/HorizontalStepper.css";
 
 interface Props {
     show: boolean;
@@ -31,8 +30,14 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
     const genericPut = useGenericPut();
     const updateProductStatus = useGenericChangeStatus();
 
+    //Categories Products HTMLSelect
     const dataCategories = useGenericGet<Category>(`categories/filter/2`, "Categorías");
     const [categories, setCategories] = useState<Category[]> ([]);
+
+    //Categories Ingredients HTMLSelect
+    const dataCategoriesIngredient = useGenericGet<Category>(`categories/filter/1`, "Categorías");
+    const [categoriesIngredient, setCategoriesIngredient] = useState<Category[]> ([]);
+    const [selectedCategory, setSelectedCategory] = useState(0);
 
     //Ingredients HTMLSelect
     const [ingredients, setIngredients] = useState<Ingredient[]>([]);
@@ -41,38 +46,35 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
     //Recipe
     const [ingrediente, setIngrediente] = useInitializeIngredient(undefined);
     const [selectedIngredients, setSelectedIngredients] = useState<IngredientQuantity[]>([]);
-    const [quantity, setQuantity] = useState(0);
 
-    //Categories HTMLSelect
-    const dataCategoriesIngredient = useGenericGet<Category>(`categories/filter/1`, "Categorías");
-    const [categoriesIngredient, setCategoriesIngredient] = useState<Category[]> ([]);
-    const [selectedCategory, setSelectedCategory] = useState(0);
+    const [currentStock, setCurrentStock] = useState(0);
 
-    //Fill modal form inputs fields with ingredients & categoriesIngredient
+    //Fill modal form inputs fields with ingredients, categoriesIngredient
     useEffect(() =>{
-        setIngredients(dataIngredient)
         setCategories(dataCategories);
         setCategoriesIngredient(dataCategoriesIngredient);
-    },[dataIngredient, dataCategories, dataCategoriesIngredient])
+        setIngredients(dataIngredient);
+    },[dataCategories, dataCategoriesIngredient, dataIngredient])
 
+    // Function to handle saving or updating a product
     const handleSaveUpdate = async(product: Product) => {
         const isNew = product.id === 0;
-
         const updatedProduct: Product = { ...product };
-
         updatedProduct.ingredients = selectedIngredients;
-
-        console.log(updatedProduct);
+        updatedProduct.currentStock = currentStock;
+        console.log("Stock que se guarda: " + updatedProduct.currentStock);
 
         if (!isNew) {
-            await genericPut<Ingredient>("products", product.id, updatedProduct, "Producto Editado");
+            await genericPut<Product>("products", product.id, updatedProduct, "Producto Editado");
         } else {
-            await genericPost<Ingredient>("products", "Producto Creado", updatedProduct);
+            await genericPost<Product>("products", "Producto Creado", updatedProduct);
         }
+
         setRefetch(true);
         onHide();
     }
 
+    // Function to handle changing the state of a product
     const handleStateProduct = async () => {
         if(prod) {
             const id = prod.id;
@@ -85,14 +87,12 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
         }
     }
 
+    // State variables for managing form steps and validation
     const [step, setStep] = useState(0);
-
     const [validationSchema, setValidationSchema] = useState(formikMultiStepProductSchema(prod.id)[0]);
     const [isValid, setIsValid] = useState(false);
-
     const [highestValidatedStep, setHighestValidatedStep] = useState(0);
     const [validatedSteps, setValidatedSteps] = useState([false, false, false]);
-
     const formik = useFormik({
         initialValues: prod,
         validationSchema: validationSchema,
@@ -102,6 +102,7 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
         onSubmit: (obj: Product) => handleSaveUpdate(obj)
     });
 
+    // Function to handle navigation to the next step
     const handleContinue = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
         if (step < 3) {
@@ -114,38 +115,51 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
         }
     };
 
+    // Function to navigate back to the previous step
     const handleBack = () => {
         if (step > 0) {
-            setValidationSchema(formikMultiStepTestSchema(prod.id)[step - 1]);
+            setValidationSchema(formikMultiStepProductSchema(prod.id)[step - 1]);
             setStep(step - 1);
         }
     };
 
+    // Function to handle clicking on a step title to navigate to that step
     const handleStepClick = (index:number) => {
         if (isValid && index <= highestValidatedStep && validatedSteps[index]){
-            setValidationSchema(formikMultiStepTestSchema(prod.id)[index]);
+            setValidationSchema(formikMultiStepProductSchema(prod.id)[index]);
             setStep(index);
         }
     };
 
-    const stepTitles = [
-        "Nombre",
-        "Imagen",
-        "Ingredientes",
-    ];
+    // Step titles for display
+    const stepTitles = ["Datos", "Imagen", "Ingredientes"];
 
-    //Hace que el boton "continuar" este como disabled al renderizar el modal y Desabilita el boton de continuar en cada step
+    // Enable/disable continue button on step change
     useEffect(() => {
         formik.validateForm().then(errors => {
             setIsValid(Object.keys(errors).length === 0);
         });
     }, [step, validationSchema]);
 
-    //Habilita el boton de continuar cuando los inputs sean validos
+    // Enable continue button when inputs are valid
     useEffect(() => {
         setIsValid(Object.keys(formik.errors).length === 0);
     }, [formik.errors]);
 
+    useEffect(() => {
+        const costPrice = selectedIngredients.reduce((total, ingredient) => {
+            return total + (ingredient.costPrice * ingredient.quantity); }, 0);
+        formik.setFieldValue('costPrice', costPrice);
+
+        const productStock = selectedIngredients.reduce((minimumStock, ingredient) => {
+            const currentIngredientPotential = ingredient.currentStock / ingredient.quantity;
+            return currentIngredientPotential < minimumStock ? currentIngredientPotential : minimumStock;
+        }, Infinity);
+        setCurrentStock(productStock);
+
+    }, [selectedIngredients]);
+
+    // Function to convert file to base64
     const convertToBase64 = (file) => {
         return new Promise((resolve, reject) => {
             const fileReader = new FileReader();
@@ -159,18 +173,15 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
         });
     };
 
-    const handleImageUpload = async (e, setFieldValue) => {
+    // Function to handle image upload and validation
+    const handleImageUpload = async (e, setFieldValue, validateField) => {
         const file = e.target.files[0];
-        if (file && (file.type === 'image/jpeg' || file.type === 'image/jpg') && file?.size / 1024 / 1024 < 2) {
-            const base64 = await convertToBase64(file);
-            console.log(base64);
-            setFieldValue('image', base64);
-        }
-        else {
-            formik.setFieldError("image", "La imagen debe ser en formato JPG o JPEG y de tamaño 2MB o menos");
-        };
+        const base64 = await convertToBase64(file);
+        setFieldValue('image', base64);
+        await validateField('image');
     };
 
+    // Function to delete an ingredient from the list
     const deleteIngredient = (index: number) => {
         const newIngredients = [...selectedIngredients];
         newIngredients.splice(index, 1);
@@ -225,56 +236,81 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
                         <Form onSubmit={formik.handleSubmit}>
                             {step == 0 && (
                                 <Row>
-                                    <Col>
-                                        <Form.Group controlId="formName">
-                                            <Form.Label>Nombre</Form.Label>
-                                            <Form.Control
-                                                name="name"
-                                                type="text"
-                                                value={formik.values.name || ''}
-                                                onChange={formik.handleChange}
-                                                onBlur={formik.handleBlur}
-                                                isInvalid={Boolean(formik.errors.name && formik.touched.name)}
-                                            />
-                                            <Form.Control.Feedback type="invalid">
-                                                {formik.errors.name}
-                                            </Form.Control.Feedback>
-                                        </Form.Group>
-                                    </Col>
-                                    <Col>
-                                        <Form.Group controlId="formCategoryId">
-                                            <Form.Label>Rubro</Form.Label>
-                                            <Form.Select
-                                                name="categoryId"
-                                                value={formik.values.categoryId}
-                                                onChange={(event) => {
-                                                    formik.setFieldValue("categoryId", Number(event.target.value));
-                                                }}
-                                            >
-                                                <option value="">Seleccionar</option>)
-                                                {categories.map((category) => (
-                                                    <option key={category.id} value={category.id}>
-                                                        {category.denomination}
-                                                    </option>
-                                                ))}
-                                            </Form.Select>
-                                        </Form.Group>
-                                    </Col>
-                                    <Col>
-                                        <Form.Group controlId="formBlocked">
-                                            <Form.Label>Estado</Form.Label>
-                                            <Form.Select
-                                                name="blocked"
-                                                value={formik.values.blocked.toString()}
-                                                onChange={(event) => {
-                                                    formik.setFieldValue("blocked", event.target.value === "true");
-                                                }}
-                                            >
-                                                <option value="false">Activo</option>
-                                                <option value="true">Bloqueado</option>
-                                            </Form.Select>
-                                        </Form.Group>
-                                    </Col>
+                                    <Row>
+                                        <Col>
+                                            <Form.Group controlId="formName">
+                                                <Form.Label>Nombre</Form.Label>
+                                                <Form.Control
+                                                    name="name"
+                                                    type="text"
+                                                    value={formik.values.name || ''}
+                                                    onChange={formik.handleChange}
+                                                    onBlur={formik.handleBlur}
+                                                    isInvalid={Boolean(formik.errors.name && formik.touched.name)}
+                                                />
+                                                <Form.Control.Feedback type="invalid">
+                                                    {formik.errors.name}
+                                                </Form.Control.Feedback>
+                                            </Form.Group>
+                                        </Col>
+                                        <Col>
+                                            <Form.Group controlId="formPreparationTime">
+                                                <Form.Label>Tiempo:</Form.Label>
+                                                <Form.Control
+                                                    name="preparationTime"
+                                                    type="number"
+                                                    value={formik.values.preparationTime || 0}
+                                                    onChange={(event) => formik.setFieldValue("preparationTime", event.target.value)}
+                                                    onBlur={formik.handleBlur}
+                                                    isInvalid={Boolean(formik.errors.preparationTime && formik.touched.preparationTime)}
+                                                />
+                                                <Form.Control.Feedback type="invalid">
+                                                    {formik.errors.preparationTime}
+                                                </Form.Control.Feedback>
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                    <Row>
+                                        <Col>
+                                            <Form.Group controlId="formCategoryId">
+                                                <Form.Label>Rubro</Form.Label>
+                                                <Form.Select
+                                                    name="categoryId"
+                                                    value={formik.values.categoryId}
+                                                    onChange={(event) => {
+                                                        formik.setFieldValue("categoryId", Number(event.target.value));
+                                                    }}
+                                                    onBlur={formik.handleBlur}
+                                                    isInvalid={Boolean(formik.errors.categoryId && formik.touched.categoryId)}
+                                                >
+                                                    <option value="">Seleccionar</option>
+                                                    {categories.map((category) => (
+                                                        <option key={category.id} value={category.id}>
+                                                            {category.denomination}
+                                                        </option>
+                                                    ))}
+                                                </Form.Select>
+                                                <Form.Control.Feedback type="invalid">
+                                                    {formik.errors.categoryId}
+                                                </Form.Control.Feedback>
+                                            </Form.Group>
+                                        </Col>
+                                        <Col>
+                                            <Form.Group controlId="formBlocked">
+                                                <Form.Label>Estado</Form.Label>
+                                                <Form.Select
+                                                    name="blocked"
+                                                    value={formik.values.blocked.toString()}
+                                                    onChange={(event) => {
+                                                        formik.setFieldValue("blocked", event.target.value === "true");
+                                                    }}
+                                                >
+                                                    <option value="false">Activo</option>
+                                                    <option value="true">Bloqueado</option>
+                                                </Form.Select>
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
                                 </Row>
                             )}
                             {step == 1 && (
@@ -284,7 +320,7 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
                                             <Form.Label>Descripcion</Form.Label>
                                             <Form.Control
                                                 name="description"
-                                                type="text"
+                                                as="textarea"
                                                 value={formik.values.description || ''}
                                                 onChange={formik.handleChange}
                                                 onBlur={formik.handleBlur}
@@ -294,17 +330,24 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
                                                 {formik.errors.description}
                                             </Form.Control.Feedback>
                                         </Form.Group>
-                                    </Col>
-                                    <Col>
-                                        <Form.Group controlId="formFile">
+                                        <Form.Group controlId="formImage">
                                             <Form.Label>Seleccionar imagen</Form.Label>
                                             <Form.Control
+                                                name="image"
                                                 type="file"
-                                                onChange={(e) => handleImageUpload(e, formik.setFieldValue)}
+                                                onChange={(e) => handleImageUpload(e, formik.setFieldValue, formik.validateField)}
+                                                onBlur={formik.handleBlur}
+                                                isInvalid={Boolean(formik.errors.image && formik.touched.image)}
                                             />
                                             <Form.Control.Feedback type="invalid">
                                                 {formik.errors.image}
                                             </Form.Control.Feedback>
+                                        </Form.Group>
+                                    </Col>
+                                    <Col>
+                                        <Form.Group controlId="formImagePreview">
+                                            <Form.Label>Previsualización de la imagen :</Form.Label>
+                                            {formik.values.image && <img src={formik.values.image} alt="Imagen seleccionada" style={{width: '100%', maxHeight: '300px'}} />}
                                         </Form.Group>
                                     </Col>
                                 </Row>
@@ -333,60 +376,79 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
                                         <Col>
                                             <Row>
                                                 <Col>
-                                                    {/*-------------------------Category---------------------------------*/}
-                                                    <Form.Group controlId="formCategory">
+                                                    {/*-------------------------Category Ingredients---------------------------------*/}
+                                                    <Form.Group controlId="formCategoryIngredientId">
                                                         <Form.Label>Rubro Ingrediente:</Form.Label>
                                                         <Form.Select
-                                                            name="category"
-                                                            value={selectedCategory}
+                                                            name="categoryIngredientId"
+                                                            value={formik.values.categoryIngredientId}
                                                             onChange={(event) => {
-                                                                const selectedId = Number(event.target.value);
-                                                                setSelectedCategory(selectedId);
+                                                                const newValue = Number(event.target.value);
+                                                                formik.setFieldValue("categoryIngredientId", newValue);
+                                                                setSelectedCategory(newValue);
+                                                                formik.setFieldValue("ingredientId", 0);
                                                             }}
+                                                            onBlur={formik.handleBlur}
+                                                            isInvalid={Boolean(formik.errors.categoryIngredientId && formik.touched.categoryIngredientId)}
                                                         >
+                                                            <option value="">Seleccionar</option>
                                                             {categoriesIngredient.map((cat) => (
                                                                 <option key={cat.id} value={cat.id} disabled={cat.blocked}>
                                                                     {cat.denomination}
                                                                 </option>
                                                             ))}
                                                         </Form.Select>
+                                                        <Form.Control.Feedback type="invalid">
+                                                            {formik.errors.categoryIngredientId}
+                                                        </Form.Control.Feedback>
                                                     </Form.Group>
                                                 </Col>
                                                 <Col>
                                                     {/*-------------------------Ingredient-------------------------------*/}
-                                                    <Form.Group controlId="formIngredients">
+                                                    <Form.Group controlId="formIngredientId">
                                                         <Form.Label>Ingrediente:</Form.Label>
                                                         <Form.Select
-                                                            name="ingredient"
-                                                            value={ingrediente.id}
+                                                            name="ingredientId"
+                                                            value={formik.values.ingredientId}
                                                             onChange={(event) => {
-                                                                const selectedId = Number(event.target.value);
-                                                                const selectedIngredient = ingredients.find(ing => ing.id === selectedId) || ingrediente;
+                                                                const newValue = Number(event.target.value);
+                                                                formik.setFieldValue("ingredientId", newValue);
+                                                                const selectedIngredient = ingredients.find(ing => ing.id === newValue) || ingrediente;
                                                                 setIngrediente(selectedIngredient);
+                                                                formik.setFieldValue("ingredientQuantity", 0);
                                                             }}
+                                                            onBlur={formik.handleBlur}
+                                                            isInvalid={Boolean(formik.errors.ingredientId && formik.touched.ingredientId)}
                                                         >
-                                                            <option value="">Seleccionar</option>)
+                                                            <option value="">Seleccionar</option>
                                                             {ingredients.filter(ing => ing.categoryId === selectedCategory).map((ing) => (
                                                                 <option key={ing.id} value={ing.id} disabled={ing.blocked}>
                                                                     {ing.name}
                                                                 </option>
                                                             ))}
                                                         </Form.Select>
+                                                        <Form.Control.Feedback type="invalid">
+                                                            {formik.errors.ingredientId}
+                                                        </Form.Control.Feedback>
                                                     </Form.Group>
                                                 </Col>
                                             </Row>
                                             <Row>
                                                 <Col>
                                                     {/*Quantity Ingredient*/}
-                                                    {/*todo Formik integer min(0)*/}
-                                                    <Form.Group controlId="formIngredientCant" className="mt-4">
+                                                    <Form.Group controlId="formIngredientQuantity" className="mt-4">
                                                         <Form.Label>Cantidad</Form.Label>
                                                         <Form.Control
-                                                            name="ingrediente.cantidad"
+                                                            name="ingredientQuantity"
                                                             type="number"
-                                                            value={quantity}
-                                                            onChange={(event) => setQuantity(Number(event.target.value))}
+                                                            value={formik.values.ingredientQuantity || 0}
+                                                            onChange={(event) => formik.setFieldValue("ingredientQuantity", event.target.value)}
+                                                            onBlur={formik.handleBlur}
+                                                            isInvalid={Boolean(formik.errors.ingredientQuantity && formik.touched.ingredientQuantity)}
                                                         />
+                                                        <Form.Control.Feedback type="invalid">
+                                                            {formik.errors.ingredientQuantity}
+                                                        </Form.Control.Feedback>
                                                     </Form.Group>
                                                 </Col>
                                                 <Col>
@@ -405,10 +467,49 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
                                             <Row>
                                                 {/*Add Ingredient to Table*/}
                                                 <div className="mt-4 d-flex justify-content-center">
-                                                    <Button className="mt-2" onClick={() => setSelectedIngredients([...selectedIngredients, {...ingrediente, quantity}])}>
+                                                    <Button className="mt-2"
+                                                            disabled={
+                                                                formik.errors.categoryIngredientId ||
+                                                                formik.errors.ingredientId ||
+                                                                formik.errors.ingredientQuantity
+                                                            }
+                                                            onClick={() => {
+                                                                const newIngredients = [...selectedIngredients, {...ingrediente, quantity: formik.values.ingredientQuantity}];
+                                                                setSelectedIngredients(newIngredients);
+                                                            }}
+                                                    >
                                                         Agregar Ingrediente
                                                     </Button>
                                                 </div>
+                                            </Row>
+                                            <Row>
+                                                <Col>
+                                                    <Form.Group controlId="formCostPrice" className="mt-4">
+                                                        <Form.Label>Costo Producto</Form.Label>
+                                                        <Form.Control
+                                                            disabled
+                                                            name="costPrice"
+                                                            type="number"
+                                                            value={formik.values.costPrice || 0}
+                                                        />
+                                                    </Form.Group>
+                                                </Col>
+                                                <Col>
+                                                    <Form.Group controlId="formSellPrice" className="mt-4">
+                                                        <Form.Label>Precio de venta:</Form.Label>
+                                                        <Form.Control
+                                                            name="sellPrice"
+                                                            type="number"
+                                                            value={formik.values.sellPrice || 0}
+                                                            onChange={(event) => formik.setFieldValue("sellPrice", event.target.value)}
+                                                            onBlur={formik.handleBlur}
+                                                            isInvalid={Boolean(formik.errors.sellPrice && formik.touched.sellPrice)}
+                                                        />
+                                                        <Form.Control.Feedback type="invalid">
+                                                            {formik.errors.sellPrice}
+                                                        </Form.Control.Feedback>
+                                                    </Form.Group>
+                                                </Col>
                                             </Row>
                                         </Col>
                                         <Col>

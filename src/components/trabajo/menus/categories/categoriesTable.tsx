@@ -57,6 +57,9 @@ export const CategoriesTable = () => {
                 <ToggleButton id="tbg-radio-2" value={2} className={`toggle-button ${selectedItemType === 2 ? 'active' : ''}`}>
                     Productos
                 </ToggleButton>
+                <ToggleButton id="tbg-radio-3" value={3} className={`toggle-button ${selectedItemType === 3 ? 'active' : ''}`}>
+                    Bebidas
+                </ToggleButton>
             </ToggleButtonGroup>
             </div>
             <Table hover>

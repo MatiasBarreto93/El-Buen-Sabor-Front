@@ -8,6 +8,7 @@ export interface Product{
     categoryDenomination: string;
     itemTypeId: number;
     description: string;
+    preparationTime: number;
     recipeDescription: string;
     ingredients: IngredientQuantity[];
     image: string;

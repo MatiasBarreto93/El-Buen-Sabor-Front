@@ -7,7 +7,7 @@ const defaultProduct = {
     blocked: false,
     categoryId: 0,
     categoryDenomination: "",
-    itemTypeId: 0,
+    itemTypeId: 3,
     description: "",
     image: "",
     currentStock: 0,
@@ -18,7 +18,7 @@ const defaultProduct = {
 }
 
 export const useInitializeDrink = (drink: Drink | undefined): [Drink , React.Dispatch<React.SetStateAction<Drink>>, () => Drink] => {
-    const [product, setProduct] = useState<Drink>(drink?? defaultProduct);
+    const [newDrink, setDrink] = useState<Drink>(drink?? defaultProduct);
     const createNewDrink = () => defaultProduct;
-    return [product, setProduct, createNewDrink];
+    return [newDrink, setDrink, createNewDrink];
 }
