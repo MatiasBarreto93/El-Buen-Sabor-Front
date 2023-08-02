@@ -12,6 +12,7 @@ import {useConfetti} from "../../services/useConfetti.ts";
 import {useGenericPost} from "../../services/useGenericPost.ts";
 import {useInitializeCustomer} from "../trabajo/menus/employees/hooks/useInitializeCustomer.ts";
 import {customerDataValidationSchema} from '../miperfil/customerDataValidationSchema.ts'
+import {useGetAuth0UserMetadata} from "./hooks/useGetAuth0UserMetadata.ts";
 
 interface Props {
     firstRender: boolean;
@@ -25,6 +26,7 @@ export const EmployeeSignUp = ({firstRender, setFirstRender}:Props) => {
 
     //Custom Hooks de Auth0
     const getAuth0LoginCount = useGetAuth0LoginCount();
+    const getAuth0UserMetadata = useGetAuth0UserMetadata();
     const getUserRolesAuth0 = useGetUserRolesAuth0();
     const changeUserPasswordAuth0 = useChangeUserPasswordAuth0()
 
@@ -51,16 +53,20 @@ export const EmployeeSignUp = ({firstRender, setFirstRender}:Props) => {
     useEffect(() =>{
         async function getLoginCount(){
             if (user?.sub  && firstRender){
-                const logins:number = await getAuth0LoginCount(user.sub)
+                const logins:number = await getAuth0LoginCount(user.sub);
                 if (logins === 1){
+                    const userMetadata = await getAuth0UserMetadata(user.sub);
+                    const isManualCreation = userMetadata?.app_metadata?.isManualCreation || false;
                     const userRoles: Auth0Roles[] = await getUserRolesAuth0(user.sub);
                     if (userRoles.at(0)?.name !== "Cliente"){
                         setCurrentModal(ModalType.ChangePass)
                         setShowModal(true)
                     } else {
+                        if (!isManualCreation){
                         setCurrentModal(ModalType.SingUp)
                         setCliente(createNewEmployee())
                         setShowModal(true)
+                        }
                     }
                 } else{
                     setFirstRender(false);
@@ -94,7 +100,7 @@ export const EmployeeSignUp = ({firstRender, setFirstRender}:Props) => {
     const handleSave= async (cliente: Customer) => {
         if (user?.sub && user.email != null){
             const newClient:Customer = await asignarAuth0IdAndRol(cliente, user?.sub, user.email);
-            await genericPost<Customer>("customers", "Registro Finalizado!", newClient);
+            await genericPost<Customer>("customers", "¡Registro Finalizado!", newClient);
             setFirstRender(false)
             localStorage.setItem('firstRender', JSON.stringify(false));
             setShowModal(false)

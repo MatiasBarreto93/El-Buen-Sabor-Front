@@ -83,6 +83,12 @@ export const FullCart = ({cliente}:Props) => {
                                             <Card.Text style={{color: "#b92020"}}><strong>${item.sellPrice}</strong></Card.Text>
                                         </Card.Body>
                                     </Col>
+                                    <Col>
+                                        <Card.Body>
+                                            <p>Subtotal:</p>
+                                            <p>${item.sellPrice * item.quantity}</p>
+                                        </Card.Body>
+                                    </Col>
                                     <Col className="d-flex align-items-center justify-content-center mb-3">
                                         <div style={{
                                             display: 'flex',

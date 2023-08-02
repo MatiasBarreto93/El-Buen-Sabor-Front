@@ -1,6 +1,8 @@
 import * as Yup from "yup";
+import {checkEmailExists} from "../../../../util/checkEmailExists.ts";
+let timer:any = null;
 
-export const employeeValidationSchema = (id:number) =>{
+export const employeeValidationSchema = (id:number, token:string) =>{
     return  Yup.object().shape({
 
         //CUSTOMER
@@ -15,7 +17,21 @@ export const employeeValidationSchema = (id:number) =>{
         user: Yup.object().shape({
             id: Yup.number().integer().min(0),
             auth0Id: Yup.string(),
-            email: Yup.string().email('Ingresa un correo electrónico válido').required('El correo electrónico es requerido'),
+            email: Yup.string().email('Ingrese un correo electrónico válido')
+                .required('El correo electrónico es requerido')
+                .test('checkEmail', 'El correo electrónico ya existe',
+                    value => {
+                        if (!value || id > 0) return true;
+                        clearTimeout(timer);
+                        return new Promise((resolve) => {
+                            timer = setTimeout(() => {
+                                checkEmailExists(value, token)
+                                    .then(exists => resolve(!exists))
+                                    .catch(() => resolve(false));
+                            }, 500);
+                        });
+                    }
+                ),
             blocked: Yup.boolean(),
 
             //PASSWORD

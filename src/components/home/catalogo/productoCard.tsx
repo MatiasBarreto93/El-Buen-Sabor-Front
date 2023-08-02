@@ -77,10 +77,13 @@ export const ProductoCard = ({item}:Props) =>{
                                 className="custom-quantity"
                                 value={quantity}
                                 onChange={handleQuantityChange}
+                                disabled={item.currentStock === 0}
                             />
                         </Col>
                         <Col xs={9} sm={9} md={9}>
-                            <Button className="w-100" onClick={handleAddedtoCartClick}><CartPlus size={20}/> Agregar</Button>
+                            <Button className="w-100" onClick={handleAddedtoCartClick} disabled={item.currentStock === 0}>
+                                <CartPlus size={20}/> {item.currentStock === 0 ? "No disponible" : "Agregar"}
+                            </Button>
                         </Col>
                     </Row>
                 </Card.Body>

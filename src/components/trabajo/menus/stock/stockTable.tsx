@@ -45,9 +45,6 @@ export const StockTable = () => {
         setCategoriesIngredients(dataCategoryIngredients)
         setIngredients(dataIngredients);
         setDrinks(dataDrinks);
-        console.log(dataCategoryIngredients)
-        console.log(dataIngredients)
-        console.log(dataDrinks)
 
         //Ingredients
         if (refetchIngredient){
