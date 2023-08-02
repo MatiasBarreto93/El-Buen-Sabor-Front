@@ -12,6 +12,8 @@ import {useFormik} from "formik";
 import {customerValidationSchema} from "./customerValidationSchema.ts";
 import {useGenericCacheGet} from "../../../../services/useGenericCacheGet.ts";
 import secureLS from "../../../../util/secureLS.ts";
+import {useAuth0} from "@auth0/auth0-react";
+import { isEqual } from 'lodash';
 
 interface Props  {
     show: boolean;
@@ -22,6 +24,10 @@ interface Props  {
     modalType: ModalType;
 }
 export const CustomerModal = ({ show, onHide, title, cus, setRefetch, modalType }: Props) => {
+
+    //Token
+    const {getAccessTokenSilently} = useAuth0();
+    const [token, setToken] = useState("");
 
     //Campos para crear un nuevo cliente
     let [newAuth0ID] = useState("");
@@ -38,6 +44,11 @@ export const CustomerModal = ({ show, onHide, title, cus, setRefetch, modalType 
     const {data} = useGenericCacheGet<Role>("roles", "Roles");
     useEffect(() =>{
         setRoles(data);
+        const onRender = async ()=>{
+            const auth0 = await getAccessTokenSilently();
+            setToken(auth0);
+        }
+        onRender();
     },[data])
 
     //Customs Hooks Generics
@@ -54,6 +65,11 @@ export const CustomerModal = ({ show, onHide, title, cus, setRefetch, modalType 
     const handleSaveUpdate = async (customer: Customer) => {
         const isNew = customer.id === 0;
         const userId = customer.user.auth0Id;
+
+        if (!isNew && isEqual(cus, customer)) {
+            onHide();
+            return;
+        }
 
         //PUT
         if (!isNew && userId) {
@@ -142,7 +158,7 @@ export const CustomerModal = ({ show, onHide, title, cus, setRefetch, modalType 
     //Config del Formulario
     const formik = useFormik({
         initialValues: cus,
-        validationSchema: customerValidationSchema(cus.id),
+        validationSchema: customerValidationSchema(cus.id, token),
         validateOnChange: true,
         validateOnBlur: true,
         onSubmit: (obj: Customer) => handleSaveUpdate(obj)
@@ -214,6 +230,7 @@ export const CustomerModal = ({ show, onHide, title, cus, setRefetch, modalType 
                                     <Form.Group controlId="formEmail">
                                         <Form.Label>Email</Form.Label>
                                         <Form.Control
+                                            disabled={cus.id !== 0}
                                             name="user.email"
                                             type="text"
                                             value={formik.values.user.email || ''}

@@ -2,7 +2,7 @@ export enum ModalType{
     None,
     Create,
     Edit,
-    Delete,
+    SingUp,
     ChangeStatus,
     Details,
     Added,

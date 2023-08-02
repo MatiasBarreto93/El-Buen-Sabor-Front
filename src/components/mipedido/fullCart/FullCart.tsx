@@ -9,6 +9,9 @@ import {useFormik} from "formik";
 import {customerDataValidationSchema} from "../../miperfil/customerDataValidationSchema.ts";
 import {DeleteButton} from "../../table/DeleteButton.tsx";
 import {QuantityButton} from "../../table/QuantityButton.tsx";
+import {useCart} from "../../../context/cart/CartContext.tsx";
+import {useNavigate} from "react-router-dom";
+import {useAuth0} from "@auth0/auth0-react";
 
 interface Props{
     cliente:Customer;
@@ -16,33 +19,24 @@ interface Props{
 
 export const FullCart = ({cliente}:Props) => {
 
+    const navigate = useNavigate();
+    const {isAuthenticated} = useAuth0()
+    const {loginWithRedirect} = useAuth0()
     const confettiEffect = useConfetti();
 
-    const [count, setCount] = useState(0);
-    const increment = () => {
-        setCount(count + 1);
-    };
+    //Cart Context
+    const {items, removeFromCart, updateQuantity} = useCart();
 
-    const decrement = () => {
-        if (count > 0) {
-            setCount(count - 1);
-        }
-    };
+    //Cantidad de items y precio total
+    const itemCount = items.reduce((count, item) => count + item.quantity, 0);
+    const total = items.reduce((total, item) => total + item.quantity * item.sellPrice, 0);
 
-    const removeItem = () => {
-        // Logic to remove item from the cart
-    };
-
-
-    //TOGGLE BUTTONS
     //Delivery
     const [deliveryType, setDeliveryType] = useState(1);
     const handleToggleDeliveryType = (selectedValue: number) => {
         setDeliveryType(selectedValue);
     };
 
-
-    //TOGGLE BUTTONS
     //Payment
     const [paymentType, setPaymentType] = useState(1);
     const handleTogglePaymentType = (selectedValue: number) => {
@@ -56,6 +50,7 @@ export const FullCart = ({cliente}:Props) => {
         confettiEffect();
     }
 
+    //Datos del cliente
     const formik = useFormik({
         initialValues: cliente,
         validationSchema: customerDataValidationSchema,
@@ -72,87 +67,77 @@ export const FullCart = ({cliente}:Props) => {
                     <h4 className="title">Mi Pedido</h4>
                     <Row>
                         <Col md={8}>
-                            <Card className="mb-2">
+                            {items.map((item) => (
+                            <Card className="mb-2" key={item.id}>
                                 <Row className="no-gutters">
                                     <Col>
                                         <Card.Img
-                                            src="https://www.cookingclassy.com/wp-content/uploads/2014/07/pepperoni-pizza3+srgb..jpg"
+                                            src={`data:image/jpeg;base64,${item.image}`}
                                             style={{maxWidth: "100px" , maxHeight: "100px", minHeight: "100px", minWidth: "100px"}}
                                             className="mt-2 my-2 mx-2"
                                         />
                                     </Col>
                                     <Col>
                                         <Card.Body>
-                                            <Card.Title>Nombre Producto</Card.Title>
-                                            <Card.Text>$800</Card.Text>
+                                            <Card.Title>{item.name}</Card.Title>
+                                            <Card.Text style={{color: "#b92020"}}><strong>${item.sellPrice}</strong></Card.Text>
                                         </Card.Body>
-                                    </Col>
-                                    <Col className="d-flex align-items-center justify-content-center mb-3">
-                                        <QuantityButton increment={increment} decrement={decrement} count={count}/>
-                                    </Col>
-                                    <Col className="d-flex align-items-center justify-content-center mb-3">
-                                        <DeleteButton onClick={removeItem}/>
-                                    </Col>
-                                </Row>
-                            </Card>
-                            <Card className="mb-2">
-                                <Row className="no-gutters">
-                                    <Col>
-                                        <Card.Img
-                                            src="https://www.cookingclassy.com/wp-content/uploads/2014/07/pepperoni-pizza3+srgb..jpg"
-                                            style={{maxWidth: "100px" , maxHeight: "100px", minHeight: "100px", minWidth: "100px"}}
-                                            className="mt-2 my-2 mx-2"
-                                        />
                                     </Col>
                                     <Col>
                                         <Card.Body>
-                                            <Card.Title>Nombre Producto</Card.Title>
-                                            <Card.Text>$800</Card.Text>
+                                            <p>Subtotal:</p>
+                                            <p>${item.sellPrice * item.quantity}</p>
                                         </Card.Body>
                                     </Col>
                                     <Col className="d-flex align-items-center justify-content-center mb-3">
-                                        <QuantityButton increment={increment} decrement={decrement} count={count}/>
+                                        <div style={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontSize: '0.8em',
+                                            color: 'grey'
+                                        }}>
+                                            <QuantityButton
+                                                increment={() => {
+                                                    if (item.quantity < item.currentStock) {
+                                                        updateQuantity(item.id, item.quantity + 1)
+                                                    }
+                                                }}
+                                                decrement={() => {
+                                                    if (item.quantity > 1) {
+                                                        updateQuantity(item.id, item.quantity - 1)
+                                                    }
+                                                }}
+                                                count={item.quantity}
+                                            />
+                                            <div>
+                                                Disponibles: {item.currentStock}
+                                            </div>
+                                        </div>
                                     </Col>
                                     <Col className="d-flex align-items-center justify-content-center mb-3">
-                                        <DeleteButton onClick={removeItem}/>
+                                        <DeleteButton onClick={() => removeFromCart(item.id)}/>
                                     </Col>
                                 </Row>
                             </Card>
-                            <Card className="mb-2">
-                                <Row className="no-gutters">
-                                    <Col>
-                                        <Card.Img
-                                            src="https://www.cookingclassy.com/wp-content/uploads/2014/07/pepperoni-pizza3+srgb..jpg"
-                                            style={{maxWidth: "100px" , maxHeight: "100px", minHeight: "100px", minWidth: "100px"}}
-                                            className="mt-2 my-2 mx-2"
-                                        />
-                                    </Col>
-                                    <Col>
-                                        <Card.Body>
-                                            <Card.Title>Nombre Producto</Card.Title>
-                                            <Card.Text>$800</Card.Text>
-                                        </Card.Body>
-                                    </Col>
-                                    <Col className="d-flex align-items-center justify-content-center mb-3">
-                                        <QuantityButton increment={increment} decrement={decrement} count={count}/>
-                                    </Col>
-                                    <Col className="d-flex align-items-center justify-content-center mb-3">
-                                        <DeleteButton onClick={removeItem}/>
-                                    </Col>
-                                </Row>
-                            </Card>
+
+                            ))}
                         </Col>
                         <Col className="border rounded d-flex flex-column align-items-center justify-content-center">
                             <div className="m-3">
-                                <h5>12 Articulos - $8000</h5>
+                                <h5>{itemCount} Productos - ${total.toFixed(2)}</h5>
                             </div>
-                            <div className="text-center">
-                                <Button variant={"primary"} className="mb-3 mx-3">Confirmar Pedido</Button>
-                                <Button variant={"outline-primary"} className="mb-3 mx-3">Continuar Comprando</Button>
+                            <div className="text-center mb-3">
+                                {!isAuthenticated && (
+                                    <Button variant={"primary"} className="mb-3 w-100" onClick={() => loginWithRedirect()}>Confirmar Pedido</Button>
+                                )}
+                                <Button variant={"outline-primary"} className="mb-3 w-100" onClick={() => navigate('/')}>Continuar Comprando</Button>
                             </div>
                         </Col>
                     </Row>
                 </div>
+                {isAuthenticated && (
                 <div className="rectangle">
                     <h4 className="title">Datos Personales</h4>
                     <Row>
@@ -311,6 +296,8 @@ export const FullCart = ({cliente}:Props) => {
                         </Button>
                     </div>
                 </div>
+
+                )}
             </Form>
         </div>
     )

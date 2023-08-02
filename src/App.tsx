@@ -3,11 +3,14 @@ import 'react-toastify/dist/ReactToastify.css';
 import {lazy, Suspense, useState} from "react";
 import {Loader} from "./components/Loader/loader.tsx";
 import {EmployeeSignUp} from "./components/Auth0/EmployeeSignUp.tsx";
+import {CartProvider} from "./context/cart/CartContext.tsx";
+import {BrowserRouter as Router} from "react-router-dom";
+import {UserPermissionProvider} from "./context/permission/UserPermission.tsx";
 import {Container} from "react-bootstrap";
 
 const Header = lazy(() => import("./components/Layout/header/header.tsx"));
 const Footer = lazy(() => import("./components/Layout/footer/footer.tsx"));
-const Router =lazy(() => import("./routes/Router.tsx"));
+const Routes =lazy(() => import("./routes/Router.tsx"));
 
 export function App() {
 
@@ -19,15 +22,21 @@ export function App() {
 
     return (
         <>
-            <ToastContainer/>
-            {firtsRender ? <EmployeeSignUp firstRender={firtsRender} setFirstRender={setFirtsRender}/> : null}
-            <Header/>
-            <Container style={{minHeight: '70vh', minWidth: '100%', padding: '0'}}>
-                <Suspense fallback={<Loader/>}>
-                    <Router/>
-                </Suspense>
-            </Container>
-            <Footer/>
+            <Router>
+                <UserPermissionProvider>
+                    <CartProvider>
+                        <ToastContainer/>
+                        {firtsRender ? <EmployeeSignUp firstRender={firtsRender} setFirstRender={setFirtsRender}/> : null}
+                        <Header/>
+                        <Container style={{minHeight: '63vh', minWidth: '100%', padding: '0'}}>
+                            <Suspense fallback={<Loader/>}>
+                                <Routes/>
+                            </Suspense>
+                        </Container>
+                        <Footer/>
+                    </CartProvider>
+                </UserPermissionProvider>
+            </Router>
         </>
     )
 }

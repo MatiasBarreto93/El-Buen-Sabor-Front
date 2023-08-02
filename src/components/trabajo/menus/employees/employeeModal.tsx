@@ -14,6 +14,8 @@ import {ModalType} from "../../../../interfaces/ModalType.ts";
 import {employeeValidationSchema} from "./employeeValidationSchema.ts";
 import {useGenericCacheGet} from "../../../../services/useGenericCacheGet.ts";
 import secureLS from "../../../../util/secureLS.ts";
+import {useAuth0} from "@auth0/auth0-react";
+import { isEqual } from 'lodash';
 
 interface Props  {
     show: boolean;
@@ -25,6 +27,10 @@ interface Props  {
 }
 
 export const EmployeeModal = ({ show, onHide, title, emp, setRefetch, modalType }: Props) =>{
+
+    //Token
+    const {getAccessTokenSilently} = useAuth0();
+    const [token, setToken] = useState("");
 
     //Roles
     const [roles, setRoles] = useState<Role[]>([]);
@@ -54,12 +60,22 @@ export const EmployeeModal = ({ show, onHide, title, emp, setRefetch, modalType 
     const {data} = useGenericCacheGet<Role>("roles", "Roles");
     useEffect(() =>{
         setRoles(data);
+        const onRender = async ()=>{
+            const auth0 = await getAccessTokenSilently();
+            setToken(auth0);
+        }
+        onRender();
     },[data])
 
     //POST-PUT Empleado de AUTH0 y BBDD
     const handleSaveUpdate = async (empleado: Customer) => {
         const isNew = empleado.id === 0;
         const userId = empleado.user.auth0Id;
+
+        if (!isNew && isEqual(emp, empleado)) {
+            onHide();
+            return;
+        }
 
         //PUT
         if (!isNew && userId) {
@@ -151,7 +167,7 @@ export const EmployeeModal = ({ show, onHide, title, emp, setRefetch, modalType 
     //Config del Formulario
     const formik = useFormik({
         initialValues: emp,
-        validationSchema: employeeValidationSchema(emp.id),
+        validationSchema: employeeValidationSchema(emp.id, token),
         validateOnChange: true,
         validateOnBlur: true,
         onSubmit: (obj: Customer) => handleSaveUpdate(obj)
@@ -223,6 +239,7 @@ export const EmployeeModal = ({ show, onHide, title, emp, setRefetch, modalType 
                                     <Form.Group controlId="formEmail">
                                         <Form.Label>Email</Form.Label>
                                         <Form.Control
+                                            disabled={emp.id !== 0}
                                             name="user.email"
                                             type="text"
                                             value={formik.values.user.email || ''}
@@ -340,7 +357,7 @@ export const EmployeeModal = ({ show, onHide, title, emp, setRefetch, modalType 
                                         >
                                             {defaultRoleVisible && (<option value="">-</option>)}
                                             {roles.map((role) => (
-                                                <option key={role.id} value={JSON.stringify(role)}>
+                                                <option key={role.id} value={JSON.stringify(role)} disabled={role.id === 5}>
                                                     {role.denomination}
                                                 </option>
                                             ))}
