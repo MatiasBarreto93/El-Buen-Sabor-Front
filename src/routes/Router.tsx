@@ -6,8 +6,10 @@ import {lazyWithPreload} from "../util/lazyWithPreload.ts";
 const Home = lazyWithPreload(() => import("../components/home/home.tsx"));
 const MiPedido = lazyWithPreload(() => import("../components/mipedido/MiPedido.tsx"));
 const MiPerfil = lazyWithPreload(() => import("../components/miperfil/MiPerfil.tsx"));
+const Historialpedido = lazyWithPreload(() => import("../components/historial/historialpedido.tsx"));
 const Trabajo = lazyWithPreload(() => import("../components/trabajo/trabajo.tsx"));
-
+const Cajero = lazyWithPreload(() => import("../components/cajero/cajero.tsx"));
+const Delivery = lazyWithPreload(() => import("../components/delivery/delivery.tsx"));
 
 const Router: React.FC = () => {
 
@@ -17,7 +19,10 @@ const Router: React.FC = () => {
         Home.preload();
         MiPerfil.preload();
         MiPedido.preload();
+        Historialpedido.preload();
         Trabajo.preload();
+        Cajero.preload();
+        Delivery.preload();
     }, []);
 
     // Save scroll position when the user scrolls
@@ -56,10 +61,12 @@ const Router: React.FC = () => {
             <Route path="/" element={<Home />} />
             <Route path="/miperfil" element={<MiPerfil />} />
             <Route path="/mipedido" element={<MiPedido />} />
-            <Route path="/trabajo" element={<Trabajo />} />
+            <Route path="/historialpedido" element={<Historialpedido/>} />
+            <Route path="/admin" element={<Trabajo />} />
+            <Route path="/cajero" element={<Cajero/>} />
+            <Route path="/delivery" element={<Delivery/>} />
         </Routes>
     );
-
 }
 
 export default Router;

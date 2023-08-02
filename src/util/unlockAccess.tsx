@@ -1,6 +1,6 @@
 import React from 'react';
-import { UserRole} from "../../../interfaces/UserRole.ts";
-import { useUserPermission} from "../../../context/permission/UserPermission.tsx";
+import { UserRole} from "../interfaces/UserRole.ts";
+import { useUserPermission} from "../context/permission/UserPermission.tsx";
 
 type UnlockAccessProps = {
     children: React.ReactNode;

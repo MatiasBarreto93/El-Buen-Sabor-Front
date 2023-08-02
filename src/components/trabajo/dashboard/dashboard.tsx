@@ -5,11 +5,10 @@ import {EmployeesTable} from "../menus/employees/employeesTable.tsx";
 import {CategoriesTable} from "../menus/categories/categoriesTable";
 import {CustomersTable} from "../menus/customers/customersTable.tsx";
 import {IngredientsTable} from "../menus/ingredients/ingredientsTable";
-import {TableTest} from "../menus/testModal/tableTest.tsx";
 import {ProductsTable} from "../menus/products/productsTable";
 import {StockTable} from "../menus/stock/stockTable.tsx";
 import {useEffect, useState} from "react";
-import {UnlockAccess} from "./unlockAccess.tsx";
+import {UnlockAccess} from "../../../util/unlockAccess.tsx";
 import {UserRole} from "../../../interfaces/UserRole.ts";
 import {useUserPermission} from "../../../context/permission/UserPermission.tsx";
 import {useGetCustomer} from "../../../services/useGetCustomer.ts";
@@ -124,7 +123,7 @@ export const DashBoard = () => {
                             <UnlockAccess request={[UserRole.Admin, UserRole.Cocinero]}>
                                 {activeKey === "Principal" && (
                                     <Tab.Pane eventKey="Principal">
-                                        <TableTest/>
+                                        {/*<TableTest/>*/}
                                     </Tab.Pane>
                                 )}
                             </UnlockAccess>

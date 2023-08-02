@@ -51,7 +51,7 @@ export const ProductDetailModal = ({show, onHide ,name, description, sellPrice, 
             <Modal.Body>
                 <Row>
                     <Col xs={6} sm={6} md={6}>
-                        <Image rounded={true} fluid src={image} style={{maxHeight: "250px"}}/>
+                        <Image rounded={true} fluid src={`data:image/jpeg;base64,${image}`} style={{maxHeight: "250px"}}/>
                     </Col>
                     <Col xs={6} sm={6} md={6} className="product-detail-body">
                         <div className="description-container">
@@ -73,8 +73,11 @@ export const ProductDetailModal = ({show, onHide ,name, description, sellPrice, 
                     max={maxQuantity}
                     value={quantityDetail}
                     onChange={handleQuantityDetailChange}
+                    disabled={maxQuantity === 0}
                 />
-                <Button className="w-50" onClick={handleAdd}><CartPlus size={20}/> Agregar</Button>
+                <Button className="w-50" onClick={handleAdd} disabled={maxQuantity === 0}>
+                    <CartPlus size={20}/> {maxQuantity === 0 ? "No disponible" : "Agregar"}
+                </Button>
             </Modal.Footer>
         </Modal>
         </>

@@ -12,6 +12,7 @@ export const Catalogo = () => {
     const [activeCategory, setActiveCategory] = useState(1);
 
     const [categories, setCategories] = useState<Category[]>([]);
+    //TODO TRAER TYPE 3
     const dataCategories = useGenericGet<Category>("categories/filter/2", "Categorías");
     const [categoryRefs, setCategoryRefs] = useState<{[key: string]: React.RefObject<HTMLDivElement>}>({});
 

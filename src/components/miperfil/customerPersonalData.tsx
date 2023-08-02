@@ -1,63 +1,72 @@
-import {useGetUserRolesAuth0} from "../Auth0/hooks/useGetUserRolesAuth0.ts";
-import {useGenericPost} from "../../services/useGenericPost.ts";
 import {useGenericPut} from "../../services/useGenericPut.ts";
 import {useConfetti} from "../../services/useConfetti.ts";
 import {useFormik} from "formik";
-import {Auth0Roles, Customer} from "../../interfaces/customer.ts";
+import {Auth0Password, Customer} from "../../interfaces/customer.ts";
 import _ from "lodash";
 import {customerDataValidationSchema} from "./customerDataValidationSchema.ts";
 import {Button, Col, FloatingLabel, Form, Row} from "react-bootstrap";
-import {useAuth0, User} from "@auth0/auth0-react";
+import {useAuth0} from "@auth0/auth0-react";
 import './../mipedido/fullCart/fullCart.css'
+import {validationSchemaPass} from "../Auth0/validationSchemaPass.ts";
+import {useEffect, useState} from "react";
+import {useChangeUserPasswordAuth0} from "../Auth0/hooks/useChangeUserPasswordAuth0.tsx";
+import {toast} from "react-toastify";
+import {useGetCustomer} from "../../services/useGetCustomer.ts";
+import {useInitializeCustomer} from "../trabajo/menus/employees/hooks/useInitializeCustomer.ts";
+import secureLS from "../../util/secureLS.ts";
 
-interface Props{
-    cliente: Customer;
-}
+export const CustomerPersonalData = () => {
 
-export const CustomerPersonalData = ({cliente}: Props) => {
-
-    const {user} = useAuth0();
+    const getCustomer = useGetCustomer();
     const confettiEffect = useConfetti();
-    const genericPost = useGenericPost();
     const genericPut = useGenericPut();
-    const getUserRolesAuth0 = useGetUserRolesAuth0();
+    const {user} = useAuth0();
+    const changeUserPasswordAuth0 = useChangeUserPasswordAuth0()
+    const [cliente, setCliente ] = useInitializeCustomer(undefined);
+    const [auth0Password] = useState<Auth0Password>({
+        password: '',
+        confirmPassword: ''
+    });
+
+    useEffect(() => {
+        if (user?.sub) {
+            getCustomer(user.sub)
+                .then((customer) => {
+                    setCliente(customer);
+                })
+                .catch((error) => {
+                    console.error("Error fetching customer data:", error);
+                });
+        }
+    }, [user?.sub]);
 
     const handleSave = async (cli: Customer) => {
-        if (cli.id === 0){
-            //POST BBDD
-            if (user?.sub){
-                const userRoles:Auth0Roles[] = await getUserRolesAuth0(user.sub);
-                const customerPost:Customer = await addCustomerAuth0Data(cli, user ,userRoles);
-                await genericPost<Customer>("customers", "Datos Actualizados", customerPost);
-                confettiEffect();
-            }
-        } else {
-            //PUT BBDD
-            if (!_.isEqual(cli, cliente)){
-                await genericPut<Customer>("customers", cli.id, cli, "Datos Actualizados");
-                confettiEffect();
+        if (!_.isEqual(cli, cliente)){
+            await genericPut<Customer>("customers", cli.id, cli, "Datos Actualizados");
+            confettiEffect();
+            if (user?.sub) {
+                secureLS.remove(user.sub);
+                getCustomer(user.sub)
+                    .then((customer) => {
+                        setCliente(customer);
+                    })
+                    .catch((error) => {
+                        console.error("Error fetching customer data:", error);
+                    });
             }
         }
     }
 
-    async function addCustomerAuth0Data(customer: Customer,user: User, roles: Auth0Roles[]) {
-        return {
-            ...customer,
-            user: {
-                ...customer.user,
-                auth0Id: user.sub ?? "",
-                email: user.email ?? "",
-                blocked: false,
-                role: {
-                    ...customer.user.role,
-                    id: 5,
-                    denomination: roles[0].name ?? "",
-                    auth0RolId: roles[0].id ?? ""
-                }
-            },
-        };
-    }
+    const handleNewPass = async (newPass: Auth0Password) => {
+        if (user?.sub){
+            await changeUserPasswordAuth0(user.sub, newPass.password)
+            toast.success(`Contraseña Actualizada`, {
+                position: "top-center",
+            });
 
+            confettiEffect();
+        }
+    }
     //Config del Formulario Cliente
     const formik = useFormik({
         initialValues: cliente,
@@ -68,11 +77,25 @@ export const CustomerPersonalData = ({cliente}: Props) => {
         onSubmit: (obj: Customer) => handleSave(obj),
     });
 
+
+    //Formik Password
+    const formikPassword = useFormik({
+        initialValues: auth0Password,
+        validationSchema: validationSchemaPass,
+        validateOnChange: true,
+        validateOnBlur: true,
+        onSubmit: async (obj: Auth0Password) => {
+            await handleNewPass(obj);
+            formikPassword.resetForm();
+        },
+    });
+
     return(
+        <>
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <Form style={{ minHeight: '509px', width: "1200px" }} onSubmit={formik.handleSubmit} className="mt-5 mb-5">
             <div className="rectangle" style={{maxWidth: "1200px"}}>
-                <h4 className="title">Mi Perfil</h4>
+                <h4 className="title">Datos Personales</h4>
                 <Row>
                     <Col>
                         <Form.Group controlId="formNombre" className="mb-3">
@@ -178,5 +201,58 @@ export const CustomerPersonalData = ({cliente}: Props) => {
             </div>
         </Form>
         </div>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <div className="rectangle" style={{width: '1180px' ,maxWidth: "1200px"}}>
+                    <h4 className="title">Cambiar Contraseña</h4>
+                    <Form onSubmit={formikPassword.handleSubmit}>
+                        <Row>
+                            <Col>
+                                <Form.Group controlId="formPassword">
+                                    <FloatingLabel controlId="floatingInput" label={"Contraseña:"} className="mt-3 custom-label">
+                                    <Form.Control
+                                        className="custom-input"
+                                        name="password"
+                                        type="password"
+                                        placeholder="Contraseña:"
+                                        value={formikPassword.values.password || ''}
+                                        onChange={formikPassword.handleChange}
+                                        onBlur={formikPassword.handleBlur}
+                                        isInvalid={Boolean(formikPassword.errors.password && formikPassword.touched.password)}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {formikPassword.errors.password}
+                                    </Form.Control.Feedback>
+                                    </FloatingLabel>
+                                </Form.Group>
+                            </Col>
+                            <Col>
+                                <Form.Group controlId="formConfirmPassowrd">
+                                    <FloatingLabel controlId="floatingInput" label={"Confirmar Contraseña:"} className="mt-3 custom-label">
+                                    <Form.Control
+                                        className="custom-input"
+                                        name="confirmPassword"
+                                        type="password"
+                                        placeholder="Confirmar Contraseña:"
+                                        value={formikPassword.values.confirmPassword || ''}
+                                        onChange={formikPassword.handleChange}
+                                        onBlur={formikPassword.handleBlur}
+                                        isInvalid={Boolean(formikPassword.errors.confirmPassword && formikPassword.touched.confirmPassword)}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {formikPassword.errors.confirmPassword}
+                                    </Form.Control.Feedback>
+                                    </FloatingLabel>
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                        <div className="d-flex justify-content-center">
+                        <Button variant="primary" type="submit" className="mt-5" disabled={!formikPassword.isValid}>
+                            Guardar Cambios
+                        </Button>
+                        </div>
+                    </Form>
+                </div>
+            </div>
+        </>
     )
 }

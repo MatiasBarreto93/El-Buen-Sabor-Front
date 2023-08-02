@@ -6,6 +6,7 @@ import {EmployeeSignUp} from "./components/Auth0/EmployeeSignUp.tsx";
 import {CartProvider} from "./context/cart/CartContext.tsx";
 import {BrowserRouter as Router} from "react-router-dom";
 import {UserPermissionProvider} from "./context/permission/UserPermission.tsx";
+import {Container} from "react-bootstrap";
 
 const Header = lazy(() => import("./components/Layout/header/header.tsx"));
 const Footer = lazy(() => import("./components/Layout/footer/footer.tsx"));
@@ -27,9 +28,11 @@ export function App() {
                         <ToastContainer/>
                         {firtsRender ? <EmployeeSignUp firstRender={firtsRender} setFirstRender={setFirtsRender}/> : null}
                         <Header/>
-                        <Suspense fallback={<Loader/>}>
-                            <Routes/>
-                        </Suspense>
+                        <Container style={{minHeight: '63vh', minWidth: '100%', padding: '0'}}>
+                            <Suspense fallback={<Loader/>}>
+                                <Routes/>
+                            </Suspense>
+                        </Container>
                         <Footer/>
                     </CartProvider>
                 </UserPermissionProvider>
