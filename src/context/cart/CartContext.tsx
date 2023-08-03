@@ -8,6 +8,7 @@ type CartContextProps = {
     addToCart: (item: Item, quantity: number) => void;
     removeFromCart: (itemId: number) => void;
     updateQuantity: (itemId: number, quantity: number) => void;
+    clearCart: () => void;
 };
 
 export function useCart() {
@@ -58,7 +59,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         );
     }, []);
 
-    const value = useMemo(() => ({ items, addToCart, removeFromCart, updateQuantity }), [items, addToCart, removeFromCart, updateQuantity]);
+    const clearCart = useCallback(() => {
+        setItems([]);
+    }, []);
+
+    const value = useMemo(() => ({ items, addToCart, removeFromCart, updateQuantity, clearCart }), [items, addToCart, removeFromCart, updateQuantity, clearCart]);
 
     return (
         <CartContext.Provider value={value}>

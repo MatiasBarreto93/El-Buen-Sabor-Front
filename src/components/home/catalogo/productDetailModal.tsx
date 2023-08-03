@@ -51,7 +51,7 @@ export const ProductDetailModal = ({show, onHide ,name, description, sellPrice, 
             <Modal.Body>
                 <Row>
                     <Col xs={6} sm={6} md={6}>
-                        <Image rounded={true} fluid src={`data:image/jpeg;base64,${image}`} style={{maxHeight: "250px"}}/>
+                        <Image rounded={true} fluid src={image} style={{maxHeight: "250px"}}/>
                     </Col>
                     <Col xs={6} sm={6} md={6} className="product-detail-body">
                         <div className="description-container">
