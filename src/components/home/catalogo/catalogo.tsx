@@ -12,7 +12,7 @@ export const Catalogo = () => {
     const [activeCategory, setActiveCategory] = useState(1);
 
     const [categories, setCategories] = useState<Category[]>([]);
-  
+
     const dataCategories = useGenericGet<Category>("categories/filter/ingredients", "Categorías");
     const [categoryRefs, setCategoryRefs] = useState<{[key: string]: React.RefObject<HTMLDivElement>}>({});
 
@@ -21,7 +21,6 @@ export const Catalogo = () => {
 
     const [drinks, setDrinks] = useState<Drink[]>([]);
     const dataDrink = useGenericGet<Drink>("drinks", "Bebidas");
-
 
     useEffect(() => {
         const onRender = async () => {
