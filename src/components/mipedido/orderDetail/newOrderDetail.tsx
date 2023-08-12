@@ -1,16 +1,17 @@
 import {useLocation} from "react-router-dom";
-import {Customer} from "../../../interfaces/customer.ts";
+import {Customer, Order, OrderDetail} from "../../../interfaces/customer.ts";
 import {useCart} from "../../../context/cart/CartContext.tsx";
 import {useEffect, useState} from "react";
 import './../../styles/background.css'
 import './../fullCart/fullCart.css'
 import {Button, Card, Col, Row} from "react-bootstrap";
 import {CancelModal} from "../cancelModal/cancelModal.tsx";
-const OrderDetail = () => {
+import {useGenericPost} from "../../../services/useGenericPost.ts";
+const NewOrderDetail = () => {
 
     const location = useLocation();
     const { cli, paymentType, deliveryType }: { cli: Customer; paymentType: number; deliveryType: number } = location.state;
-
+    const genericPost = useGenericPost();
     //Cart Context
     const {items} = useCart();
 
@@ -47,6 +48,41 @@ const OrderDetail = () => {
 
     //Cancel Modal
     const [showModalCancel, setShowModalCancel] = useState(false);
+
+    const handleNewOrder = async () => {
+
+         const orderDetails:OrderDetail[] = items.map((item) => ({
+            quantity: item.quantity,
+            subtotal: item.quantity * item.sellPrice,
+             itemId: item.id
+        }));
+
+        const now = new Date();
+        const date = ("0" + now.getDate()).slice(-2);
+        const month = ("0" + (now.getMonth() + 1)).slice(-2);
+        const year = now.getFullYear();
+        const hours = ("0" + now.getHours()).slice(-2);
+        const minutes = ("0" + now.getMinutes()).slice(-2);
+        const formattedDate = `${date}/${month}/${year} - ${hours}:${minutes}`;
+
+        const newOrder:Order = {
+            address: cli.address,
+            apartment: cli.apartment,
+            discount: discount,
+            estimatedTime: "Falta el calculo",
+            orderDate: formattedDate,
+            paid: false,
+            phone: cli.phone,
+            total: total,
+            customerId: cli.id,
+            deliveryTypeId: deliveryType,
+            orderStatusId: 1,
+            paymentTypeId: paymentType,
+            orderDetails: orderDetails,
+        }
+        console.log(JSON.stringify(newOrder, null, 2))
+        await genericPost<Order>("orders", "¡Pedido Realizado!", newOrder);
+    }
 
     return(
         <>
@@ -109,7 +145,7 @@ const OrderDetail = () => {
                                     </div>
                                     <div className="d-flex flex-column mt-3">
                                         <div className="mb-3">
-                                            <Button className="w-100">Confirmar Pedido</Button>
+                                            <Button className="w-100" onClick={handleNewOrder}>Confirmar Pedido</Button>
                                         </div>
                                         <div>
                                             <Button variant="secondary" className="w-100 mb-2" onClick={() => setShowModalCancel(true)}>Cancelar Pedido</Button>
@@ -173,4 +209,4 @@ const OrderDetail = () => {
     )
 }
 
-export default OrderDetail;
+export default NewOrderDetail;

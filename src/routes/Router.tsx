@@ -10,7 +10,7 @@ const Historialpedido = lazyWithPreload(() => import("../components/historial/hi
 const Trabajo = lazyWithPreload(() => import("../components/trabajo/trabajo.tsx"));
 const Cajero = lazyWithPreload(() => import("../components/cajero/cajero.tsx"));
 const Delivery = lazyWithPreload(() => import("../components/delivery/delivery.tsx"));
-const OrderDetail = lazyWithPreload(() => import("../components/mipedido/orderDetail/orderDetail.tsx"));
+const OrderDetail = lazyWithPreload(() => import("../components/mipedido/orderDetail/newOrderDetail.tsx"));
 
 const Router: React.FC = () => {
 
