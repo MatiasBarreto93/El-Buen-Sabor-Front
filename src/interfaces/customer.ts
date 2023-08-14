@@ -26,8 +26,25 @@ export interface Role {
 }
 
 export interface Order {
-    id: number;
-    name: string;
+    paid: boolean;
+    total: number;
+    discount: number;
+    phone: string;
+    address: string;
+    apartment: string;
+    orderDate: Date;
+    estimatedTime: string;
+    deliveryTypeId: number;
+    paymentTypeId: number;
+    orderStatusId: number;
+    orderDetails: OrderDetail[];
+    customerId: number;
+}
+
+export interface OrderDetail {
+    quantity: number;
+    subtotal: number;
+    itemId: number;
 }
 
 export interface Auth0User {
