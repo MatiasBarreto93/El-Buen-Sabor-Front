@@ -32,7 +32,7 @@ export interface Order {
     phone: string;
     address: string;
     apartment: string;
-    orderDate: string;
+    orderDate: Date;
     estimatedTime: string;
     deliveryTypeId: number;
     paymentTypeId: number;

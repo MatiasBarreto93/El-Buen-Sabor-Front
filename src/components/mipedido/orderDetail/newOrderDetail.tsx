@@ -1,4 +1,4 @@
-import {useLocation} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {Customer, Order, OrderDetail} from "../../../interfaces/customer.ts";
 import {useCart} from "../../../context/cart/CartContext.tsx";
 import {useEffect, useState} from "react";
@@ -7,13 +7,17 @@ import './../fullCart/fullCart.css'
 import {Button, Card, Col, Row} from "react-bootstrap";
 import {CancelModal} from "../cancelModal/cancelModal.tsx";
 import {useGenericPost} from "../../../services/useGenericPost.ts";
+import {useConfetti} from "../../../services/useConfetti.ts";
 const NewOrderDetail = () => {
 
     const location = useLocation();
+    const navigate = useNavigate();
     const { cli, paymentType, deliveryType }: { cli: Customer; paymentType: number; deliveryType: number } = location.state;
     const genericPost = useGenericPost();
+    const confettiEffect = useConfetti();
+
     //Cart Context
-    const {items} = useCart();
+    const {items, clearCart} = useCart();
 
     //Cantidad de items,total, subtotal, descuento
     const [itemCount, setItemCount] = useState(0);
@@ -57,22 +61,14 @@ const NewOrderDetail = () => {
              itemId: item.id
         }));
 
-        const now = new Date();
-        const date = ("0" + now.getDate()).slice(-2);
-        const month = ("0" + (now.getMonth() + 1)).slice(-2);
-        const year = now.getFullYear();
-        const hours = ("0" + now.getHours()).slice(-2);
-        const minutes = ("0" + now.getMinutes()).slice(-2);
-        const formattedDate = `${date}/${month}/${year} - ${hours}:${minutes}`;
-
         const newOrder:Order = {
-            address: cli.address,
-            apartment: cli.apartment,
+            address: deliveryType === 2 ? '-' : cli.address,
+            apartment: deliveryType === 2 ? '-' : cli.apartment,
             discount: discount,
             estimatedTime: "Falta el calculo",
-            orderDate: formattedDate,
+            orderDate: new Date(),
             paid: false,
-            phone: cli.phone,
+            phone: deliveryType === 2 ? '-' : cli.phone,
             total: total,
             customerId: cli.id,
             deliveryTypeId: deliveryType,
@@ -80,123 +76,139 @@ const NewOrderDetail = () => {
             paymentTypeId: paymentType,
             orderDetails: orderDetails,
         }
-        console.log(JSON.stringify(newOrder, null, 2))
+
         await genericPost<Order>("orders", "¡Pedido Realizado!", newOrder);
+        confettiEffect();
+        clearCart();
     }
 
     return(
         <>
             <div className="perfil-img">
                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <div className="rectangle" style={{width: '1200px'}}>
-                        <h4 className="title">Detalle del Pedido</h4>
-                        <Row>
-                            <Col md={9}>
-                                {items.map((item) => (
-                                    <Card className="mb-2" key={item.id}>
-                                        <Row className="no-gutters">
-                                            <Col>
-                                                <Card.Img
-                                                    src={item.image}
-                                                    style={{maxWidth: "100px" , maxHeight: "100px", minHeight: "100px", minWidth: "100px"}}
-                                                    className="mt-2 my-2 mx-2"
-                                                />
-                                            </Col>
-                                            <Col>
-                                                <Card.Body>
-                                                    <Card.Title>{item.name}</Card.Title>
-                                                    <Card.Text style={{color: "#b92020"}}><strong>${item.sellPrice}</strong></Card.Text>
-                                                </Card.Body>
-                                            </Col>
-                                            <Col>
-                                                <Card.Body>
-                                                    <p>Cantidad:</p>
-                                                    <p>{item.quantity}</p>
-                                                </Card.Body>
-                                            </Col>
-                                            <Col>
-                                                <Card.Body>
-                                                    <p>Subtotal:</p>
-                                                    <p>${item.sellPrice * item.quantity}</p>
-                                                </Card.Body>
-                                            </Col>
-                                        </Row>
-                                    </Card>
-                                ))}
-                            </Col>
-                            <Col className="d-flex flex-column border rounded mb-2 mx-3">
-                                <div className="mt-2" >
-                                    <div className="d-flex justify-content-between mt-2 mb-5">
-                                        <h5>Cantidad:</h5>
-                                        <h5><strong>{itemCount} Productos</strong></h5>
-                                    </div>
-                                    <div className="d-flex justify-content-between">
-                                        <h5>Subtotal:</h5>
-                                        <h5><strong>${subTotal}</strong></h5>
-                                    </div>
-                                    <div className="d-flex justify-content-between">
-                                        <h5>Descuento:</h5>
-                                        <h5><strong>${discount}</strong></h5>
-                                    </div>
-                                    <div className="mb-5"/>
-                                    <div className="d-flex justify-content-between">
-                                        <h5 style={{fontWeight: 'bold', color: '#b92020'}}>Total:</h5>
-                                        <h5 style={{fontWeight: 'bold', color: '#b92020'}}>${total}</h5>
-                                    </div>
-                                    <div className="d-flex flex-column mt-3">
-                                        <div className="mb-3">
-                                            <Button className="w-100" onClick={handleNewOrder}>Confirmar Pedido</Button>
-                                        </div>
-                                        <div>
-                                            <Button variant="secondary" className="w-100 mb-2" onClick={() => setShowModalCancel(true)}>Cancelar Pedido</Button>
-                                        </div>
-                                    </div>
+                    {items.length === 0
+                        ?
+                        (
+                            <div className="rectangle mt-5" style={{width: '1200px', height: '600px', justifyContent: 'center', alignItems: 'center'}}>
+                                <div className="text-center" style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+                                    <h4>¡Gracias por tu Compra!</h4>
+                                    <Button className="btn-cart-shadow" onClick={() => navigate('/historialpedido')}>Mis Pedidos</Button>
                                 </div>
-                            </Col>
-                        </Row>
-                        <h4 className="title mt-2">Datos del Pedido</h4>
-                        <Row className="border rounded mb-2 mx-1">
-                            <Col>
-                                <p style={{ fontWeight: "bold" }}>Nombre:</p>
-                                <p>{cli.name}</p>
-                            </Col>
-                            <Col>
-                                <p style={{ fontWeight: "bold" }}>Apellido:</p>
-                                <p>{cli.lastname}</p>
-                            </Col>
-                        </Row>
+                            </div>
+                        )
+                        :
+                        (
+                            <div className="rectangle" style={{width: '1200px'}}>
+                                <h4 className="title">Detalle del Pedido</h4>
+                                <Row>
+                                    <Col md={9}>
+                                        {items.map((item) => (
+                                            <Card className="mb-2" key={item.id}>
+                                                <Row className="no-gutters">
+                                                    <Col>
+                                                        <Card.Img
+                                                            src={item.image}
+                                                            style={{maxWidth: "100px" , maxHeight: "100px", minHeight: "100px", minWidth: "100px"}}
+                                                            className="mt-2 my-2 mx-2"
+                                                        />
+                                                    </Col>
+                                                    <Col>
+                                                        <Card.Body>
+                                                            <Card.Title>{item.name}</Card.Title>
+                                                            <Card.Text style={{color: "#b92020"}}><strong>${item.sellPrice}</strong></Card.Text>
+                                                        </Card.Body>
+                                                    </Col>
+                                                    <Col>
+                                                        <Card.Body>
+                                                            <p>Cantidad:</p>
+                                                            <p>{item.quantity}</p>
+                                                        </Card.Body>
+                                                    </Col>
+                                                    <Col>
+                                                        <Card.Body>
+                                                            <p>Subtotal:</p>
+                                                            <p>${item.sellPrice * item.quantity}</p>
+                                                        </Card.Body>
+                                                    </Col>
+                                                </Row>
+                                            </Card>
+                                        ))}
+                                    </Col>
+                                    <Col className="d-flex flex-column border rounded mb-2 mx-3">
+                                        <div className="mt-2" >
+                                            <div className="d-flex justify-content-between mt-2 mb-5">
+                                                <h5>Cantidad:</h5>
+                                                <h5><strong>{itemCount} Productos</strong></h5>
+                                            </div>
+                                            <div className="d-flex justify-content-between">
+                                                <h5>Subtotal:</h5>
+                                                <h5><strong>${subTotal}</strong></h5>
+                                            </div>
+                                            <div className="d-flex justify-content-between">
+                                                <h5>Descuento:</h5>
+                                                <h5><strong>${discount}</strong></h5>
+                                            </div>
+                                            <div className="mb-5"/>
+                                            <div className="d-flex justify-content-between">
+                                                <h5 style={{fontWeight: 'bold', color: '#b92020'}}>Total:</h5>
+                                                <h5 style={{fontWeight: 'bold', color: '#b92020'}}>${total}</h5>
+                                            </div>
+                                            <div className="d-flex flex-column mt-3">
+                                                <div className="mb-3">
+                                                    <Button className="w-100" onClick={handleNewOrder}>Confirmar Pedido</Button>
+                                                </div>
+                                                <div>
+                                                    <Button variant="secondary" className="w-100 mb-2" onClick={() => setShowModalCancel(true)}>Cancelar Pedido</Button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </Col>
+                                </Row>
+                                <h4 className="title mt-2">Datos del Pedido</h4>
+                                <Row className="border rounded mb-2 mx-1">
+                                    <Col>
+                                        <p style={{ fontWeight: "bold" }}>Nombre:</p>
+                                        <p>{cli.name}</p>
+                                    </Col>
+                                    <Col>
+                                        <p style={{ fontWeight: "bold" }}>Apellido:</p>
+                                        <p>{cli.lastname}</p>
+                                    </Col>
+                                </Row>
 
-                        {deliveryType === 1 &&(
-                        <Row className="border rounded mb-2 mx-1">
-                            <Col>
-                                <p style={{ fontWeight: "bold" }}>Telefono:</p>
-                                <p>{cli.phone}</p>
-                            </Col>
-                            <Col>
-                                <p style={{ fontWeight: "bold" }}>Direccion:</p>
-                                <p>{cli.address}</p>
-                            </Col>
-                            <Col>
-                                <p style={{ fontWeight: "bold" }}>Departamento:</p>
-                                <p>{cli.apartment}</p>
-                            </Col>
-                        </Row>
-                        )}
+                                {deliveryType === 1 &&(
+                                    <Row className="border rounded mb-2 mx-1">
+                                        <Col>
+                                            <p style={{ fontWeight: "bold" }}>Telefono:</p>
+                                            <p>{cli.phone}</p>
+                                        </Col>
+                                        <Col>
+                                            <p style={{ fontWeight: "bold" }}>Direccion:</p>
+                                            <p>{cli.address}</p>
+                                        </Col>
+                                        <Col>
+                                            <p style={{ fontWeight: "bold" }}>Departamento:</p>
+                                            <p>{cli.apartment}</p>
+                                        </Col>
+                                    </Row>
+                                )}
 
-                        <Row className="border rounded mb-2 mx-1">
-                            <Col>
-                                <p style={{ fontWeight: "bold" }}>Forma de Entrega:</p>
-                                <p>{deliveryType === 1 ? "Envio a Domicilio" : "Retiro en local"}</p>
-                            </Col>
-                        </Row>
+                                <Row className="border rounded mb-2 mx-1">
+                                    <Col>
+                                        <p style={{ fontWeight: "bold" }}>Forma de Entrega:</p>
+                                        <p>{deliveryType === 1 ? "Envio a Domicilio" : "Retiro en local"}</p>
+                                    </Col>
+                                </Row>
 
-                        <Row className="border rounded mb-2 mx-1">
-                            <Col>
-                                <p style={{ fontWeight: "bold" }}>Forma de Pago:</p>
-                                <p>{paymentType === 1 ? "Efectivo" : "MercadoPago"}</p>
-                            </Col>
-                        </Row>
-                    </div>
+                                <Row className="border rounded mb-2 mx-1">
+                                    <Col>
+                                        <p style={{ fontWeight: "bold" }}>Forma de Pago:</p>
+                                        <p>{paymentType === 1 ? "Efectivo" : "MercadoPago"}</p>
+                                    </Col>
+                                </Row>
+                            </div>
+                        )
+                    }
                 </div>
             </div>
             {showModalCancel && (

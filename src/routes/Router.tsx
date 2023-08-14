@@ -20,7 +20,6 @@ const Router: React.FC = () => {
         Home.preload();
         MiPerfil.preload();
         MiPedido.preload();
-        Historialpedido.preload();
         Trabajo.preload();
         Cajero.preload();
         Delivery.preload();
