@@ -11,6 +11,7 @@ const Trabajo = lazyWithPreload(() => import("../components/trabajo/trabajo.tsx"
 const Cajero = lazyWithPreload(() => import("../components/cajero/cajero.tsx"));
 const Delivery = lazyWithPreload(() => import("../components/delivery/delivery.tsx"));
 const OrderDetail = lazyWithPreload(() => import("../components/mipedido/orderDetail/newOrderDetail.tsx"));
+const CustomerOrderDetail = lazyWithPreload(() => import("../components/historial/customerOrderDetail.tsx"));
 
 const Router: React.FC = () => {
 
@@ -66,6 +67,7 @@ const Router: React.FC = () => {
             <Route path="/cajero" element={<Cajero/>} />
             <Route path="/delivery" element={<Delivery/>} />
             <Route path="/detalleorden" element={<OrderDetail/>} />
+            <Route path="/detalle-orden/:id" element={<CustomerOrderDetail/>} />
         </Routes>
     );
 }

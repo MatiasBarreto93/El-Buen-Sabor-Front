@@ -1,3 +1,5 @@
+import {Drink, Product} from "./products.ts";
+
 export interface Customer {
     id: number;
     name: string;
@@ -6,7 +8,6 @@ export interface Customer {
     address: string;
     apartment: string;
     user: User;
-    orders: Order[];
 }
 
 export interface User {
@@ -26,6 +27,7 @@ export interface Role {
 }
 
 export interface Order {
+    id: number;
     paid: boolean;
     total: number;
     discount: number;
@@ -42,9 +44,12 @@ export interface Order {
 }
 
 export interface OrderDetail {
+    id: number;
     quantity: number;
     subtotal: number;
     itemId: number;
+    itemProduct: Product;
+    itemDrink: Drink;
 }
 
 export interface Auth0User {

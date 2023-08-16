@@ -8,6 +8,8 @@ import {Button, Card, Col, Row} from "react-bootstrap";
 import {CancelModal} from "../cancelModal/cancelModal.tsx";
 import {useGenericPost} from "../../../services/useGenericPost.ts";
 import {useConfetti} from "../../../services/useConfetti.ts";
+import {printAndEmailDocument} from "../../../util/printComponentEmailPDF.ts"
+import {useAuth0} from "@auth0/auth0-react";
 const NewOrderDetail = () => {
 
     const location = useLocation();
@@ -15,6 +17,7 @@ const NewOrderDetail = () => {
     const { cli, paymentType, deliveryType }: { cli: Customer; paymentType: number; deliveryType: number } = location.state;
     const genericPost = useGenericPost();
     const confettiEffect = useConfetti();
+    const {user, getAccessTokenSilently} = useAuth0();
 
     //Cart Context
     const {items, clearCart} = useCart();
@@ -24,6 +27,7 @@ const NewOrderDetail = () => {
     const [total, setTotal] = useState(0);
     const [subTotal, setSubTotal] = useState(0);
     const [discount, setDiscount] = useState(0);
+    const [isIgnoreVisible, setIsIgnoreVisible] = useState(true);
 
     useEffect(() => {
 
@@ -55,13 +59,26 @@ const NewOrderDetail = () => {
 
     const handleNewOrder = async () => {
 
-         const orderDetails:OrderDetail[] = items.map((item) => ({
+        setIsIgnoreVisible(false);
+
+        let email = "";
+        if (user){
+            email = user.name ?? "";
+        }
+
+        const token = await getAccessTokenSilently();
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        const orderDetails:OrderDetail[] = items.map((item) => ({
+            id: 0,
             quantity: item.quantity,
             subtotal: item.quantity * item.sellPrice,
-             itemId: item.id
+            itemId: item.id,
         }));
 
         const newOrder:Order = {
+            id: 0,
             address: deliveryType === 2 ? '-' : cli.address,
             apartment: deliveryType === 2 ? '-' : cli.apartment,
             discount: discount,
@@ -77,9 +94,12 @@ const NewOrderDetail = () => {
             orderDetails: orderDetails,
         }
 
+        await printAndEmailDocument(email, token);
         await genericPost<Order>("orders", "¡Pedido Realizado!", newOrder);
         confettiEffect();
         clearCart();
+
+        setIsIgnoreVisible(false);
     }
 
     return(
@@ -98,7 +118,7 @@ const NewOrderDetail = () => {
                         )
                         :
                         (
-                            <div className="rectangle" style={{width: '1200px'}}>
+                            <div className="rectangle" style={{width: '1200px'}} id="print">
                                 <h4 className="title">Detalle del Pedido</h4>
                                 <Row>
                                     <Col md={9}>
@@ -153,7 +173,8 @@ const NewOrderDetail = () => {
                                                 <h5 style={{fontWeight: 'bold', color: '#b92020'}}>Total:</h5>
                                                 <h5 style={{fontWeight: 'bold', color: '#b92020'}}>${total}</h5>
                                             </div>
-                                            <div className="d-flex flex-column mt-3">
+                                            {isIgnoreVisible && (
+                                            <div className="d-flex flex-column mt-3" id="ignore">
                                                 <div className="mb-3">
                                                     <Button className="w-100" onClick={handleNewOrder}>Confirmar Pedido</Button>
                                                 </div>
@@ -161,6 +182,7 @@ const NewOrderDetail = () => {
                                                     <Button variant="secondary" className="w-100 mb-2" onClick={() => setShowModalCancel(true)}>Cancelar Pedido</Button>
                                                 </div>
                                             </div>
+                                            )}
                                         </div>
                                     </Col>
                                 </Row>
