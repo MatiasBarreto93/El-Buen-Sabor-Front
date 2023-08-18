@@ -94,7 +94,7 @@ const NewOrderDetail = () => {
             orderDetails: orderDetails,
         }
 
-        await printAndEmailDocument(email, token);
+        // await printAndEmailDocument(email, token);
         await genericPost<Order>("orders", "¡Pedido Realizado!", newOrder);
         confettiEffect();
         clearCart();
