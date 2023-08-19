@@ -8,10 +8,12 @@ const MiPedido = lazyWithPreload(() => import("../components/mipedido/MiPedido.t
 const MiPerfil = lazyWithPreload(() => import("../components/miperfil/MiPerfil.tsx"));
 const Historialpedido = lazyWithPreload(() => import("../components/historial/historialpedido.tsx"));
 const Trabajo = lazyWithPreload(() => import("../components/trabajo/trabajo.tsx"));
-const Cajero = lazyWithPreload(() => import("../components/cajero/cajero.tsx"));
+const Cashier = lazyWithPreload(() => import("../components/cashier/cashier.tsx"));
 const Delivery = lazyWithPreload(() => import("../components/delivery/delivery.tsx"));
 const OrderDetail = lazyWithPreload(() => import("../components/mipedido/orderDetail/newOrderDetail.tsx"));
 const CustomerOrderDetail = lazyWithPreload(() => import("../components/historial/customerOrderDetail.tsx"));
+const Kitchen = lazyWithPreload(() => import("../components/kitchen/kitchen.tsx"));
+const KitchenOrderDetail = lazyWithPreload(() => import("../components/kitchen/kitchenOrderDetail.tsx"));
 
 const Router: React.FC = () => {
 
@@ -22,8 +24,9 @@ const Router: React.FC = () => {
         MiPerfil.preload();
         MiPedido.preload();
         Trabajo.preload();
-        Cajero.preload();
+        Cashier.preload();
         Delivery.preload();
+        Kitchen.preload();
     }, []);
 
     // Save scroll position when the user scrolls
@@ -64,10 +67,12 @@ const Router: React.FC = () => {
             <Route path="/mipedido" element={<MiPedido />} />
             <Route path="/historialpedido" element={<Historialpedido/>} />
             <Route path="/admin" element={<Trabajo />} />
-            <Route path="/cajero" element={<Cajero/>} />
+            <Route path="/cajero" element={<Cashier/>} />
             <Route path="/delivery" element={<Delivery/>} />
+            <Route path="/cocina" element={<Kitchen/>} />
             <Route path="/detalleorden" element={<OrderDetail/>} />
             <Route path="/detalle-orden/:id" element={<CustomerOrderDetail/>} />
+            <Route path="/detalle-orden-cocina/:id" element={<KitchenOrderDetail/>} />
         </Routes>
     );
 }
