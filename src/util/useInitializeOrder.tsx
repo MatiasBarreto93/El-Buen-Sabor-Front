@@ -4,6 +4,7 @@ import { Order, OrderDetail } from "../interfaces/customer.ts";
 const defaultOrder: Order = {
     id: 0,
     paid: false,
+    cancelled: false,
     total: 0,
     discount: 0,
     phone: "",
@@ -14,6 +15,8 @@ const defaultOrder: Order = {
     deliveryTypeId: 0,
     paymentTypeId: 0,
     orderStatusId: 0,
+    customerName: "",
+    customerLastname: "",
     orderDetails: [],
     customerId: 0,
 };
@@ -25,12 +28,14 @@ const defaultOrderDetail: OrderDetail = {
     itemId: 0,
 };
 
-export const useInitializeOrder = (ords: Order[] | undefined): [Order[], React.Dispatch<React.SetStateAction<Order[]>>, () => Order[]] => {
-    const [orders, setOrders] = useState<Order[]>(ords ?? [defaultOrder]);
-    const createNewOrders = () => {
-        const newOrders = [{ ...defaultOrder }];
-        newOrders[0].orderDetails = [defaultOrderDetail];
-        return newOrders;
+export const useInitializeOrder = (ord: Order | undefined): [Order, React.Dispatch<React.SetStateAction<Order>>, () => Order] => {
+    const [order, setOrder] = useState<Order>(ord ?? defaultOrder);
+
+    const createNewOrder = () => {
+        const newOrder = { ...defaultOrder };
+        newOrder.orderDetails = [defaultOrderDetail];
+        return newOrder;
     };
-    return [orders, setOrders, createNewOrders];
+
+    return [order, setOrder, createNewOrder];
 };

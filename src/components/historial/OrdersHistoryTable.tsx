@@ -1,10 +1,11 @@
 import {Order} from "../../interfaces/customer.ts";
 import {useGenericGet} from "../../services/useGenericGet.ts";
-import {useInitializeOrder} from "../../util/useInitializeOrder.ts";
+import {useInitializeOrders} from "../../util/useInitializeOrders.ts";
 import {useEffect} from "react";
-import {Button, Table} from "react-bootstrap";
-import {FilePdf} from "react-bootstrap-icons";
+import {Table} from "react-bootstrap";
 import {useNavigate} from "react-router-dom";
+import {InfoButton} from "../table/InfoButton.tsx";
+import {PDFButton} from "../table/PDFButton.tsx";
 
 interface Props{
     id: number;
@@ -15,7 +16,7 @@ export const OrdersHistoryTable = ({id}:Props) => {
     const navigate = useNavigate();
 
     const dataOrders = useGenericGet<Order>(`orders/${id}/purchase-history`, "Ordenes");
-    const [orders, setOrders] = useInitializeOrder(undefined);
+    const [orders, setOrders] = useInitializeOrders(undefined);
 
     useEffect(() =>{
         setOrders(dataOrders);
@@ -65,10 +66,17 @@ export const OrdersHistoryTable = ({id}:Props) => {
                                 <td>{new Date(order.orderDate).toLocaleDateString('en-GB')} - {new Date(order.orderDate).toLocaleTimeString().slice(0,5)}</td>
                                 <td style={{fontWeight: 'bold'}}>${order.total}</td>
                                 <td style={{fontWeight: 'bold', color: handleOrderState(order.orderStatusId).color}}>
-                                    {handleOrderState(order.orderStatusId).state}
+                                    {order.cancelled ?
+                                        (
+                                            <div style={{fontWeight: 'bold', color: '#D32F2F'}}>{order.cancelled && "Cancelado"}</div>
+                                        )
+                                        :
+                                        (
+                                            <div style={{fontWeight: 'bold', color: handleOrderState(order.orderStatusId).color}}>{handleOrderState(order.orderStatusId).state}</div>
+                                        )}
                                 </td>
-                                <td><Button onClick={() =>handleShowDetails(order)}>Detalles</Button></td>
-                                <td><Button variant="outline-primary"><FilePdf size={24}/>  Factura</Button></td>
+                                <td><InfoButton onClick={() =>handleShowDetails(order)}/></td>
+                                <td><PDFButton onClick={() => handleShowDetails(order)}/></td>
                             </tr>
                         ))}
                         </tbody>

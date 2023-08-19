@@ -284,48 +284,6 @@ export const FullCart = ({cliente}:Props) => {
                             </div>
                         </div>
                     </div>
-                    <Row>
-                        <h4 className="title mt-5 mb-5">Datos Personales</h4>
-                        <Col>
-                            <Form.Group controlId="formNombre" className="mb-5">
-                                <FloatingLabel controlId="floatingInput" label={"Nombre:"} className="mt-1 custom-label">
-                                    <Form.Control
-                                        className="custom-input"
-                                        name="name"
-                                        type="text"
-                                        placeholder="Nombre"
-                                        value={formik.values.name || ''}
-                                        onChange={formik.handleChange}
-                                        onBlur={formik.handleBlur}
-                                        isInvalid={Boolean(formik.errors.name && formik.touched.name)}
-                                    />
-                                    <Form.Control.Feedback type="invalid">
-                                        {formik.errors.name}
-                                    </Form.Control.Feedback>
-                                </FloatingLabel>
-                            </Form.Group>
-                        </Col>
-                        <Col>
-                            <Form.Group controlId="formlastName" className="mb-5">
-                                <FloatingLabel controlId="floatingInput" label={"Apellido:"} className="mt-1 custom-label">
-                                    <Form.Control
-                                        className="custom-input"
-                                        name="lastname"
-                                        type="text"
-                                        placeholder="Apellido"
-                                        value={formik.values.lastname || ''}
-                                        onChange={formik.handleChange}
-                                        onBlur={formik.handleBlur}
-                                        isInvalid={Boolean(formik.errors.lastname && formik.touched.lastname)}
-                                    />
-                                    <Form.Control.Feedback type="invalid">
-                                        {formik.errors.lastname}
-                                    </Form.Control.Feedback>
-                                </FloatingLabel>
-                            </Form.Group>
-                        </Col>
-                    </Row>
-
                     <div className="mt-5 text-center">
                         <Button variant="secondary" className="btn-cart-shadow" onClick={() => setShowModalCancel(true)}>
                             Cancelar Pedido

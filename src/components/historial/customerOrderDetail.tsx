@@ -5,24 +5,13 @@ import {ArrowLeft} from "react-bootstrap-icons";
 import './../styles/background.css'
 import './../mipedido/fullCart/fullCart.css'
 import {useEffect, useState} from "react";
-import {useAuth0} from "@auth0/auth0-react";
-import secureLS from "../../util/secureLS.ts";
 import {printDocument} from "../../util/printComponentPDF.ts";
 
 const CustomerOrderDetail = () => {
 
     const navigate = useNavigate();
     const location = useLocation();
-    const {user} = useAuth0();
     const { order }: { order: Order } = location.state;
-
-    let userData;
-    if (user?.sub){
-    userData = secureLS.get(user.sub);
-    }
-
-    const name = userData.name;
-    const lastname = userData.lastname;
 
     const [totalQuantity, setTotalQuantity] = useState(0);
     const [totalSubtotal, setTotalSubtotal] = useState(0);
@@ -130,9 +119,15 @@ const CustomerOrderDetail = () => {
                                         <h5 style={{fontWeight: 'bold', color: '#b92020'}}>${order.total}</h5>
                                     </div>
                                     <div className="mt-5 text-center">
-                                        <h4 className="border p-1" style={{ color: order.paid ? "#34A853" : "#b92020", fontWeight: 'bold' }}>
-                                        {order.paid ? "Pagado" : "No Pagado"}
-                                        </h4>
+                                        {order.cancelled ? (
+                                            <h4 className="border p-1" style={{ color:"#b92020", fontWeight: 'bold' }}>
+                                                {order.cancelled && "Cancelado"}
+                                            </h4>
+                                        ) : (
+                                            <h4 className="border p-1" style={{ color: order.paid ? "#34A853" : "#b92020", fontWeight: 'bold' }}>
+                                                {order.paid ? "Pagado" : "No Pagado"}
+                                            </h4>
+                                        )}
                                     </div>
                                 </div>
                             </Col>
@@ -141,11 +136,11 @@ const CustomerOrderDetail = () => {
                         <Row className="border rounded mb-2 mx-1">
                             <Col>
                                 <p style={{ fontWeight: "bold" }}>Nombre:</p>
-                                <p>{name}</p>
+                                <p>{order.customerName}</p>
                             </Col>
                             <Col>
                                 <p style={{ fontWeight: "bold" }}>Apellido:</p>
-                                <p>{lastname}</p>
+                                <p>{order.customerLastname}</p>
                             </Col>
                         </Row>
 

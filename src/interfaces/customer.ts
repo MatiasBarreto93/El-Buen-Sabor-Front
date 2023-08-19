@@ -29,6 +29,7 @@ export interface Role {
 export interface Order {
     id: number;
     paid: boolean;
+    cancelled: boolean;
     total: number;
     discount: number;
     phone: string;
@@ -39,6 +40,8 @@ export interface Order {
     deliveryTypeId: number;
     paymentTypeId: number;
     orderStatusId: number;
+    customerName?: string;
+    customerLastname?: string;
     orderDetails: OrderDetail[];
     customerId: number;
 }
@@ -48,8 +51,13 @@ export interface OrderDetail {
     quantity: number;
     subtotal: number;
     itemId: number;
-    itemProduct: Product;
-    itemDrink: Drink;
+    itemProduct?: Product;
+    itemDrink?: Drink;
+}
+
+export interface OrderStatus{
+    id: number;
+    denomination: string;
 }
 
 export interface Auth0User {
