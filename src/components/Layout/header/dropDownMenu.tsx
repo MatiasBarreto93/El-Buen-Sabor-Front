@@ -1,6 +1,6 @@
 import {useAuth0} from "@auth0/auth0-react";
 import {NavDropdown} from "react-bootstrap";
-import {Bag, Bicycle, Cash, Person, Power, Receipt, Shop} from "react-bootstrap-icons";
+import {Bag, Bicycle, Cash, EggFried, Person, Power, Receipt, Shop} from "react-bootstrap-icons";
 import {useNavigate} from "react-router-dom";
 import {UserRole} from "../../../interfaces/UserRole.ts";
 import secureLS from "../../../util/secureLS.ts";
@@ -31,6 +31,11 @@ export const DropDownMenu = () =>{
 
                 <UnlockAccess request={[UserRole.Admin, UserRole.Cocinero]}>
                     <NavDropdown.Item onClick={() => navigate('/admin')}><Shop size={20} className="mx-2"/>Administración </NavDropdown.Item>
+                    <NavDropdown.Divider />
+                </UnlockAccess>
+
+                <UnlockAccess request={[UserRole.Admin, UserRole.Cocinero]}>
+                    <NavDropdown.Item onClick={() => navigate('/cocina')}><EggFried size={20} className="mx-2"/>Cocina </NavDropdown.Item>
                     <NavDropdown.Divider />
                 </UnlockAccess>
 

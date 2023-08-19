@@ -15,7 +15,7 @@ export const CancelOrderModal = ({ord, show, onHide, setRefetch}: Prop) => {
     const genericPut = useGenericPut();
 
     const cancelOrder = async () => {
-        const cancelledOrder = { ...ord, cancelled: true };
+        const cancelledOrder = { ...ord, cancelled: true, orderStatusId: 6};
         await genericPut<Order>("orders", ord.id, cancelledOrder, "Orden Cancelada");
         setRefetch(true);
         onHide();

@@ -10,7 +10,7 @@ import {CancelButton} from "../table/CancelButton.tsx";
 import {useGenericPut} from "../../services/useGenericPut.ts";
 import {useGenericCacheGet} from "../../services/useGenericCacheGet.ts";
 
-const Cajero = () => {
+const Cashier = () => {
 
     const navigate = useNavigate();
     const genericPut = useGenericPut();
@@ -74,6 +74,16 @@ const Cajero = () => {
         setRefetch(false);
     },[dataOrders, refetch])
 
+    //Auto update Data
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setRefetch(true);
+        }, 60000); // 60000 milliseconds = 60 seconds
+
+        // Clear interval on component unmount to avoid memory leaks
+        return () => clearInterval(interval);
+    }, []);
+
     const getStatusColor = (statusId: number) => {
         const status = orderStatuses.find(status => status.id === statusId);
         return status ? status.color : 'black';
@@ -85,8 +95,8 @@ const Cajero = () => {
     //Change order status
     const handleOrderStatusChange = async (event: React.ChangeEvent<HTMLSelectElement>, ord: Order) => {
         const selected = Number(event.target.value);
-        const cancelledOrder = { ...ord, orderStatusId: selected };
-        await genericPut<Order>("orders", ord.id, cancelledOrder, "Estado de Orden Actualizado");
+        const newOrderStatus = { ...ord, orderStatusId: selected };
+        await genericPut<Order>("orders", ord.id, newOrderStatus, "Estado de Orden Actualizado");
         setRefetch(true);
     }
 
@@ -198,4 +208,4 @@ const Cajero = () => {
     )
 }
 
-export default Cajero;
+export default Cashier;
