@@ -84,7 +84,8 @@ const NewOrderDetail = () => {
             discount: discount,
             estimatedTime: "Falta el calculo",
             orderDate: new Date(),
-            paid: false,
+            paid: paymentType === 1,
+            cancelled: false,
             phone: deliveryType === 2 ? '-' : cli.phone,
             total: total,
             customerId: cli.id,
@@ -94,7 +95,7 @@ const NewOrderDetail = () => {
             orderDetails: orderDetails,
         }
 
-        // await printAndEmailDocument(email, token);
+        await printAndEmailDocument(email, token);
         await genericPost<Order>("orders", "¡Pedido Realizado!", newOrder);
         confettiEffect();
         clearCart();
