@@ -21,7 +21,6 @@ const defaultCustomer = {
             auth0RolId: "",
         },
     },
-    orders: [],
 };
 
 export const useInitializeCustomer = (cust: Customer | undefined): [Customer, React.Dispatch<React.SetStateAction<Customer>>, () => Customer] => {

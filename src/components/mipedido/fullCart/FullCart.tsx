@@ -3,15 +3,15 @@ import './fullCart.css'
 import "./../../styles/toggle-buttons.css"
 import {Button, Col, Form, Row, FloatingLabel, Card} from "react-bootstrap";
 import {Customer} from "../../../interfaces/customer.ts";
-import {useConfetti} from "../../../services/useConfetti.ts";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {useFormik} from "formik";
-import {customerDataValidationSchema} from "../../miperfil/customerDataValidationSchema.ts";
 import {DeleteButton} from "../../table/DeleteButton.tsx";
 import {QuantityButton} from "../../table/QuantityButton.tsx";
 import {useCart} from "../../../context/cart/CartContext.tsx";
 import {useNavigate} from "react-router-dom";
 import {useAuth0} from "@auth0/auth0-react";
+import {fullCartValidationSchema} from "./fullCartValidationSchema.ts";
+import {CancelModal} from "../cancelModal/cancelModal.tsx";
 
 interface Props{
     cliente:Customer;
@@ -21,21 +21,41 @@ export const FullCart = ({cliente}:Props) => {
 
     const navigate = useNavigate();
     const {isAuthenticated} = useAuth0()
+
+    //TODO Volver a "MiPedido"
     const {loginWithRedirect} = useAuth0()
-    const confettiEffect = useConfetti();
 
     //Cart Context
     const {items, removeFromCart, updateQuantity} = useCart();
 
     //Cantidad de items y precio total
-    const itemCount = items.reduce((count, item) => count + item.quantity, 0);
-    const total = items.reduce((total, item) => total + item.quantity * item.sellPrice, 0);
+    const [itemCount, setItemCount] = useState(0);
+    const [total, setTotal] = useState(0);
 
     //Delivery
     const [deliveryType, setDeliveryType] = useState(1);
     const handleToggleDeliveryType = (selectedValue: number) => {
         setDeliveryType(selectedValue);
+        formik.resetForm();
     };
+
+    useEffect(() => {
+        const newCount = items.reduce((count, item) => count + item.quantity, 0);
+        let newTotal = items.reduce((total, item) => total + item.quantity * item.sellPrice, 0);
+
+        // Apply 10% discount
+        if (deliveryType === 2) {
+            newTotal = newTotal * 0.9;
+        }
+
+        //Select MercadoPago
+        if (deliveryType === 1){
+            setPaymentType(2);
+        }
+
+        setItemCount(newCount);
+        setTotal(newTotal);
+    }, [items, deliveryType]);
 
     //Payment
     const [paymentType, setPaymentType] = useState(1);
@@ -44,23 +64,23 @@ export const FullCart = ({cliente}:Props) => {
     };
 
     const handleSave = async (cli: Customer) => {
-        //------
-        console.log(cli)
-        //------
-        confettiEffect();
+        navigate('/detalleorden', { state: { cli, paymentType, deliveryType } });
     }
 
     //Datos del cliente
     const formik = useFormik({
         initialValues: cliente,
-        validationSchema: customerDataValidationSchema,
+        validationSchema: fullCartValidationSchema(deliveryType),
         validateOnChange: true,
         validateOnBlur: true,
         enableReinitialize: true,
         onSubmit: (obj: Customer) => handleSave(obj),
     });
 
+    const [showModalCancel, setShowModalCancel] = useState(false);
+
     return(
+        <>
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <Form style={{ minHeight: '509px', width: "1200px" }} onSubmit={formik.handleSubmit}>
                 <div className="rectangle">
@@ -72,7 +92,7 @@ export const FullCart = ({cliente}:Props) => {
                                 <Row className="no-gutters">
                                     <Col>
                                         <Card.Img
-                                            src={`data:image/jpeg;base64,${item.image}`}
+                                            src={item.image}
                                             style={{maxWidth: "100px" , maxHeight: "100px", minHeight: "100px", minWidth: "100px"}}
                                             className="mt-2 my-2 mx-2"
                                         />
@@ -139,48 +159,39 @@ export const FullCart = ({cliente}:Props) => {
                 </div>
                 {isAuthenticated && (
                 <div className="rectangle">
-                    <h4 className="title">Datos Personales</h4>
-                    <Row>
-                        <Col>
-                            <Form.Group controlId="formNombre" className="mb-3">
-                                <FloatingLabel controlId="floatingInput" label={"Nombre:"} className="mt-3 custom-label">
-                                    <Form.Control
-                                        className="custom-input"
-                                        name="name"
-                                        type="text"
-                                        placeholder="Nombre"
-                                        value={formik.values.name || ''}
-                                        onChange={formik.handleChange}
-                                        onBlur={formik.handleBlur}
-                                        isInvalid={Boolean(formik.errors.name && formik.touched.name)}
-                                    />
-                                    <Form.Control.Feedback type="invalid">
-                                        {formik.errors.name}
-                                    </Form.Control.Feedback>
-                                </FloatingLabel>
-                            </Form.Group>
-                        </Col>
-                        <Col>
-                            <Form.Group controlId="formlastName" className="mb-3">
-                                <FloatingLabel controlId="floatingInput" label={"Apellido:"} className="mt-3 custom-label">
-                                    <Form.Control
-                                        className="custom-input"
-                                        name="lastname"
-                                        type="text"
-                                        placeholder="Apellido"
-                                        value={formik.values.lastname || ''}
-                                        onChange={formik.handleChange}
-                                        onBlur={formik.handleBlur}
-                                        isInvalid={Boolean(formik.errors.lastname && formik.touched.lastname)}
-                                    />
-                                    <Form.Control.Feedback type="invalid">
-                                        {formik.errors.lastname}
-                                    </Form.Control.Feedback>
-                                </FloatingLabel>
-                            </Form.Group>
-                        </Col>
-                    </Row>
-                    <Row>
+                    <h4 className="title">Forma de Entrega</h4>
+                    <div className="d-flex justify-content-center">
+                        <div className="radio-container justify-content-center">
+                            <div className="mt-5 mx-5">
+                            <Form.Check
+                                className="custom-radio"
+                                type="radio"
+                                id="deliveryType1"
+                                name="deliveryType"
+                                label="Envio a Domicilio"
+                                value={1}
+                                checked={deliveryType === 1}
+                                onChange={() => handleToggleDeliveryType(1)}
+                            />
+                            </div>
+                            <div className="d-flex mt-5 mb-5 mx-5">
+                            <Form.Check
+                                className="custom-radio mx-2"
+                                type="radio"
+                                id="deliveryType2"
+                                name="deliveryType"
+                                value={2}
+                                checked={deliveryType === 2}
+                                onChange={() => handleToggleDeliveryType(2)}
+                            />
+                                <Form.Check.Label>
+                                    Retiro en Local <span className="highlight">10% OFF!</span>
+                                </Form.Check.Label>
+                            </div>
+                        </div>
+                    </div>
+                    {deliveryType === 1 && (
+                    <Row className="mb-5">
                         <Col>
                             <Form.Group controlId="formPhone" className="mb-3">
                                 <FloatingLabel controlId="floatingInput" label={"Telefono:"} className="mt-3 custom-label">
@@ -196,6 +207,25 @@ export const FullCart = ({cliente}:Props) => {
                                     />
                                     <Form.Control.Feedback type="invalid">
                                         {formik.errors.phone}
+                                    </Form.Control.Feedback>
+                                </FloatingLabel>
+                            </Form.Group>
+                        </Col>
+                        <Col>
+                            <Form.Group controlId="formAdress" className="mb-3">
+                                <FloatingLabel controlId="floatingInput" label={"Direccion:"} className="mt-3 custom-label">
+                                    <Form.Control
+                                        className="custom-input"
+                                        name="address"
+                                        type="text"
+                                        placeholder="Direccion"
+                                        value={formik.values.address || ''}
+                                        onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
+                                        isInvalid={Boolean(formik.errors.address && formik.touched.address)}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {formik.errors.address}
                                     </Form.Control.Feedback>
                                 </FloatingLabel>
                             </Form.Group>
@@ -220,85 +250,58 @@ export const FullCart = ({cliente}:Props) => {
                             </Form.Group>
                         </Col>
                     </Row>
-                    <Form.Group controlId="formAdress" className="mb-3">
-                        <FloatingLabel controlId="floatingInput" label={"Direccion:"} className="mt-3 custom-label">
-                            <Form.Control
-                                className="custom-input"
-                                name="address"
-                                type="text"
-                                placeholder="Direccion"
-                                value={formik.values.address || ''}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                isInvalid={Boolean(formik.errors.address && formik.touched.address)}
-                            />
-                            <Form.Control.Feedback type="invalid">
-                                {formik.errors.address}
-                            </Form.Control.Feedback>
-                        </FloatingLabel>
-                    </Form.Group>
-                    <h4 className="title mt-5">Forma de Entrega</h4>
+                    )}
+                    <h4 className="title mt-4">Forma de Pago</h4>
                     <div className="d-flex justify-content-center">
-                        <div className="radio-container">
-                            <Form.Check
-                                className="custom-radio"
-                                type="radio"
-                                id="deliveryType1"
-                                name="deliveryType"
-                                label="Envio a Domicilio"
-                                value={1}
-                                checked={deliveryType === 1}
-                                onChange={() => handleToggleDeliveryType(1)}
-                            />
-                            <Form.Check
-                                className="custom-radio"
-                                type="radio"
-                                id="deliveryType2"
-                                name="deliveryType"
-                                label="Retiro en Local"
-                                value={2}
-                                checked={deliveryType === 2}
-                                onChange={() => handleToggleDeliveryType(2)}
-                            />
-                        </div>
-                    </div>
-                    <h4 className="title mt-5">Forma de Pago</h4>
-                    <div className="d-flex justify-content-center">
-                        <div className="radio-container">
-                            <Form.Check
-                                className="custom-radio"
-                                type="radio"
-                                id="paymentType1"
-                                name="paymentType"
-                                label="Efectivo"
-                                value={1}
-                                checked={paymentType === 1}
-                                onChange={() => handleTogglePaymentType(1)}
-                            />
-                            <Form.Check
-                                className="custom-radio"
-                                type="radio"
-                                id="paymentType2"
-                                name="paymentType"
-                                label="MercadoPago"
-                                value={2}
-                                checked={paymentType === 2}
-                                onChange={() => handleTogglePaymentType(2)}
-                            />
+                        <div className="radio-container justify-content-center">
+                            <div className="d-flex">
+                                {deliveryType === 2 && (
+                                <div className="mt-5 mx-4">
+                                    <Form.Check
+                                        className="custom-radio"
+                                        type="radio"
+                                        id="paymentType1"
+                                        name="paymentType"
+                                        label="Efectivo"
+                                        value={1}
+                                        checked={paymentType === 1}
+                                        onChange={() => handleTogglePaymentType(1)}
+                                    />
+                                </div>
+                                )}
+                                <div className="mt-5 mx-4">
+                                    <Form.Check
+                                        className="custom-radio"
+                                        type="radio"
+                                        id="paymentType2"
+                                        name="paymentType"
+                                        label="MercadoPago"
+                                        value={2}
+                                        checked={paymentType === 2}
+                                        onChange={() => handleTogglePaymentType(2)}
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div className="mt-5 text-center">
-                        <Button variant="secondary" className="btn-cart-shadow">
+                        <Button variant="secondary" className="btn-cart-shadow" onClick={() => setShowModalCancel(true)}>
                             Cancelar Pedido
                         </Button>
                         <Button variant="primary" type="submit" disabled={!formik.isValid} className="btn-cart-shadow">
-                            ¡Confirmar Pedido!
+                            Continuar
                         </Button>
                     </div>
                 </div>
-
                 )}
             </Form>
         </div>
+            {showModalCancel && (
+                <CancelModal
+                    show={showModalCancel}
+                    onHide={() => setShowModalCancel(false)}
+                />
+            )}
+        </>
     )
 }

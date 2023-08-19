@@ -56,7 +56,7 @@
     flex-direction: row;
     justify-content: space-between;
     min-width: 80%;
-    scale: 1.2;
+    scale: 1.10;
 }
 
 .custom-radio .form-check-input:checked {
@@ -68,3 +68,12 @@
     box-shadow: 0 0 0 0.2rem rgba(211, 47, 47, 0.25);
 }
 
+.highlight {
+    font-weight: bold;
+    color: #34A853;
+}
+
+.custom-radio .form-check-label {
+    display: inline-flex;
+    align-items: center;
+}
