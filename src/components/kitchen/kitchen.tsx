@@ -5,6 +5,7 @@ import {useNavigate} from "react-router-dom";
 import {useGenericPut} from "../../services/useGenericPut.ts";
 import {useGenericGet} from "../../services/useGenericGet.ts";
 import {Order} from "../../interfaces/customer.ts";
+import {AddTimeButton} from "../table/AddTimeButton.tsx";
 
 const Kitchen = () => {
 
@@ -57,6 +58,12 @@ const Kitchen = () => {
         setRefetch(true);
     }
 
+    const handleAddTimeButton = async (ord: Order) => {
+        const newOrderTime = { ...ord, estimatedTime: (ord.estimatedTime + 10) };
+        await genericPut<Order>("orders", ord.id, newOrderTime, "Tiempo agregar a la Orden");
+        setRefetch(true);
+    }
+
     //Details
     const handleShowDetails = (order: Order) => {
         navigate(`/detalle-orden-cocina/${order.id}`, { state: { order } });
@@ -70,9 +77,9 @@ const Kitchen = () => {
                   <tr className="encabezado">
                       <th>Nº Order</th>
                       <th>Nombre Apellido</th>
-                      <th>Direccion</th>
                       <th>Fecha</th>
-                      <th>Total</th>
+                      <th>Tiempo Estimado</th>
+                      <th></th>
                       <th>Estado</th>
                       <th></th>
                   </tr>
@@ -82,9 +89,9 @@ const Kitchen = () => {
                       <tr key={order.id}>
                           <td>{order.id}</td>
                           <td>{order.customerName} {order.customerLastname}</td>
-                          <td>{order.address}, {order.apartment}</td>
                           <td>{new Date(order.orderDate).toLocaleDateString('en-GB')} - {new Date(order.orderDate).toLocaleTimeString().slice(0,5)}</td>
-                          <td style={{fontWeight: 'bold'}}>${order.total}</td>
+                          <td>{order.estimatedTime}' Min</td>
+                          <td><AddTimeButton onClick={() => handleAddTimeButton(order)}/></td>
                           <td>
                               {order.cancelled ?
                                   (
