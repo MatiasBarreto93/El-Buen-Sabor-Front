@@ -36,7 +36,7 @@ export interface Order {
     address: string;
     apartment: string;
     orderDate: Date;
-    estimatedTime: string;
+    estimatedTime: number;
     deliveryTypeId: number;
     paymentTypeId: number;
     orderStatusId: number;
