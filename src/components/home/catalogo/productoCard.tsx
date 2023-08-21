@@ -11,7 +11,7 @@ interface Props{
     item: Item;
 }
 
-export const ProductoCard = ({item}:Props) =>{
+export const ProductoCard = React.forwardRef<HTMLDivElement, Props>(({ item }, ref) =>{
 
     const {addToCart} = useCart();
 
@@ -50,6 +50,7 @@ export const ProductoCard = ({item}:Props) =>{
     return(
         <>
             <Card
+                ref={ref}
                 style={{overflow:"hidden", position: "relative"}}
                 className="card-product"
             >
@@ -114,4 +115,4 @@ export const ProductoCard = ({item}:Props) =>{
             )}
         </>
     )
-}
+});
