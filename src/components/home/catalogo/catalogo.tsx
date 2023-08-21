@@ -24,22 +24,33 @@ export const Catalogo = () => {
     const [itemRefs, setItemRefs] = useState<{ [key: string]: React.RefObject<HTMLDivElement> }>({});
     const [activeCategory, setActiveCategory] = useState(1);
 
-    useEffect(() => {
-        const onRender = async () => {
+    const [dataProducts, setDataProducts] = useState<Product[]>([]);
+    const [dataDrinks, setDataDrinks] = useState<Drink[]>([]);
+    const [dataCategories, setDataCategories] = useState<Category[]>([]);
 
+    //Fetch all the data
+    useEffect(() => {
+        const fetchData = async () => {
             const url: string = import.meta.env.VITE_BACKEND_API_URL || "";
 
-            //Products
             const responseProducts = await fetch(`${url}products`);
-            const dataProducts:Product[] = await responseProducts.json();
+            const products:Product[] = await responseProducts.json();
+            setDataProducts(products);
 
-            //Drinks
             const responseDrinks = await fetch(`${url}drinks`);
-            const dataDrink:Drink[] = await responseDrinks.json();
+            const drinks:Drink[] = await responseDrinks.json();
+            setDataDrinks(drinks);
 
-            //Categories
             const responseCategories = await fetch(`${url}categories/filter/ingredients`);
-            const dataCategories: Category[] = await responseCategories.json();
+            const categories: Category[] = await responseCategories.json();
+            setDataCategories(categories);
+        };
+        fetchData();
+    }, []);
+
+    //Filter the data
+    useEffect(() => {
+        const onRender = async () => {
 
             //Get only father categories
             const parentCategories = dataCategories.filter(category =>
@@ -55,7 +66,7 @@ export const Catalogo = () => {
                 !product.blocked &&
                 product.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
-            const filteredDrinks = dataDrink.filter(drink =>
+            const filteredDrinks = dataDrinks.filter(drink =>
                 unblockedCategoryIds.includes(drink.categoryId) &&
                 !drink.blocked &&
                 drink.name.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -122,7 +133,7 @@ export const Catalogo = () => {
             }
         }
         onRender();
-    }, [searchTerm]);
+    }, [searchTerm, dataProducts, dataDrinks, dataCategories]);
 
     //#href function and animation on click
     const handleToggle = (selectedValue: number, denomination:string) => {
