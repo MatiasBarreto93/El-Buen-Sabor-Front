@@ -5,6 +5,8 @@ import './../../Layout/header/header.css';
 import {Category} from "../../../interfaces/category.ts";
 import {Drink, Item, Product} from "../../../interfaces/products.ts";
 import {ProductoCard} from "./productoCard.tsx";
+import {useSearch} from "../../../context/search/SearchContext.tsx";
+import {EmojiFrown} from "react-bootstrap-icons";
 
 type CategoryTree = {
     id: number;
@@ -15,9 +17,11 @@ type CategoryTree = {
 };
 
 export const Catalogo = () => {
-    const [categoryTree, setCategoryTree] = useState<CategoryTree[]>([]);
 
+    const {searchTerm} = useSearch();
+    const [categoryTree, setCategoryTree] = useState<CategoryTree[]>([]);
     const [categoryRefs, setCategoryRefs] = useState<{[key: string]: React.RefObject<HTMLDivElement>}>({});
+    const [itemRefs, setItemRefs] = useState<{ [key: string]: React.RefObject<HTMLDivElement> }>({});
     const [activeCategory, setActiveCategory] = useState(1);
 
     useEffect(() => {
@@ -38,14 +42,23 @@ export const Catalogo = () => {
             const dataCategories: Category[] = await responseCategories.json();
 
             //Get only father categories
-            const parentCategories = dataCategories.filter(category => category.categoryFatherId === null);
+            const parentCategories = dataCategories.filter(category =>
+                category.categoryFatherId === null); //&&
+                //category.denomination.toLowerCase().includes(searchTerm.toLowerCase()));
             //Sort to render food firsts
             parentCategories.sort((a, b) => a.itemTypeId - b.itemTypeId);
 
             //Filter products and drinks where the item is not blocked
             const unblockedCategoryIds = dataCategories.map(category => category.id);
-            const filteredProducts = dataProducts.filter(product => unblockedCategoryIds.includes(product.categoryId) && !product.blocked);
-            const filteredDrinks = dataDrink.filter(drink => unblockedCategoryIds.includes(drink.categoryId) && !drink.blocked);
+            const filteredProducts = dataProducts.filter(product =>
+                unblockedCategoryIds.includes(product.categoryId) &&
+                !product.blocked &&
+                product.name.toLowerCase().includes(searchTerm.toLowerCase()));
+
+            const filteredDrinks = dataDrink.filter(drink =>
+                unblockedCategoryIds.includes(drink.categoryId) &&
+                !drink.blocked &&
+                drink.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
             //Products + Drinks
             const items: Item[] = [...filteredProducts, ...filteredDrinks];
@@ -66,7 +79,9 @@ export const Catalogo = () => {
 
             // Fill the childCategories array of each category in categoryTree with its child categories
             categoryTree.forEach(category => {
-                const childCategories = dataCategories.filter(cat => cat.categoryFatherId === category.id);
+                const childCategories = dataCategories.filter(cat =>
+                    cat.categoryFatherId === category.id); //&&
+                    //cat.denomination.toLowerCase().includes(searchTerm.toLowerCase()));
                 category.childCategories = childCategories.map(childCategory => ({
                     id: childCategory.id,
                     denomination: childCategory.denomination,
@@ -84,14 +99,30 @@ export const Catalogo = () => {
             }
 
             //Create #href by category
-            const newRefs: {[key: string]: React.RefObject<HTMLDivElement>} = {};
+            const newCatRefs: {[key: string]: React.RefObject<HTMLDivElement>} = {};
             parentCategories.forEach(category => {
-                newRefs[category.denomination] = React.createRef();
+                newCatRefs[category.denomination] = React.createRef();
             });
-            setCategoryRefs(newRefs);
+            setCategoryRefs(newCatRefs);
+
+            //Create #href for each item
+            const newItemRefs: {[key: string]: React.RefObject<HTMLDivElement>} = {};
+            items.forEach(item => {
+                newItemRefs[item.name] = React.createRef();
+            });
+            setItemRefs(newItemRefs);
+
+            const matchingItem = Object.keys(itemRefs).find(itemName => itemName.toLowerCase().includes(searchTerm.toLowerCase()));
+            if (matchingItem) {
+                const sectionPosition = itemRefs[matchingItem]?.current?.offsetTop;
+                const navbarHeight = 200;
+                if (sectionPosition) {
+                    window.scrollTo({ top: sectionPosition - navbarHeight, behavior: 'smooth' });
+                }
+            }
         }
         onRender();
-    }, []);
+    }, [searchTerm]);
 
     //#href function and animation on click
     const handleToggle = (selectedValue: number, denomination:string) => {
@@ -110,7 +141,7 @@ export const Catalogo = () => {
                 <Row className='d-flex justify-content-center'>
                     {category.items.map((item: Item) => (
                         <Col xl={2} lg={3} md={4} sm={6} xs={12} key={item.id} className="d-flex justify-content-center mb-3">
-                            <ProductoCard item={item}/>
+                            <ProductoCard item={item} ref={itemRefs[item.name]}/>
                         </Col>
                     ))}
                 </Row>
@@ -118,6 +149,20 @@ export const Catalogo = () => {
             </div>
         );
     }
+
+    function filterEmptyCategories(category: CategoryTree): CategoryTree | null {
+        // Filter out child categories that are empty
+        category.childCategories = category.childCategories
+            .map(filterEmptyCategories)
+            .filter(Boolean) as CategoryTree[];
+        // If a category has no items and no child categories, return null
+        if (category.items.length === 0 && category.childCategories.length === 0) {
+            return null;
+        }
+        return category;
+    }
+
+    const filteredCategoryTree = categoryTree.map(filterEmptyCategories).filter(Boolean) as CategoryTree[];
 
     return (
         <>
@@ -136,7 +181,24 @@ export const Catalogo = () => {
                     ))}
                 </Row>
             </Navbar>
-            {categoryTree.map(category => renderCatalog(category))}
+            {filteredCategoryTree.length > 0 ? (
+                filteredCategoryTree.map(category => renderCatalog(category))
+            ) : (
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <div className="rectangle text-center "
+                         style={{
+                             display: 'flex',
+                             flexDirection: 'column',
+                             justifyContent: 'center',
+                             alignItems: 'center',
+                             minHeight: '600px',
+                             width: "50%",
+                         }}>
+                        <div><EmojiFrown size={96} color="grey"/></div>
+                        <h2 className="mt-5" style={{color: 'grey'}}>Producto no encontrado</h2>
+                    </div>
+                </div>
+            )}
         </>
     );
 };
