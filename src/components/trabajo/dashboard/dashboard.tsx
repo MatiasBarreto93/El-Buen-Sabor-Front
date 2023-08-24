@@ -60,7 +60,7 @@ export const DashBoard = () => {
 
                     <Nav variant="pills" className="flex-column" style={{ position: "sticky", top: "80px"}}>
 
-                        <UnlockAccess request={[UserRole.Admin, UserRole.Cocinero]}>
+                        <UnlockAccess request={[UserRole.Admin]}>
                             <Nav.Item className="navItemDB">
                                 <Nav.Link eventKey="Principal" className="navLinkDB">Principal</Nav.Link>
                             </Nav.Item>
@@ -120,7 +120,7 @@ export const DashBoard = () => {
                     <div className="row">
                         <Tab.Content>
 
-                            <UnlockAccess request={[UserRole.Admin, UserRole.Cocinero]}>
+                            <UnlockAccess request={[UserRole.Admin]}>
                                 {activeKey === "Principal" && (
                                     <Tab.Pane eventKey="Principal">
                                         {/*<TableTest/>*/}

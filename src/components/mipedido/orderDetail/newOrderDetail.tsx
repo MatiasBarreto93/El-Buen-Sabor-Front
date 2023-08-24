@@ -8,8 +8,8 @@ import {Button, Card, Col, Row} from "react-bootstrap";
 import {CancelModal} from "../cancelModal/cancelModal.tsx";
 import {useGenericPost} from "../../../services/useGenericPost.ts";
 import {useConfetti} from "../../../services/useConfetti.ts";
-import {printAndEmailDocument} from "../../../util/printComponentEmailPDF.ts"
-import {useAuth0} from "@auth0/auth0-react";
+//import {printAndEmailDocument} from "../../../util/printComponentEmailPDF.ts"
+//import {useAuth0} from "@auth0/auth0-react";
 const NewOrderDetail = () => {
 
     const location = useLocation();
@@ -17,7 +17,8 @@ const NewOrderDetail = () => {
     const { cli, paymentType, deliveryType }: { cli: Customer; paymentType: number; deliveryType: number } = location.state;
     const genericPost = useGenericPost();
     const confettiEffect = useConfetti();
-    const {user, getAccessTokenSilently} = useAuth0();
+
+    //const {user, getAccessTokenSilently} = useAuth0();
 
     //Cart Context
     const {items, clearCart} = useCart();
@@ -61,12 +62,12 @@ const NewOrderDetail = () => {
 
         setIsIgnoreVisible(false);
 
-        let email = "";
-        if (user){
-            email = user.name ?? "";
-        }
-
-        const token = await getAccessTokenSilently();
+        // let email = "";
+        // if (user){
+        //     email = user.name ?? "";
+        // }
+        //
+        // const token = await getAccessTokenSilently();
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
@@ -82,9 +83,9 @@ const NewOrderDetail = () => {
             address: deliveryType === 2 ? '-' : cli.address,
             apartment: deliveryType === 2 ? '-' : cli.apartment,
             discount: discount,
-            estimatedTime: "Falta el calculo",
+            estimatedTime: 0, //Falta el calculo
             orderDate: new Date(),
-            paid: paymentType === 1,
+            paid: paymentType === 1, //para testear "true"
             cancelled: false,
             phone: deliveryType === 2 ? '-' : cli.phone,
             total: total,
@@ -95,7 +96,7 @@ const NewOrderDetail = () => {
             orderDetails: orderDetails,
         }
 
-        await printAndEmailDocument(email, token);
+        //await printAndEmailDocument(email, token);
         await genericPost<Order>("orders", "¡Pedido Realizado!", newOrder);
         confettiEffect();
         clearCart();

@@ -7,6 +7,7 @@ import {CartProvider} from "./context/cart/CartContext.tsx";
 import {BrowserRouter as Router} from "react-router-dom";
 import {UserPermissionProvider} from "./context/permission/UserPermission.tsx";
 import {Container} from "react-bootstrap";
+import {SearchProvider} from "./context/search/SearchContext.tsx";
 
 const Header = lazy(() => import("./components/Layout/header/header.tsx"));
 const Footer = lazy(() => import("./components/Layout/footer/footer.tsx"));
@@ -24,6 +25,7 @@ export function App() {
         <>
             <Router>
                 <UserPermissionProvider>
+                    <SearchProvider>
                     <CartProvider>
                         <ToastContainer/>
                         {firtsRender ? <EmployeeSignUp firstRender={firtsRender} setFirstRender={setFirtsRender}/> : null}
@@ -35,6 +37,7 @@ export function App() {
                         </Container>
                         <Footer/>
                     </CartProvider>
+                    </SearchProvider>
                 </UserPermissionProvider>
             </Router>
         </>

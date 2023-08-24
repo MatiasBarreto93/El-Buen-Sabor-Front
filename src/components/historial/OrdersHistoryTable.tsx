@@ -5,8 +5,6 @@ import {useEffect} from "react";
 import {Table} from "react-bootstrap";
 import {useNavigate} from "react-router-dom";
 import {InfoButton} from "../table/InfoButton.tsx";
-import {PDFButton} from "../table/PDFButton.tsx";
-
 interface Props{
     id: number;
 }
@@ -76,7 +74,6 @@ export const OrdersHistoryTable = ({id}:Props) => {
                                         )}
                                 </td>
                                 <td><InfoButton onClick={() =>handleShowDetails(order)}/></td>
-                                <td><PDFButton onClick={() => handleShowDetails(order)}/></td>
                             </tr>
                         ))}
                         </tbody>
