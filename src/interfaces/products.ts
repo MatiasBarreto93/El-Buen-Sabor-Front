@@ -43,4 +43,5 @@ export interface Item {
     image: string;
     sellPrice: number;
     currentStock: number;
+    ingredients?: IngredientQuantity[];
 }
