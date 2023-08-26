@@ -26,7 +26,7 @@ export const FullCart = ({cliente}:Props) => {
     const {loginWithRedirect} = useAuth0()
 
     //Cart Context
-    const {items, removeFromCart, updateQuantity} = useCart();
+    const {items,maxQuantities, removeFromCart, updateQuantity} = useCart();
 
     //Cantidad de items y precio total
     const [itemCount, setItemCount] = useState(0);
@@ -120,7 +120,7 @@ export const FullCart = ({cliente}:Props) => {
                                         }}>
                                             <QuantityButton
                                                 increment={() => {
-                                                    if (item.quantity < item.currentStock) {
+                                                    if (item.quantity < maxQuantities[item.id]) {
                                                         updateQuantity(item.id, item.quantity + 1)
                                                     }
                                                 }}
@@ -132,7 +132,7 @@ export const FullCart = ({cliente}:Props) => {
                                                 count={item.quantity}
                                             />
                                             <div>
-                                                Disponibles: {item.currentStock}
+                                                Disponibles: {maxQuantities[item.id]}
                                             </div>
                                         </div>
                                     </Col>
@@ -141,7 +141,6 @@ export const FullCart = ({cliente}:Props) => {
                                     </Col>
                                 </Row>
                             </Card>
-
                             ))}
                         </Col>
                         <Col className="border rounded d-flex flex-column align-items-center justify-content-center">

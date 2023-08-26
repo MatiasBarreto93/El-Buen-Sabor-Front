@@ -5,13 +5,16 @@ import {useNavigate} from "react-router-dom";
 import {UserRole} from "../../../interfaces/UserRole.ts";
 import secureLS from "../../../util/secureLS.ts";
 import {UnlockAccess} from "../../../util/unlockAccess.tsx";
+import {useUserLogOut} from "../../../services/useUserLogOut.ts";
 
 export const DropDownMenu = () =>{
 
     const navigate = useNavigate();
     const { user, logout } = useAuth0();
+    const userLogout = useUserLogOut();
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
+        await userLogout(user?.sub as string);
         localStorage.setItem('firstRender', JSON.stringify(true));
         localStorage.removeItem('cartItems');
         localStorage.removeItem('/')

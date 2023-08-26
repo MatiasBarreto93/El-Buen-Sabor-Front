@@ -83,7 +83,7 @@ const NewOrderDetail = () => {
             address: deliveryType === 2 ? '-' : cli.address,
             apartment: deliveryType === 2 ? '-' : cli.apartment,
             discount: discount,
-            estimatedTime: 0, //Falta el calculo
+            estimatedTime: 0,
             orderDate: new Date(),
             paid: paymentType === 1, //para testear "true"
             cancelled: false,
