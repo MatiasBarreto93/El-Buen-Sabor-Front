@@ -151,9 +151,9 @@ const Cashier = () => {
                         <td style={{fontWeight: 'bold'}}>${order.total}</td>
                         <td>{order.deliveryTypeId === 1 ? "Delivery" : "Retiro en Local"}</td>
                         <td>
-                            {order.cancelled ?
+                            {order.cancelled  || order.orderStatusId === 5 ?
                                 (
-                                    <div style={{fontWeight: 'bold', color: '#D32F2F'}}>{order.cancelled && "Cancelado"}</div>
+                                    <div style={{fontWeight: 'bold', color: order.cancelled ? '#D32F2F' : '#34A853'}}>{order.cancelled ? "Cancelado" : "Entregado"}</div>
                                 )
                                 :
                                 (
@@ -190,7 +190,15 @@ const Cashier = () => {
                                 )}
                         </td>
                         <td><InfoButton onClick={() => handleShowDetails(order)}/></td>
-                        <td><CancelButton onClick={() => handleCancelModal(order)}/></td>
+                        <td>
+                            {order.cancelled  || order.orderStatusId === 5 ?
+                                (
+                                    <div></div>
+                                ) :
+                                (
+                                    <CancelButton onClick={() => handleCancelModal(order)}/>
+                                )}
+                        </td>
                     </tr>
                 ))}
                 </tbody>

@@ -62,12 +62,6 @@ export const DashBoard = () => {
 
                         <UnlockAccess request={[UserRole.Admin]}>
                             <Nav.Item className="navItemDB">
-                                <Nav.Link eventKey="Principal" className="navLinkDB">Principal</Nav.Link>
-                            </Nav.Item>
-                        </UnlockAccess>
-
-                        <UnlockAccess request={[UserRole.Admin]}>
-                            <Nav.Item className="navItemDB">
                                 <Nav.Link eventKey="Empleados" className="navLinkDB">Empleados</Nav.Link>
                             </Nav.Item>
                         </UnlockAccess>
@@ -119,14 +113,6 @@ export const DashBoard = () => {
                 <Col>
                     <div className="row">
                         <Tab.Content>
-
-                            <UnlockAccess request={[UserRole.Admin]}>
-                                {activeKey === "Principal" && (
-                                    <Tab.Pane eventKey="Principal">
-                                        {/*<TableTest/>*/}
-                                    </Tab.Pane>
-                                )}
-                            </UnlockAccess>
 
                             <UnlockAccess request={[UserRole.Admin]}>
                                 {activeKey === "Empleados" && (
