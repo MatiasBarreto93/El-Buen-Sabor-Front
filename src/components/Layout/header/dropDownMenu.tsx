@@ -25,12 +25,20 @@ export const DropDownMenu = () =>{
     return (
         <div className="d-flex">
             <NavDropdown title={user?.name} id="navbarScrollingDropdown" className="navUserMenuContainer p-2">
-                <NavDropdown.Item onClick={() => navigate('/miperfil')}><Person size={20} className="mx-2 align-content-center"/>Mi Perfil</NavDropdown.Item>
-                <NavDropdown.Divider />
-                <NavDropdown.Item onClick={() => navigate('/mipedido')}><Bag size={20} className="mx-2"/>Mi Pedido</NavDropdown.Item>
-                <NavDropdown.Divider />
-                <NavDropdown.Item onClick={() => navigate('/historialpedido')}><Receipt size={20} className="mx-2"/>Historial de Pedidos</NavDropdown.Item>
-                <NavDropdown.Divider />
+                <UnlockAccess request={[UserRole.Admin, UserRole.Cocinero, UserRole.Cajero, UserRole.Repartidor, UserRole.Cliente]}>
+                    <NavDropdown.Item onClick={() => navigate('/miperfil')}><Person size={20} className="mx-2 align-content-center"/>Mi Perfil</NavDropdown.Item>
+                    <NavDropdown.Divider />
+                </UnlockAccess>
+
+                <UnlockAccess request={[UserRole.Admin, UserRole.Cocinero, UserRole.Cajero, UserRole.Repartidor, UserRole.Cliente]}>
+                    <NavDropdown.Item onClick={() => navigate('/mipedido')}><Bag size={20} className="mx-2"/>Mi Pedido</NavDropdown.Item>
+                    <NavDropdown.Divider />
+                </UnlockAccess>
+
+                <UnlockAccess request={[UserRole.Admin, UserRole.Cocinero, UserRole.Cajero, UserRole.Repartidor, UserRole.Cliente]}>
+                    <NavDropdown.Item onClick={() => navigate('/historialpedido')}><Receipt size={20} className="mx-2"/>Historial de Pedidos</NavDropdown.Item>
+                    <NavDropdown.Divider />
+                </UnlockAccess>
 
                 <UnlockAccess request={[UserRole.Admin, UserRole.Cocinero]}>
                     <NavDropdown.Item onClick={() => navigate('/admin')}><Shop size={20} className="mx-2"/>Administración </NavDropdown.Item>

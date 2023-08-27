@@ -1,7 +1,9 @@
 import * as React from 'react';
+import {useEffect, useLayoutEffect} from 'react';
 import {Route, Routes, useLocation} from 'react-router-dom';
-import {useEffect, useLayoutEffect} from "react";
 import {lazyWithPreload} from "../util/lazyWithPreload.ts";
+import {SecureRoute} from "./SecureRoute.tsx";
+import {UserRole} from "../interfaces/UserRole.ts";
 
 const Home = lazyWithPreload(() => import("../components/home/home.tsx"));
 const MiPedido = lazyWithPreload(() => import("../components/mipedido/MiPedido.tsx"));
@@ -10,10 +12,13 @@ const Historialpedido = lazyWithPreload(() => import("../components/historial/hi
 const Trabajo = lazyWithPreload(() => import("../components/trabajo/trabajo.tsx"));
 const Cashier = lazyWithPreload(() => import("../components/cashier/cashier.tsx"));
 const Delivery = lazyWithPreload(() => import("../components/delivery/delivery.tsx"));
-const OrderDetail = lazyWithPreload(() => import("../components/mipedido/orderDetail/newOrderDetail.tsx"));
-const CustomerOrderDetail = lazyWithPreload(() => import("../components/historial/customerOrderDetail.tsx"));
 const Kitchen = lazyWithPreload(() => import("../components/kitchen/kitchen.tsx"));
 const KitchenOrderDetail = lazyWithPreload(() => import("../components/kitchen/kitchenOrderDetail.tsx"));
+const OrderDetail = lazyWithPreload(() => import("../components/mipedido/orderDetail/newOrderDetail.tsx"));
+const CustomerOrderDetail = lazyWithPreload(() => import("../components/historial/customerOrderDetail.tsx"));
+const NotFound = lazyWithPreload(() => import("../pages/NotFound.tsx"));
+const Unauthorized = lazyWithPreload(() => import("../pages/Unauthorized.tsx"));
+
 
 const Router: React.FC = () => {
 
@@ -21,12 +26,18 @@ const Router: React.FC = () => {
 
     useEffect(() => {
         Home.preload();
-        MiPerfil.preload();
         MiPedido.preload();
+        MiPerfil.preload();
+        Historialpedido.preload();
         Trabajo.preload();
         Cashier.preload();
         Delivery.preload();
         Kitchen.preload();
+        KitchenOrderDetail.preload();
+        OrderDetail.preload();
+        CustomerOrderDetail.preload();
+        NotFound.preload();
+        Unauthorized.preload();
     }, []);
 
     // Save scroll position when the user scrolls
@@ -63,16 +74,18 @@ const Router: React.FC = () => {
     return (
         <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/miperfil" element={<MiPerfil />} />
-            <Route path="/mipedido" element={<MiPedido />} />
-            <Route path="/historialpedido" element={<Historialpedido/>} />
-            <Route path="/admin" element={<Trabajo />} />
-            <Route path="/cajero" element={<Cashier/>} />
-            <Route path="/delivery" element={<Delivery/>} />
-            <Route path="/cocina" element={<Kitchen/>} />
-            <Route path="/detalleorden" element={<OrderDetail/>} />
-            <Route path="/detalle-orden/:id" element={<CustomerOrderDetail/>} />
-            <Route path="/detalle-orden-cocina/:id" element={<KitchenOrderDetail/>} />
+            <Route path="/miperfil" element={<SecureRoute requiresAuth={true} roles={[UserRole.Admin, UserRole.Cocinero, UserRole.Cajero, UserRole.Repartidor, UserRole.Cliente]}><MiPerfil /></SecureRoute>} />
+            <Route path="/mipedido" element={<SecureRoute requiresAuth={false} roles={[UserRole.Admin, UserRole.Cocinero, UserRole.Cajero, UserRole.Repartidor, UserRole.Cliente]}><MiPedido /></SecureRoute>} />
+            <Route path="/historialpedido" element={<SecureRoute requiresAuth={true} roles={[UserRole.Admin, UserRole.Cocinero, UserRole.Cajero, UserRole.Repartidor, UserRole.Cliente]}><Historialpedido /></SecureRoute>} />
+            <Route path="/detalleorden" element={<SecureRoute requiresAuth={true} roles={[UserRole.Admin, UserRole.Cocinero, UserRole.Cajero, UserRole.Repartidor, UserRole.Cliente]}><OrderDetail /></SecureRoute>} />
+            <Route path="//detalle-orden/:id" element={<SecureRoute requiresAuth={true} roles={[UserRole.Admin, UserRole.Cocinero, UserRole.Cajero, UserRole.Repartidor, UserRole.Cliente]}><CustomerOrderDetail /></SecureRoute>} />
+            <Route path="/admin" element={<SecureRoute requiresAuth={true} roles={[UserRole.Admin, UserRole.Cocinero]}><Trabajo /></SecureRoute>} />
+            <Route path="/cajero" element={<SecureRoute requiresAuth={true} roles={[UserRole.Admin, UserRole.Cajero]}><Cashier /></SecureRoute>} />
+            <Route path="/delivery" element={<SecureRoute requiresAuth={true} roles={[UserRole.Admin, UserRole.Repartidor]}><Delivery /></SecureRoute>} />
+            <Route path="/cocina" element={<SecureRoute requiresAuth={true} roles={[UserRole.Admin, UserRole.Cocinero]}><Kitchen /></SecureRoute>} />
+            <Route path="/detalle-orden-cocina/:id" element={<SecureRoute requiresAuth={true} roles={[UserRole.Admin, UserRole.Cocinero]}><KitchenOrderDetail /></SecureRoute>} />
+            <Route path="*" element={<NotFound />} />
+            <Route path="/unauthorized" element={<Unauthorized />} />
         </Routes>
     );
 }

@@ -21,8 +21,6 @@ const KitchenOrderDetail = () => {
         setShowRecipe(true);
     }
 
-    console.log(JSON.stringify(item,null,2))
-
     return(
         <>
             <div className="perfil-img">

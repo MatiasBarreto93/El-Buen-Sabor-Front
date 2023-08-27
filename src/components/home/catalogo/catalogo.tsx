@@ -54,8 +54,7 @@ export const Catalogo = () => {
 
             //Get only father categories
             const parentCategories = dataCategories.filter(category =>
-                category.categoryFatherId === null); //&&
-                //category.denomination.toLowerCase().includes(searchTerm.toLowerCase()));
+                category.categoryFatherId === null && !category.blocked);
             //Sort to render food firsts
             parentCategories.sort((a, b) => a.itemTypeId - b.itemTypeId);
 
@@ -91,8 +90,7 @@ export const Catalogo = () => {
             // Fill the childCategories array of each category in categoryTree with its child categories
             categoryTree.forEach(category => {
                 const childCategories = dataCategories.filter(cat =>
-                    cat.categoryFatherId === category.id); //&&
-                    //cat.denomination.toLowerCase().includes(searchTerm.toLowerCase()));
+                    cat.categoryFatherId === category.id);
                 category.childCategories = childCategories.map(childCategory => ({
                     id: childCategory.id,
                     denomination: childCategory.denomination,

@@ -22,7 +22,6 @@ export const FullCart = ({cliente}:Props) => {
     const navigate = useNavigate();
     const {isAuthenticated} = useAuth0()
 
-    //TODO Volver a "MiPedido"
     const {loginWithRedirect} = useAuth0()
 
     //Cart Context
