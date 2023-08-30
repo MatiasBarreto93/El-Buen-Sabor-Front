@@ -24,7 +24,7 @@ export const DashBoard = () => {
 
     const { permission } = useUserPermission();
 
-    const [activeKey, setActiveKey] = useState("Principal");
+    const [activeKey, setActiveKey] = useState("Empleados");
     const handleSelect = (selectedKey:string | null) => {
         if (selectedKey){
         setActiveKey(selectedKey);
@@ -45,7 +45,7 @@ export const DashBoard = () => {
 
     return (
         <Container fluid className="containerDB mt-5 mb-5 mx-2">
-        <Tab.Container defaultActiveKey="Principal" activeKey={activeKey} onSelect={handleSelect}>
+        <Tab.Container defaultActiveKey="Empleados" activeKey={activeKey} onSelect={handleSelect}>
             <Row className="w-100">
                 <Col sm={3} style={{ width: "200px"}}>
                     <div className="p-2 text-center userinfoDB">
