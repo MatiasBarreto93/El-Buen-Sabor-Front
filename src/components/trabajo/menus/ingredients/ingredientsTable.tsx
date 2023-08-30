@@ -1,12 +1,13 @@
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Ingredient} from "../../../../interfaces/ingredient";
 import {ModalType} from "../../../../interfaces/ModalType";
 import {useInitializeIngredient} from "./hooks/useInitializeIngredient";
-import {Button, Table} from "react-bootstrap";
+import {Button, Form, Table} from "react-bootstrap";
 import {EditButton} from "../../../table/EditButton";
 import {StatusButton} from "../../../table/StatusButton";
 import {IngredientModal} from "./ingredientModal";
 import {useGenericCacheGet} from "../../../../services/useGenericCacheGet.ts";
+import {Category} from "../../../../interfaces/category.ts";
 
 export const IngredientsTable = () => {
 
@@ -14,13 +15,33 @@ export const IngredientsTable = () => {
     const {data, fetchData} = useGenericCacheGet<Ingredient>("ingredients", "Ingredientes");
     const [ingredients, setIngredients] = useState<Ingredient[]>([]);
 
+    //Category Ingredients
+    const {data:dataCategoryIngredients} = useGenericCacheGet<Category>("categories/filter/1", "Ingredientes");
+    const [categoriesIngredients, setCategoriesIngredients] = useState<Category[]> ([]);
+    const [selectedCategory, setSelectedCategory] = useState(0);
+
     useEffect(() => {
         setIngredients(data);
+        setCategoriesIngredients(dataCategoryIngredients);
         if (refetch){
             fetchData();
             setRefetch(false);
         }
     }, [data, refetch]);
+
+    //ID Category en HTML Select
+    const handleCategoryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedCategory(Number(event.target.value));
+    };
+
+    // Filtra la tabla en base a lo seleccionado en el HTML select
+    const filterByCategory = (unfilteredIngredients: Ingredient[]) => {
+        if (!selectedCategory) {
+            return unfilteredIngredients;
+        }
+        return unfilteredIngredients.filter(ing => ing.categoryId === selectedCategory);
+    };
+
 
     const [showModal, setShowModal] = useState(false);
     const [modalType, setModalType] = useState<ModalType>(ModalType.None);
@@ -38,7 +59,22 @@ export const IngredientsTable = () => {
     return(
         <>
             <h5 className="encabezado mb-3">Ingredientes</h5>
+            <div className="d-flex justify-content-between">
             <Button onClick={() => handleClick("Nuevo Ingrediente", createNewIngredient(), ModalType.Create)}>Nuevo Ingrediente</Button>
+                <div className="d-flex">
+                    <h5 className="mx-3" style={{marginTop: "5px"}}>Rubros de Ingredientes: </h5>
+                    <Form.Group>
+                        <Form.Select onChange={handleCategoryChange}>
+                            <option value={0}>-</option>
+                            {categoriesIngredients.map((category: Category) => (
+                                <option key={category.id} value={category.id}>
+                                    {category.denomination}
+                                </option>
+                            ))}
+                        </Form.Select>
+                    </Form.Group>
+                </div>
+            </div>
             <Table hover>
                 <thead>
                 <tr className="encabezado">
@@ -53,7 +89,7 @@ export const IngredientsTable = () => {
                 </tr>
                 </thead>
                 <tbody>
-                {ingredients.map(ingredient => (
+                {filterByCategory(ingredients).map(ingredient => (
                     <tr key={ingredient.id}>
                         <td>{ingredient.name}</td>
                         <td>{ingredient.categoryDenomination}</td>

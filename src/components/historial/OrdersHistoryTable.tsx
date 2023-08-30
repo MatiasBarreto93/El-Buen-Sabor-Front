@@ -52,6 +52,7 @@ export const OrdersHistoryTable = ({id}:Props) => {
                             <th>Nº Order</th>
                             <th>Fecha</th>
                             <th>Total</th>
+                            <th>Tiempo Estimado</th>
                             <th>Estado</th>
                             <th></th>
                         </tr>
@@ -62,6 +63,7 @@ export const OrdersHistoryTable = ({id}:Props) => {
                                 <td>{order.id}</td>
                                 <td>{new Date(order.orderDate).toLocaleDateString('en-GB')} - {new Date(order.orderDate).toLocaleTimeString().slice(0,5)}</td>
                                 <td style={{fontWeight: 'bold'}}>${order.total}</td>
+                                <td>{order.estimatedTime}'</td>
                                 <td style={{fontWeight: 'bold', color: handleOrderState(order.orderStatusId).color}}>
                                     {order.cancelled ?
                                         (

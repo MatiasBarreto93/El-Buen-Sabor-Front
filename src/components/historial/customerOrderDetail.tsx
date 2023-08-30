@@ -142,6 +142,10 @@ const CustomerOrderDetail = () => {
                                 <p style={{ fontWeight: "bold" }}>Apellido:</p>
                                 <p>{order.customerLastname}</p>
                             </Col>
+                            <Col>
+                                <p style={{ fontWeight: "bold" }}>Tiempo Estimado:</p>
+                                <p>{order.estimatedTime}'</p>
+                            </Col>
                         </Row>
 
                         {order.deliveryTypeId === 1 &&(
