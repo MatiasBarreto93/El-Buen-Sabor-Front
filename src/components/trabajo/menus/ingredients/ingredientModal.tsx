@@ -161,7 +161,7 @@ export const IngredientModal = ({ show, onHide, title, ing, setRefetch, modalTyp
                                         >
                                             <option value="">Seleccionar</option>)
                                             {categories.map((category) => (
-                                                <option key={category.id} value={category.id}>
+                                                <option key={category.id} value={category.id} disabled={category.blocked}>
                                                     {category.denomination}
                                                 </option>
                                             ))}

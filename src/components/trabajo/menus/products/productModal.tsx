@@ -43,6 +43,8 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
     const [ingredients, setIngredients] = useState<Ingredient[]>([]);
     const dataIngredient = useGenericGet<Ingredient>("ingredients", "Ingredientes");
 
+    // console.log(JSON.stringify(categories, null, 2))
+
     //Recipe
     const [ingrediente, setIngrediente] = useInitializeIngredient(undefined);
     const [selectedIngredients, setSelectedIngredients] = useState<IngredientQuantity[]>([]);
@@ -56,13 +58,24 @@ export const ProductModal = ({show, onHide, title, prod, setRefetch, modalType}:
         setIngredients(dataIngredient);
     },[dataCategories, dataCategoriesIngredient, dataIngredient])
 
+    //Populate ingredients table on EDIT
+    useEffect(() => {
+        if (prod.id !== 0) {
+            const fullIngredients = prod.ingredients.map(ingredient => {
+                const fullIngredient = ingredients.find(i => i.id === ingredient.id);
+                return {...ingredient, ...fullIngredient};
+            });
+            setSelectedIngredients(fullIngredients);
+        }
+    }, [prod, ingredients]);
+
+
     // Function to handle saving or updating a product
     const handleSaveUpdate = async(product: Product) => {
         const isNew = product.id === 0;
         const updatedProduct: Product = { ...product };
         updatedProduct.ingredients = selectedIngredients;
         updatedProduct.currentStock = currentStock;
-        console.log("Stock que se guarda: " + updatedProduct.currentStock);
 
         if (!isNew) {
             await genericPut<Product>("products", product.id, updatedProduct, "Producto Editado");

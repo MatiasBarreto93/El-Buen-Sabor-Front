@@ -50,6 +50,8 @@ export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType
 
             await updateCategoryStatus(id, isBlocked, "categories", "Categoría");
 
+            secureLS.remove("categories/filter/1")
+            secureLS.remove("categories/filter")
             secureLS.remove("categories")
             setRefetch(true);
             onHide();
@@ -190,7 +192,7 @@ export const CategoryModal = ( { show, onHide, title, cat, setRefetch, modalType
                                             <option value="">Seleccionar</option>
                                             {categories.map((category) => (
                                                 category.id !== cat.id &&(
-                                                <option key={category.id} value={category.id}>
+                                                <option key={category.id} value={category.id} disabled={category.blocked}>
                                                     {category.denomination}
                                                 </option>
                                                 )
