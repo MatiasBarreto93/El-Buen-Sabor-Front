@@ -8,8 +8,8 @@ import {Button, Card, Col, Row} from "react-bootstrap";
 import {CancelModal} from "../cancelModal/cancelModal.tsx";
 import {useGenericPost} from "../../../services/useGenericPost.ts";
 import {useConfetti} from "../../../services/useConfetti.ts";
-//import {printAndEmailDocument} from "../../../util/printComponentEmailPDF.ts"
-//import {useAuth0} from "@auth0/auth0-react";
+// import {printAndEmailDocument} from "../../../util/printComponentEmailPDF.ts"
+// import {useAuth0} from "@auth0/auth0-react";
 const NewOrderDetail = () => {
 
     const location = useLocation();
@@ -18,7 +18,7 @@ const NewOrderDetail = () => {
     const genericPost = useGenericPost();
     const confettiEffect = useConfetti();
 
-    //const {user, getAccessTokenSilently} = useAuth0();
+    // const {user, getAccessTokenSilently} = useAuth0();
 
     //Cart Context
     const {items, clearCart} = useCart();
@@ -83,9 +83,9 @@ const NewOrderDetail = () => {
             address: deliveryType === 2 ? '-' : cli.address,
             apartment: deliveryType === 2 ? '-' : cli.apartment,
             discount: discount,
-            estimatedTime: 0, //Falta el calculo
+            estimatedTime: 0,
             orderDate: new Date(),
-            paid: paymentType === 1, //para testear "true"
+            paid: true, //para testear "true" paymentType === 1
             cancelled: false,
             phone: deliveryType === 2 ? '-' : cli.phone,
             total: total,
@@ -96,7 +96,7 @@ const NewOrderDetail = () => {
             orderDetails: orderDetails,
         }
 
-        //await printAndEmailDocument(email, token);
+        // await printAndEmailDocument(email, token);
         await genericPost<Order>("orders", "¡Pedido Realizado!", newOrder);
         confettiEffect();
         clearCart();

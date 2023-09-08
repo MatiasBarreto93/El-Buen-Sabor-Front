@@ -11,6 +11,7 @@ import {useInitializeDrink} from "../drinks/hooks/useInitializeDrink.ts";
 import {Category} from "../../../../interfaces/category.ts";
 import {StockFull} from "../../../table/StockFull.tsx";
 import {useGenericCacheGet} from "../../../../services/useGenericCacheGet.ts";
+import {useGenericGet} from "../../../../services/useGenericGet.ts";
 
 export const StockTable = () => {
 
@@ -23,12 +24,12 @@ export const StockTable = () => {
     const [selectedCategory, setSelectedCategory] = useState(0);
 
     //Ingredientes
-    const {data:dataIngredients, fetchData:ingredientFetchData} = useGenericCacheGet<Ingredient>("ingredients", "Ingredientes");
+    const dataIngredients = useGenericGet<Ingredient>("ingredients", "Ingredientes", refetchIngredient);
     const [ingredients, setIngredients] = useState<Ingredient[]>([]);
     const [ingredient, setIngredient] = useInitializeIngredient(undefined);
 
     //Bebidas
-    const {data:dataDrinks, fetchData:drinkFetchData} = useGenericCacheGet<Drink>("drinks", "Bebidas");
+    const dataDrinks = useGenericGet<Drink>("drinks", "Bebidas", refetchDrink);
     const [drinks, setDrinks] = useState<Drink[]>([]);
     const [drink, setDrink] = useInitializeDrink(undefined);
 
@@ -40,25 +41,15 @@ export const StockTable = () => {
     };
 
     useEffect(() => {
-
-        //Set up data onMount
         setCategoriesIngredients(dataCategoryIngredients)
+
         setIngredients(dataIngredients);
+        setRefetchIngredient(false);
+
         setDrinks(dataDrinks);
+        setRefetchDrink(false);
 
-        //Ingredients
-        if (refetchIngredient){
-            ingredientFetchData();
-            setRefetchIngredient(false);
-        }
-
-        //Drinks
-        if (refetchDrink){
-            drinkFetchData();
-            setRefetchDrink(false);
-        }
-
-    }, [refetchIngredient, refetchDrink ,dataIngredients, dataDrinks, dataCategoryIngredients]);
+    }, [refetchIngredient,refetchDrink,dataIngredients, dataDrinks, dataCategoryIngredients]);
 
     //ID Category en HTML Select
     const handleCategoryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {

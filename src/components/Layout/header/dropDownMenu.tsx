@@ -5,13 +5,16 @@ import {useNavigate} from "react-router-dom";
 import {UserRole} from "../../../interfaces/UserRole.ts";
 import secureLS from "../../../util/secureLS.ts";
 import {UnlockAccess} from "../../../util/unlockAccess.tsx";
+import {useUserLogOut} from "../../../services/useUserLogOut.ts";
 
 export const DropDownMenu = () =>{
 
     const navigate = useNavigate();
     const { user, logout } = useAuth0();
+    const userLogout = useUserLogOut();
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
+        await userLogout(user?.sub as string);
         localStorage.setItem('firstRender', JSON.stringify(true));
         localStorage.removeItem('cartItems');
         localStorage.removeItem('/')
@@ -22,12 +25,20 @@ export const DropDownMenu = () =>{
     return (
         <div className="d-flex">
             <NavDropdown title={user?.name} id="navbarScrollingDropdown" className="navUserMenuContainer p-2">
-                <NavDropdown.Item onClick={() => navigate('/miperfil')}><Person size={20} className="mx-2 align-content-center"/>Mi Perfil</NavDropdown.Item>
-                <NavDropdown.Divider />
-                <NavDropdown.Item onClick={() => navigate('/mipedido')}><Bag size={20} className="mx-2"/>Mi Pedido</NavDropdown.Item>
-                <NavDropdown.Divider />
-                <NavDropdown.Item onClick={() => navigate('/historialpedido')}><Receipt size={20} className="mx-2"/>Historial de Pedidos</NavDropdown.Item>
-                <NavDropdown.Divider />
+                <UnlockAccess request={[UserRole.Admin, UserRole.Cocinero, UserRole.Cajero, UserRole.Repartidor, UserRole.Cliente]}>
+                    <NavDropdown.Item onClick={() => navigate('/miperfil')}><Person size={20} className="mx-2 align-content-center"/>Mi Perfil</NavDropdown.Item>
+                    <NavDropdown.Divider />
+                </UnlockAccess>
+
+                <UnlockAccess request={[UserRole.Admin, UserRole.Cocinero, UserRole.Cajero, UserRole.Repartidor, UserRole.Cliente]}>
+                    <NavDropdown.Item onClick={() => navigate('/mipedido')}><Bag size={20} className="mx-2"/>Mi Pedido</NavDropdown.Item>
+                    <NavDropdown.Divider />
+                </UnlockAccess>
+
+                <UnlockAccess request={[UserRole.Admin, UserRole.Cocinero, UserRole.Cajero, UserRole.Repartidor, UserRole.Cliente]}>
+                    <NavDropdown.Item onClick={() => navigate('/historialpedido')}><Receipt size={20} className="mx-2"/>Historial de Pedidos</NavDropdown.Item>
+                    <NavDropdown.Divider />
+                </UnlockAccess>
 
                 <UnlockAccess request={[UserRole.Admin, UserRole.Cocinero]}>
                     <NavDropdown.Item onClick={() => navigate('/admin')}><Shop size={20} className="mx-2"/>Administración </NavDropdown.Item>

@@ -15,6 +15,7 @@ export interface User {
     auth0Id: string;
     email: string;
     blocked: boolean;
+    logged: boolean;
     password: string,
     confirmPassword: string,
     role: Role;

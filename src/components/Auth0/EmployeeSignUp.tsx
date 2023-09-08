@@ -13,6 +13,7 @@ import {useGenericPost} from "../../services/useGenericPost.ts";
 import {useInitializeCustomer} from "../trabajo/menus/employees/hooks/useInitializeCustomer.ts";
 import {customerDataValidationSchema} from '../miperfil/customerDataValidationSchema.ts'
 import {useGetAuth0UserMetadata} from "./hooks/useGetAuth0UserMetadata.ts";
+import {useUserLogIn} from "../../services/useUserLogIn.ts";
 
 interface Props {
     firstRender: boolean;
@@ -23,6 +24,7 @@ export const EmployeeSignUp = ({firstRender, setFirstRender}:Props) => {
 
     //Hooks
     const { user} = useAuth0();
+    const userLogin = useUserLogIn();
 
     //Custom Hooks de Auth0
     const getAuth0LoginCount = useGetAuth0LoginCount();
@@ -69,6 +71,7 @@ export const EmployeeSignUp = ({firstRender, setFirstRender}:Props) => {
                         }
                     }
                 } else{
+                    await userLogin(user.sub);
                     setFirstRender(false);
                     localStorage.setItem('firstRender', JSON.stringify(false));
                 }
@@ -101,6 +104,7 @@ export const EmployeeSignUp = ({firstRender, setFirstRender}:Props) => {
         if (user?.sub && user.email != null){
             const newClient:Customer = await asignarAuth0IdAndRol(cliente, user?.sub, user.email);
             await genericPost<Customer>("customers", "¡Registro Finalizado!", newClient);
+            await userLogin(user.sub);
             setFirstRender(false)
             localStorage.setItem('firstRender', JSON.stringify(false));
             setShowModal(false)
@@ -112,6 +116,7 @@ export const EmployeeSignUp = ({firstRender, setFirstRender}:Props) => {
     const handleNewPass = async (newPass: Auth0Password) => {
         if (user?.sub){
             await changeUserPasswordAuth0(user.sub, newPass.password)
+            await userLogin(user.sub);
             setFirstRender(false)
             localStorage.setItem('firstRender', JSON.stringify(false));
             setShowModal(false)

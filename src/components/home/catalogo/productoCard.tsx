@@ -1,7 +1,7 @@
 import {Item} from "../../../interfaces/products.ts";
-import {Button, Card, Col, Form, Row} from "react-bootstrap";
-import {CartPlus, InfoCircle} from "react-bootstrap-icons";
-import React, {useState} from "react";
+import {Button, Card, Col, Row} from "react-bootstrap";
+import {CartCheck, CartPlus, InfoCircle} from "react-bootstrap-icons";
+import React, {useEffect, useState} from "react";
 import './../../styles/productCard.css'
 import {ProductDetailModal} from "./productDetailModal.tsx";
 import {ProductAdded} from "./productAdded.tsx";
@@ -13,15 +13,20 @@ interface Props{
 
 export const ProductoCard = React.forwardRef<HTMLDivElement, Props>(({ item }, ref) =>{
 
-    const {addToCart} = useCart();
-
-    const [quantity, setQuantity] = useState(1);
+    const {items , addToCart} = useCart();
 
     const [showInfo, setShowInfo] = useState(false);
     const [showModalInfo, setShowModalInfo] = useState(false);
 
     const [showAddedtoCart, setShowAddedtoCart] = useState(false);
     const [showModalAdd, setShowModalAdd] = useState(false);
+
+    const [isInCart, setIsInCart] = useState(false);
+
+    useEffect(() => {
+        setIsInCart(items.some(cartItem => cartItem.id === item.id));
+    }, [items, item.id]);
+
 
     //Info Button
     const handleInfoClick = (event: React.MouseEvent) => {
@@ -32,19 +37,10 @@ export const ProductoCard = React.forwardRef<HTMLDivElement, Props>(({ item }, r
 
     //Add to Cart Button
     const handleAddedtoCartClick = () => {
-        addToCart(item,quantity);
+        addToCart(item,1);
         setShowAddedtoCart(true)
         setShowModalAdd(true);
         setShowModalInfo(false)
-    };
-
-    //Quantity
-    const handleQuantityChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        event.stopPropagation();
-        const quantityValue = Number(event.target.value);
-        let quantity = isNaN(quantityValue) ? 1 : Math.max(1, quantityValue);
-        quantity = Math.min(quantity, item.currentStock);
-        setQuantity(quantity);
     };
 
     return(
@@ -67,24 +63,17 @@ export const ProductoCard = React.forwardRef<HTMLDivElement, Props>(({ item }, r
                 <Card.Body className="body-cart-content">
                     <Card.Title className={"text-center"}><strong>{item.name}</strong></Card.Title>
                     <Card.Text className={"text-center"} style={{color: "#b92020"}} ><strong>${item.sellPrice}</strong></Card.Text>
-                    <Row>
-                        <Col xs={3} sm={3} md={3}>
-                            <Form.Control
-                                size={"sm"}
-                                name="quantity"
-                                type="number"
-                                min={1}
-                                max={item.currentStock}
-                                className="custom-quantity"
-                                value={quantity}
-                                onChange={handleQuantityChange}
-                                disabled={item.currentStock === 0}
-                            />
-                        </Col>
+                    <Row className="justify-content-center">
                         <Col xs={9} sm={9} md={9}>
-                            <Button className="w-100" onClick={handleAddedtoCartClick} disabled={item.currentStock === 0}>
-                                <CartPlus size={20}/> {item.currentStock === 0 ? "No disponible" : "Agregar"}
-                            </Button>
+                            {isInCart ? (
+                                <Button className="w-100" style={{color: '#FFF', background: '#34A853', borderColor: '#34A853'}}>
+                                    <CartCheck size={24}/> En Carrito
+                                </Button>
+                                ) : (
+                                <Button className="w-100" onClick={handleAddedtoCartClick} disabled={item.currentStock === 0}>
+                                    <CartPlus size={24}/> {item.currentStock === 0 ? "No disponible" : "Agregar"}
+                                </Button>
+                                )}
                         </Col>
                     </Row>
                 </Card.Body>
@@ -93,14 +82,14 @@ export const ProductoCard = React.forwardRef<HTMLDivElement, Props>(({ item }, r
                 <ProductDetailModal
                     show={showModalInfo}
                     onHide={() => setShowModalInfo(false)}
+                    id={item.id}
                     name={item.name}
                     description={item.description}
                     sellPrice={item.sellPrice}
                     image={item.image}
-                    quantity={quantity}
+                    quantity={1}
                     maxQuantity={item.currentStock}
                     handleAddedtoCartClick={handleAddedtoCartClick}
-                    handleQuantityChange={handleQuantityChange}
                 />
             )}
             {showAddedtoCart && (
@@ -110,7 +99,7 @@ export const ProductoCard = React.forwardRef<HTMLDivElement, Props>(({ item }, r
                     name={item.name}
                     sellPrice={item.sellPrice}
                     image={item.image}
-                    quantity={quantity}
+                    quantity={1}
                 />
             )}
         </>

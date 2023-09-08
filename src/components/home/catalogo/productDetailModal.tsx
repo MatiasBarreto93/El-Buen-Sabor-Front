@@ -1,11 +1,13 @@
-import {Button, Col, Form, Image, Modal, Row} from "react-bootstrap";
-import {CartPlus} from "react-bootstrap-icons";
+import {Button, Col, Image, Modal, Row} from "react-bootstrap";
+import {CartCheck, CartPlus} from "react-bootstrap-icons";
 import './../../styles/productCard.css'
-import React, {useEffect, useState} from "react";
+import {useEffect, useState} from "react";
+import {useCart} from "../../../context/cart/CartContext.tsx";
 
 interface Props{
     show: boolean;
     onHide: () => void;
+    id: number;
     name: string;
     description: string;
     sellPrice: number;
@@ -13,24 +15,16 @@ interface Props{
     quantity: number;
     maxQuantity:number
     handleAddedtoCartClick:() => void;
-    handleQuantityChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export const ProductDetailModal = ({show, onHide ,name, description, sellPrice, image, quantity,maxQuantity, handleAddedtoCartClick, handleQuantityChange}:Props) => {
+export const ProductDetailModal = ({show, onHide, id ,name, description, sellPrice, image,maxQuantity, handleAddedtoCartClick}:Props) => {
 
-    const [quantityDetail, setQuantityDetail] = useState(1);
+    const {items} = useCart();
+    const [isInCart, setIsInCart] = useState(false);
 
     useEffect(() => {
-        setQuantityDetail(quantity);
-    }, [quantity]);
-
-    const handleQuantityDetailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const quantityValue = Number(event.target.value);
-        let quantity = isNaN(quantityValue) ? 1 : Math.max(1, quantityValue);
-        quantity = Math.min(quantity, maxQuantity);
-        setQuantityDetail(quantity);
-        handleQuantityChange(event)
-    };
+        setIsInCart(items.some(cartItem => cartItem.id === id));
+    }, [items, id]);
 
     const handleAdd = () => {
         handleAddedtoCartClick();
@@ -38,7 +32,6 @@ export const ProductDetailModal = ({show, onHide ,name, description, sellPrice, 
     }
 
     const onClose = () => {
-        setQuantityDetail(quantity)
         onHide();
     }
 
@@ -64,20 +57,15 @@ export const ProductDetailModal = ({show, onHide ,name, description, sellPrice, 
                 </Row>
             </Modal.Body>
             <Modal.Footer>
-                <Form.Control
-                    className="custom-quantity"
-                    size={"sm"}
-                    name="quantity"
-                    type="number"
-                    min={1}
-                    max={maxQuantity}
-                    value={quantityDetail}
-                    onChange={handleQuantityDetailChange}
-                    disabled={maxQuantity === 0}
-                />
-                <Button className="w-50" onClick={handleAdd} disabled={maxQuantity === 0}>
-                    <CartPlus size={20}/> {maxQuantity === 0 ? "No disponible" : "Agregar"}
-                </Button>
+                {isInCart ? (
+                    <Button className="w-50" style={{color: '#FFF', background: '#34A853', borderColor: '#34A853'}}>
+                        <CartCheck size={24}/> En Carrito
+                    </Button>
+                ) : (
+                    <Button className="w-50" onClick={handleAdd} disabled={maxQuantity === 0}>
+                        <CartPlus size={24}/> {maxQuantity === 0 ? "No disponible" : "Agregar"}
+                    </Button>
+                )}
             </Modal.Footer>
         </Modal>
         </>

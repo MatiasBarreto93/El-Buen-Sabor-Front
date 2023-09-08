@@ -13,6 +13,7 @@ const defaultCustomer = {
         auth0Id: "",
         email: "",
         blocked: false,
+        logged: false,
         password: "",
         confirmPassword: "",
         role: {

@@ -24,7 +24,7 @@ export const DashBoard = () => {
 
     const { permission } = useUserPermission();
 
-    const [activeKey, setActiveKey] = useState("Principal");
+    const [activeKey, setActiveKey] = useState("Empleados");
     const handleSelect = (selectedKey:string | null) => {
         if (selectedKey){
         setActiveKey(selectedKey);
@@ -45,7 +45,7 @@ export const DashBoard = () => {
 
     return (
         <Container fluid className="containerDB mt-5 mb-5 mx-2">
-        <Tab.Container defaultActiveKey="Principal" activeKey={activeKey} onSelect={handleSelect}>
+        <Tab.Container defaultActiveKey="Empleados" activeKey={activeKey} onSelect={handleSelect}>
             <Row className="w-100">
                 <Col sm={3} style={{ width: "200px"}}>
                     <div className="p-2 text-center userinfoDB">
@@ -59,12 +59,6 @@ export const DashBoard = () => {
                     </div>
 
                     <Nav variant="pills" className="flex-column" style={{ position: "sticky", top: "80px"}}>
-
-                        <UnlockAccess request={[UserRole.Admin]}>
-                            <Nav.Item className="navItemDB">
-                                <Nav.Link eventKey="Principal" className="navLinkDB">Principal</Nav.Link>
-                            </Nav.Item>
-                        </UnlockAccess>
 
                         <UnlockAccess request={[UserRole.Admin]}>
                             <Nav.Item className="navItemDB">
@@ -119,14 +113,6 @@ export const DashBoard = () => {
                 <Col>
                     <div className="row">
                         <Tab.Content>
-
-                            <UnlockAccess request={[UserRole.Admin]}>
-                                {activeKey === "Principal" && (
-                                    <Tab.Pane eventKey="Principal">
-                                        {/*<TableTest/>*/}
-                                    </Tab.Pane>
-                                )}
-                            </UnlockAccess>
 
                             <UnlockAccess request={[UserRole.Admin]}>
                                 {activeKey === "Empleados" && (
