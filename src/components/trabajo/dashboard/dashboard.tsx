@@ -15,6 +15,7 @@ import {useGetCustomer} from "../../../services/useGetCustomer.ts";
 import {useAuth0} from "@auth0/auth0-react";
 import {useInitializeCustomer} from "../menus/employees/hooks/useInitializeCustomer.ts";
 import {DrinksTable} from "../menus/drinks/drinksTable";
+import {ProductsRankingTable} from "../menus/productsranking/productsRankingTable";
 
 export const DashBoard = () => {
 
@@ -104,6 +105,12 @@ export const DashBoard = () => {
 
                         <UnlockAccess request={[UserRole.Admin]}>
                             <Nav.Item className="navItemDB">
+                                <Nav.Link eventKey="RankingPB" className="navLinkDB">Ranking Ventas</Nav.Link>
+                            </Nav.Item>
+                        </UnlockAccess>
+
+                        <UnlockAccess request={[UserRole.Admin]}>
+                            <Nav.Item className="navItemDB">
                                 <Nav.Link eventKey="Movimientos" className="navLinkDB">Movimientos Monetarios</Nav.Link>
                             </Nav.Item>
                         </UnlockAccess>
@@ -166,6 +173,14 @@ export const DashBoard = () => {
                                 {activeKey === "Stock" && (
                                     <Tab.Pane eventKey="Stock">
                                         {<StockTable/>}
+                                    </Tab.Pane>
+                                )}
+                            </UnlockAccess>
+
+                            <UnlockAccess request={[UserRole.Admin]}>
+                                {activeKey === "RankingPB" && (
+                                    <Tab.Pane eventKey="RankingPB">
+                                        {<ProductsRankingTable/>}
                                     </Tab.Pane>
                                 )}
                             </UnlockAccess>
