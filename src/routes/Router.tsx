@@ -4,6 +4,7 @@ import {Route, Routes, useLocation} from 'react-router-dom';
 import {lazyWithPreload} from "../util/lazyWithPreload.ts";
 import {SecureRoute} from "./SecureRoute.tsx";
 import {UserRole} from "../interfaces/UserRole.ts";
+import {AdminOrdersHistoryTable} from "../components/trabajo/menus/customersummary/AdminOrdersHistoryTable.tsx";
 
 const Home = lazyWithPreload(() => import("../components/home/home.tsx"));
 const MiPedido = lazyWithPreload(() => import("../components/mipedido/MiPedido.tsx"));
@@ -78,7 +79,8 @@ const Router: React.FC = () => {
             <Route path="/mipedido" element={<SecureRoute requiresAuth={false} roles={[UserRole.Admin, UserRole.Cocinero, UserRole.Cajero, UserRole.Repartidor, UserRole.Cliente]}><MiPedido /></SecureRoute>} />
             <Route path="/historialpedido" element={<SecureRoute requiresAuth={true} roles={[UserRole.Admin, UserRole.Cocinero, UserRole.Cajero, UserRole.Repartidor, UserRole.Cliente]}><Historialpedido /></SecureRoute>} />
             <Route path="/detalleorden" element={<SecureRoute requiresAuth={true} roles={[UserRole.Admin, UserRole.Cocinero, UserRole.Cajero, UserRole.Repartidor, UserRole.Cliente]}><OrderDetail /></SecureRoute>} />
-            <Route path="//detalle-orden/:id" element={<SecureRoute requiresAuth={true} roles={[UserRole.Admin, UserRole.Cocinero, UserRole.Cajero, UserRole.Repartidor, UserRole.Cliente]}><CustomerOrderDetail /></SecureRoute>} />
+            <Route path="/detalle-orden/:id" element={<SecureRoute requiresAuth={true} roles={[UserRole.Admin, UserRole.Cocinero, UserRole.Cajero, UserRole.Repartidor, UserRole.Cliente]}><CustomerOrderDetail /></SecureRoute>} />
+            <Route path="/customer-orders-history/:id" element={<SecureRoute requiresAuth={true} roles={[UserRole.Admin]}><AdminOrdersHistoryTable/></SecureRoute>} />
             <Route path="/admin" element={<SecureRoute requiresAuth={true} roles={[UserRole.Admin, UserRole.Cocinero]}><Trabajo /></SecureRoute>} />
             <Route path="/cajero" element={<SecureRoute requiresAuth={true} roles={[UserRole.Admin, UserRole.Cajero]}><Cashier /></SecureRoute>} />
             <Route path="/delivery" element={<SecureRoute requiresAuth={true} roles={[UserRole.Admin, UserRole.Repartidor]}><Delivery /></SecureRoute>} />
