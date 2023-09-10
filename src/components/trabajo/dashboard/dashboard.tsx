@@ -16,6 +16,7 @@ import {useAuth0} from "@auth0/auth0-react";
 import {useInitializeCustomer} from "../menus/employees/hooks/useInitializeCustomer.ts";
 import {DrinksTable} from "../menus/drinks/drinksTable";
 import {ProductsRankingTable} from "../menus/productsranking/productsRankingTable";
+import {CustomersSummaryTable} from "../menus/customersummary/customersSummaryTable.tsx";
 
 export const DashBoard = () => {
 
@@ -111,6 +112,12 @@ export const DashBoard = () => {
 
                         <UnlockAccess request={[UserRole.Admin]}>
                             <Nav.Item className="navItemDB">
+                                <Nav.Link eventKey="RankingCli" className="navLinkDB">Ranking Clientes</Nav.Link>
+                            </Nav.Item>
+                        </UnlockAccess>
+
+                        <UnlockAccess request={[UserRole.Admin]}>
+                            <Nav.Item className="navItemDB">
                                 <Nav.Link eventKey="Movimientos" className="navLinkDB">Movimientos Monetarios</Nav.Link>
                             </Nav.Item>
                         </UnlockAccess>
@@ -181,6 +188,14 @@ export const DashBoard = () => {
                                 {activeKey === "RankingPB" && (
                                     <Tab.Pane eventKey="RankingPB">
                                         {<ProductsRankingTable/>}
+                                    </Tab.Pane>
+                                )}
+                            </UnlockAccess>
+
+                            <UnlockAccess request={[UserRole.Admin]}>
+                                {activeKey === "RankingCli" && (
+                                    <Tab.Pane eventKey="RankingCli">
+                                        {<CustomersSummaryTable/>}
                                     </Tab.Pane>
                                 )}
                             </UnlockAccess>
