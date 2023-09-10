@@ -69,16 +69,16 @@ export const IngredientModal = ({ show, onHide, title, ing, setRefetch, modalTyp
             id: Yup.number().integer().min(0),
             name: Yup.string().required('El nombre es requerido'),
             blocked: Yup.boolean(),
-            categoryId: Yup.number().integer().min(0),
+            categoryId: Yup.number().integer().min(1, 'Debe seleccionar un rubro').required('Debe seleccionar un rubro'),
             categoryDenomination: Yup.string().nullable(),
             itemTypeId: Yup.number().integer().min(0),
             itemTypeDenomination: Yup.string().nullable(),
-            measurementUnitId: Yup.number().integer().min(0),
+            measurementUnitId: Yup.number().integer().min(1, 'Debe seleccionar una unidad de medida').required('Debe seleccionar una unidad de medida'),
             measurementDenomination: Yup.string().nullable(),
-            currentStock: Yup.number().integer().min(0),
-            costPrice: Yup.number().integer().min(0),
-            minStock: Yup.number().integer().min(0).required("El numero no puede ser menor a 0"),
-            maxStock: Yup.number().integer().min(0),
+            currentStock: Yup.number().integer().min(1, 'El stock debe ser mayor a 0').required('El stock debe ser mayor a 0'),
+            costPrice:  Yup.number().integer().min(1, 'El costo debe ser mayor a 0').required('El costo debe ser mayor a 0'),
+            minStock: Yup.number().integer().min(1, 'El min stock debe ser mayor a 0').required('El min stock debe ser mayor a 0'),
+            maxStock: Yup.number().integer().min(1, 'El max stock debe ser mayor a 0').required('El max stock debe ser mayor a 0'),
         });
     }
 
@@ -156,8 +156,10 @@ export const IngredientModal = ({ show, onHide, title, ing, setRefetch, modalTyp
                                             name="categoryId"
                                             value={formik.values.categoryId}
                                             onChange={(event) => {
-                                                formik.setFieldValue("categoryId", event.target.value);
+                                                formik.setFieldValue("categoryId", Number(event.target.value));
                                             }}
+                                            onBlur={formik.handleBlur}
+                                            isInvalid={Boolean(formik.errors.categoryId && formik.touched.categoryId)}
                                         >
                                             <option value="">Seleccionar</option>)
                                             {categories.map((category) => (
@@ -166,6 +168,9 @@ export const IngredientModal = ({ show, onHide, title, ing, setRefetch, modalTyp
                                                 </option>
                                             ))}
                                         </Form.Select>
+                                        <Form.Control.Feedback type="invalid">
+                                            {formik.errors.categoryId}
+                                        </Form.Control.Feedback>
                                     </Form.Group>
                                 </Col>
                             </Row>
@@ -177,8 +182,10 @@ export const IngredientModal = ({ show, onHide, title, ing, setRefetch, modalTyp
                                             name="measurementUnitId"
                                             value={formik.values.measurementUnitId}
                                             onChange={(event) => {
-                                                formik.setFieldValue("measurementUnitId", event.target.value);
+                                                formik.setFieldValue("measurementUnitId", Number(event.target.value));
                                             }}
+                                            onBlur={formik.handleBlur}
+                                            isInvalid={Boolean(formik.errors.measurementUnitId && formik.touched.measurementUnitId)}
                                         >
                                             <option value="">Seleccionar</option>)
                                             {measurementsUnits.map((mesun) => (
@@ -187,6 +194,9 @@ export const IngredientModal = ({ show, onHide, title, ing, setRefetch, modalTyp
                                                 </option>
                                             ))}
                                         </Form.Select>
+                                        <Form.Control.Feedback type="invalid">
+                                            {formik.errors.measurementUnitId}
+                                        </Form.Control.Feedback>
                                     </Form.Group>
                                 </Col>
                                 <Col>
@@ -196,10 +206,7 @@ export const IngredientModal = ({ show, onHide, title, ing, setRefetch, modalTyp
                                             name="costPrice"
                                             type="number"
                                             value={formik.values.costPrice || 0}
-                                            onChange={(event) => {
-                                                const value = parseFloat(event.target.value);
-                                                formik.setFieldValue("costPrice", isNaN(value) ? 0 : value);
-                                            }}
+                                            onChange={(event) => formik.setFieldValue("costPrice", event.target.value)}
                                             onBlur={formik.handleBlur}
                                             isInvalid={Boolean(formik.errors.costPrice && formik.touched.costPrice)}
                                         />
@@ -217,10 +224,7 @@ export const IngredientModal = ({ show, onHide, title, ing, setRefetch, modalTyp
                                             name="currentStock"
                                             type="number"
                                             value={formik.values.currentStock || 0}
-                                            onChange={(event) => {
-                                                const value = parseFloat(event.target.value);
-                                                formik.setFieldValue("currentStock", isNaN(value) ? 0 : value);
-                                            }}
+                                            onChange={(event) => formik.setFieldValue("currentStock", event.target.value)}
                                             onBlur={formik.handleBlur}
                                             isInvalid={Boolean(formik.errors.currentStock && formik.touched.currentStock)}
                                         />
@@ -236,10 +240,7 @@ export const IngredientModal = ({ show, onHide, title, ing, setRefetch, modalTyp
                                             name="minStock"
                                             type="number"
                                             value={formik.values.minStock || 0}
-                                            onChange={(event) => {
-                                                const value = parseFloat(event.target.value);
-                                                formik.setFieldValue("minStock", isNaN(value) ? 0 : value);
-                                            }}
+                                            onChange={(event) => formik.setFieldValue("minStock", event.target.value)}
                                             onBlur={formik.handleBlur}
                                             isInvalid={Boolean(formik.errors.minStock && formik.touched.minStock)}
                                         />
@@ -255,10 +256,7 @@ export const IngredientModal = ({ show, onHide, title, ing, setRefetch, modalTyp
                                             name="maxStock"
                                             type="number"
                                             value={formik.values.maxStock || 0}
-                                            onChange={(event) => {
-                                                const value = parseFloat(event.target.value);
-                                                formik.setFieldValue("maxStock", isNaN(value) ? 0 : value);
-                                            }}
+                                            onChange={(event) => formik.setFieldValue("maxStock", event.target.value)}
                                             onBlur={formik.handleBlur}
                                             isInvalid={Boolean(formik.errors.maxStock && formik.touched.maxStock)}
                                         />
