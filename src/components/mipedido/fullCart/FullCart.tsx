@@ -12,6 +12,8 @@ import {useNavigate} from "react-router-dom";
 import {useAuth0} from "@auth0/auth0-react";
 import {fullCartValidationSchema} from "./fullCartValidationSchema.ts";
 import {CancelModal} from "../cancelModal/cancelModal.tsx";
+import { Wallet} from '@mercadopago/sdk-react'
+import {useMercadoPago} from "../../../util/useMercadoPago";
 
 interface Props{
     cliente:Customer;
@@ -33,9 +35,15 @@ export const FullCart = ({cliente}:Props) => {
 
     //Delivery
     const [deliveryType, setDeliveryType] = useState(1);
+
+    const { generatePreference, preferenceId } = useMercadoPago(total);
+
     const handleToggleDeliveryType = (selectedValue: number) => {
         setDeliveryType(selectedValue);
         formik.resetForm();
+        if (selectedValue === 2) {
+            generatePreference();
+        }
     };
 
     useEffect(() => {
@@ -281,6 +289,7 @@ export const FullCart = ({cliente}:Props) => {
                                 </div>
                             </div>
                         </div>
+                        {paymentType === 2 && preferenceId && <Wallet initialization={{ preferenceId }} />}
                     </div>
                     <div className="mt-5 text-center">
                         <Button variant="secondary" className="btn-cart-shadow" onClick={() => setShowModalCancel(true)}>
@@ -290,6 +299,7 @@ export const FullCart = ({cliente}:Props) => {
                             Continuar
                         </Button>
                     </div>
+                    <div id="wallet_container"></div>
                 </div>
                 )}
             </Form>
