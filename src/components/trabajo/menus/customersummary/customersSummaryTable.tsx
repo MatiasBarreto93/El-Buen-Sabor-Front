@@ -1,7 +1,7 @@
 import {Button, Table} from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import {exportTableDataToExcel} from "../../../../util/exportTableDataToExcel.ts";
-import {FiletypeXlsx} from "react-bootstrap-icons";
+import {CaretDownFill, CaretUpFill, FiletypeXlsx} from "react-bootstrap-icons";
 import {useEffect, useState} from "react";
 import {useGenericGetDate} from "../../../../services/useGenericGetDate.ts";
 import {CustomerSummary} from "../../../../interfaces/customerSummary.ts";
@@ -23,6 +23,54 @@ export const CustomersSummaryTable = () => {
     useEffect(() => {
         setclientRank(data);
     }, [data]);
+
+    //Sort Table
+    const [sortState, setSortState] = useState<{ column: string, direction: string }>({
+        column: 'id',
+        direction: 'asc'
+    });
+
+    //almacena el estado actual de las columnas de la tabla que pueden ser ordenadas, y su dirección de ordenación actual.
+    const [sortableColumns, setSortableColumns] = useState<{ [key: string]: string }>({
+        orderCount: 'asc',
+        totalOrderAmount: 'asc'
+    });
+
+    //Al hacer click en la col se encarga de cambiar la dirección a su contraparte si es "asc" cambia a "desc"
+    const handleSort = (column: string) => {
+        const newDirection = sortableColumns[column] === 'asc' ? 'desc' : 'asc';
+        const newSortableColumns = { ...sortableColumns, [column]: newDirection };
+        setSortableColumns(newSortableColumns);
+        setSortState({ column, direction: newDirection });
+    };
+
+    //Este código crea una variable llamada sortedData que es una versión ordenada de la variable clientRank,
+    const sortedData = [...clientRank].sort((a: CustomerSummary, b: CustomerSummary) => {
+        //devuelve 0 si aun no se hizo click en ninguna col (nulo)
+        if (sortState.column === null) {
+            return 0;
+        }
+        const aValue = a[sortState.column as keyof CustomerSummary];
+        const bValue = b[sortState.column as keyof CustomerSummary];
+        //devuelve 0 si son iguales despues de comparar
+        if (aValue === bValue) {
+            return 0;
+        }
+        //devuelve 1 si la dirección es ascendente (asc) y -1 si la dirección es descendente (desc).
+        let result: number;
+        if (sortState.direction === 'asc') {
+            result = aValue < bValue ? -1 : 1;
+        } else {
+            result = aValue > bValue ? -1 : 1;
+        }
+        return result;
+    });
+
+    //Se encarga de renderizar los iconos de la columna correspondiente, dependiendo del tipo de ordenamiento
+    const renderSortIcon = (column: string) => {
+        const icon = sortableColumns[column] === 'asc' ? <CaretUpFill color={"#D32F2F"}/> : <CaretDownFill color={"#D32F2F"}/>;
+        return sortState.column === column ? icon : <CaretUpFill color={"#D32F2F"}/>;
+    };
 
     return(
         <>
@@ -65,13 +113,13 @@ export const CustomersSummaryTable = () => {
                 <thead>
                 <tr className="encabezado">
                     <th>Nombre Apellido</th>
-                    <th>Cantidad Ordenes</th>
-                    <th>Total Ordenes</th>
+                    <th onClick={() => handleSort("orderCount")}>Cantidad Ordenes{renderSortIcon('orderCount')}</th>
+                    <th onClick={() => handleSort("totalOrderAmount")}>Total Ordenes{renderSortIcon('totalOrderAmount')}</th>
                     <th></th>
                 </tr>
                 </thead>
                 <tbody>
-                {clientRank.map((cli) => (
+                {sortedData.map((cli) => (
                         <tr key={cli.customerId}>
                             <td>{cli.customerName} {cli.customerLastName}</td>
                             <td>{cli.orderCount}</td>
