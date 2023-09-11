@@ -100,7 +100,7 @@ export const IngredientsTable = () => {
                         <td><EditButton onClick={() => {handleClick("Editar Ingrediente", ingredient, ModalType.Edit)}}/></td>
                         <td><StatusButton
                             isBlocked={ingredient.blocked}
-                            onClick={() => {handleClick(ingredient.blocked ? "¿Desbloquear Empleado?" : "¿Bloquear Empleado?",
+                            onClick={() => {handleClick(ingredient.blocked ? "¿Desbloquear Ingrediente?" : "¿Bloquear Ingrediente?",
                                 ingredient,
                                 ModalType.ChangeStatus)}}/>
                         </td>
