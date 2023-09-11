@@ -5,19 +5,19 @@ import {initMercadoPago} from "@mercadopago/sdk-react";
 
 export const useMercadoPago = (totalOrder) => {
 
-    const mercadoPagoToken : string = import.meta.env.PUBLIC_KEY || "";
+    const mercadoPagoKey : string = import.meta.env.VITE_PUBLIC_KEY || "";
     const url: string = import.meta.env.VITE_BACKEND_API_URL || "";
     const [preferenceId, setPreferenceId] = useState(null);
     const { getAccessTokenSilently } = useAuth0();
 
     useEffect(() => {
-        initMercadoPago(mercadoPagoToken);
-    }, [mercadoPagoToken]);
+        initMercadoPago(mercadoPagoKey);
+    }, [mercadoPagoKey]);
 
     const generatePreference = async () => {
         try {
             const token = await getAccessTokenSilently();
-            const response = await fetch(`${url}generatePreference/${totalOrder}`, {
+            const response = await fetch(`${url}mercadopago/generatePreference/${totalOrder}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -26,7 +26,8 @@ export const useMercadoPago = (totalOrder) => {
                 body: JSON.stringify({totalOrder})
             });
             if (!response.ok) {
-                throw new Error('Error al generar la preferencia');
+                const text = await response.text();
+                throw new Error(`Error al generar la preferencia: ${response.statusText}. Body: ${text}`);
             }
             const data = await response.json();
             setPreferenceId(data.id);
