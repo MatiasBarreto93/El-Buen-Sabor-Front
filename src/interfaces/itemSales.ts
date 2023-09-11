@@ -1,6 +1,6 @@
 export interface ItemSales{
     id: number;
-    name: string;
+    itemName: string;
     itemTypeId: number;
     totalQuantitySold: number;
 }

@@ -12,7 +12,11 @@
   "dependencies": {
     "@auth0/auth0-react": "^2.0.1",
     "@mercadopago/sdk-react": "^0.0.14",
+    "@types/file-saver": "^2.0.5",
+    "@types/react-datepicker": "^4.15.0",
     "canvas-confetti": "^1.6.0",
+    "date-fns": "^2.30.0",
+    "file-saver": "^2.0.5",
     "formik": "^2.4.1",
     "html2canvas": "^1.4.1",
     "jspdf": "^2.5.1",
@@ -22,12 +26,14 @@
     "react-bootstrap": "^2.7.4",
     "react-bootstrap-icons": "^1.10.3",
     "react-canvas-confetti": "^1.4.0",
+    "react-datepicker": "^4.17.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.11.1",
     "react-toastify": "^9.1.2",
     "react-tsparticles": "^2.10.1",
     "secure-ls": "^1.2.6",
     "tsparticles": "^2.10.1",
+    "xlsx": "^0.18.5",
     "yup": "^1.2.0"
   },
   "devDependencies": {

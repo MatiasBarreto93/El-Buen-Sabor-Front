@@ -1,7 +1,7 @@
 export interface CustomerSummary{
-    id: number;
-    name: string;
-    lastName: string;
+    customerId: number;
+    customerName: string;
+    customerLastName: string;
     orderCount: number;
     totalOrderAmount: number;
 }

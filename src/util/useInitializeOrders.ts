@@ -11,7 +11,7 @@ const defaultOrder: Order = {
     address: "",
     apartment: "",
     orderDate: new Date(),
-    estimatedTime: "",
+    estimatedTime: 0,
     deliveryTypeId: 0,
     paymentTypeId: 0,
     orderStatusId: 0,
