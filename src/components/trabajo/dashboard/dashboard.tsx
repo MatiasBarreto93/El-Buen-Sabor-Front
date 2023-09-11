@@ -17,6 +17,7 @@ import {useInitializeCustomer} from "../menus/employees/hooks/useInitializeCusto
 import {DrinksTable} from "../menus/drinks/drinksTable";
 import {ProductsRankingTable} from "../menus/productsranking/productsRankingTable";
 import {CustomersSummaryTable} from "../menus/customersummary/customersSummaryTable.tsx";
+import {MonetaryMovementsTable} from "../menus/monetarymovements/monetaryMovementsTable";
 
 export const DashBoard = () => {
 
@@ -203,7 +204,7 @@ export const DashBoard = () => {
                             <UnlockAccess request={[UserRole.Admin]}>
                                 {activeKey === "Movimientos" && (
                                     <Tab.Pane eventKey="Movimientos">
-                                        <p>Movimientos</p>
+                                        {<MonetaryMovementsTable/>}
                                     </Tab.Pane>
                                 )}
                             </UnlockAccess>
