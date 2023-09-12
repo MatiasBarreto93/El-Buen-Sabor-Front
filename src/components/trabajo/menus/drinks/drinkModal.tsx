@@ -37,7 +37,6 @@ export const DrinkModal = ({show, onHide, title, dr, setRefetch, modalType}: Pro
     // Function to handle saving or updating a product
     const handleSaveUpdate = async(drink: Drink) => {
         const isNew = drink.id === 0;
-        console.log(drink)
         if (!isNew) {
             await genericPut<Drink>("drinks", drink.id, drink, "Bebida Editada");
         } else {
