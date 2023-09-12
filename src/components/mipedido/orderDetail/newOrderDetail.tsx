@@ -8,6 +8,8 @@ import {Button, Card, Col, Row} from "react-bootstrap";
 import {CancelModal} from "../cancelModal/cancelModal.tsx";
 import {useGenericPost} from "../../../services/useGenericPost.ts";
 import {useConfetti} from "../../../services/useConfetti.ts";
+import {useMercadoPago} from "../../../util/useMercadoPago";
+import {Wallet} from "@mercadopago/sdk-react";
 // import {printAndEmailDocument} from "../../../util/printComponentEmailPDF.ts"
 // import {useAuth0} from "@auth0/auth0-react";
 const NewOrderDetail = () => {
@@ -54,6 +56,15 @@ const NewOrderDetail = () => {
 
     }, [items, deliveryType]);
 
+
+    //MP
+    // const { generatePreference, preferenceId} = useMercadoPago(total);
+    //
+    // useEffect(() => {
+    //     if (paymentType === 2) {
+    //         generatePreference();
+    //     }
+    // }, [total]);
 
     //Cancel Modal
     const [showModalCancel, setShowModalCancel] = useState(false);
@@ -103,6 +114,8 @@ const NewOrderDetail = () => {
 
         setIsIgnoreVisible(false);
     }
+
+
 
     return(
         <>
@@ -188,6 +201,12 @@ const NewOrderDetail = () => {
                                         </div>
                                     </Col>
                                 </Row>
+                                {/*<Row>*/}
+                                {/*    <Col>*/}
+                                {/*        {paymentType === 2 && preferenceId && <Wallet initialization={{ preferenceId }} />}*/}
+                                {/*        <div id="wallet_container"></div>*/}
+                                {/*    </Col>*/}
+                                {/*</Row>*/}
                                 <h4 className="title mt-2">Datos del Pedido</h4>
                                 <Row className="border rounded mb-2 mx-1">
                                     <Col>

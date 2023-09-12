@@ -29,13 +29,15 @@ export const useMercadoPago = (totalOrder) => {
                 const text = await response.text();
                 throw new Error(`Error al generar la preferencia: ${response.statusText}. Body: ${text}`);
             }
-            const data = await response.json();
-            setPreferenceId(data.id);
+            if (response.body) {
+                const data = await response.json();
+                setPreferenceId(data.id);
+            }
         } catch (error) {
             console.error('Error:', error);
         }
     }
 
 
-    return { generatePreference, preferenceId };
+    return { generatePreference, preferenceId};
 }
