@@ -70,8 +70,8 @@ export const ProductoCard = React.forwardRef<HTMLDivElement, Props>(({ item }, r
                                     <CartCheck size={24}/> En Carrito
                                 </Button>
                                 ) : (
-                                <Button className="w-100" onClick={handleAddedtoCartClick} disabled={item.currentStock === 0}>
-                                    <CartPlus size={24}/> {item.currentStock === 0 ? "No disponible" : "Agregar"}
+                                <Button className="w-100" onClick={handleAddedtoCartClick} disabled={item.currentStock <= 0}>
+                                    <CartPlus size={24}/> {item.currentStock <= 0 ? "No disponible" : "Agregar"}
                                 </Button>
                                 )}
                         </Col>

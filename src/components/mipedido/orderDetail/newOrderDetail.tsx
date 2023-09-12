@@ -8,8 +8,8 @@ import {Button, Card, Col, Row} from "react-bootstrap";
 import {CancelModal} from "../cancelModal/cancelModal.tsx";
 import {useGenericPost} from "../../../services/useGenericPost.ts";
 import {useConfetti} from "../../../services/useConfetti.ts";
-import {useMercadoPago} from "../../../util/useMercadoPago";
-import {Wallet} from "@mercadopago/sdk-react";
+// import {useMercadoPago} from "../../../util/useMercadoPago";
+// import {Wallet} from "@mercadopago/sdk-react";
 // import {printAndEmailDocument} from "../../../util/printComponentEmailPDF.ts"
 // import {useAuth0} from "@auth0/auth0-react";
 const NewOrderDetail = () => {
@@ -80,16 +80,13 @@ const NewOrderDetail = () => {
         //
         // const token = await getAccessTokenSilently();
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         const orderDetails:OrderDetail[] = items.map((item) => ({
-            id: 0,
             quantity: item.quantity,
             subtotal: item.quantity * item.sellPrice,
-            itemId: item.id,
+            itemId: item.id
         }));
 
-        const newOrder:Order = {
+        const newOrder:Order =  {
             id: 0,
             address: deliveryType === 2 ? '-' : cli.address,
             apartment: deliveryType === 2 ? '-' : cli.apartment,
@@ -114,8 +111,6 @@ const NewOrderDetail = () => {
 
         setIsIgnoreVisible(false);
     }
-
-
 
     return(
         <>

@@ -48,7 +48,6 @@ export interface Order {
 }
 
 export interface OrderDetail {
-    id: number;
     quantity: number;
     subtotal: number;
     itemId: number;
